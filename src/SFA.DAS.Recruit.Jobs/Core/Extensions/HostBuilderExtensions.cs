@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.Recruit.Jobs.Core.Services;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
+using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
 
@@ -84,6 +87,15 @@ public static class HostBuilderExtensions
                     {
                         options.ConnectionString = appInsightsConnectionString;
                     });
+                }
+                
+                var mongoConnectionString = context.Configuration.GetConnectionString("MongoDb");
+                if (!string.IsNullOrWhiteSpace(mongoConnectionString))
+                {
+                    services.Configure<MongoDbConnectionDetails>(options =>
+                    {
+                        options.ConnectionString = mongoConnectionString;
+                    });    
                 }
             })
             .UseConsoleLifetime();
