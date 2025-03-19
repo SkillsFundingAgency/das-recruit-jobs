@@ -1,8 +1,8 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.Recruit.Jobs.Core.Extensions;
 
 namespace SFA.DAS.Recruit.Jobs
 {
@@ -10,22 +10,23 @@ namespace SFA.DAS.Recruit.Jobs
     {
         public static async Task Main(string[] args)
         {
-            var builder = new HostBuilder();
-            builder.ConfigureWebJobs(b =>
+            ILogger? logger = null;
+            try
             {
-                b.AddAzureStorageCoreServices()
-                    .AddAzureStorageQueues();
-            })
-            .ConfigureLogging((context, b) =>
+                var builder = new HostBuilder().Configure();
+                var host = builder.Build();
+                using (host)
+                {
+                    logger = (host.Services.GetService(typeof(ILoggerFactory)) as ILoggerFactory)?.CreateLogger(nameof(Program));
+                    await host.RunAsync();
+                }
+            }
+            catch (Exception e)
             {
-                b.SetMinimumLevel(LogLevel.Information);
-                b.AddConsole();
-            });
-
-            var host = builder.Build();
-            using (host)
-            {
-                await host.RunAsync();
+                logger?.LogCritical(e, "Unhandled fatal error occured");
+                Console.WriteLine("Unhandled fatal error occured");
+                Console.WriteLine(e);
+                throw;
             }
         }
     }
