@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using SFA.DAS.Recruit.Jobs.Core.Extensions;
 
 namespace SFA.DAS.Recruit.Jobs
 {
+    [ExcludeFromCodeCoverage]
     internal class Program
     {
         public static async Task Main(string[] args)

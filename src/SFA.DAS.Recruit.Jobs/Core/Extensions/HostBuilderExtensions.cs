@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.Azure.WebJobs.Host;
@@ -13,6 +14,7 @@ using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class HostBuilderExtensions
 {
     public static IHostBuilder Configure(this IHostBuilder builder)
