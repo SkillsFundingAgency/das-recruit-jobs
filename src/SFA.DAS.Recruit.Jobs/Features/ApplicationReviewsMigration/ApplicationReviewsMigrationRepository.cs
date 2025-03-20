@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Polly;
+using SFA.DAS.Recruit.Jobs.Core.Services;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
+
+namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
+
+public class ApplicationReviewsMigrationRepository(
+    ILoggerFactory loggerFactory,
+    IOptions<MongoDbConnectionDetails> config,
+    ITimeService timeService)
+    : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, MongoDbCollectionNames.ApplicationReviews, config)
+{
+    public async Task<List<ApplicationReview>> FetchBatch(int batchSize)
+    {
+        var collection = GetCollection<ApplicationReview>();
+        var pipeline = new EmptyPipelineDefinition<ApplicationReview>()
+            .Match(x => x.MigratedDate == null || x.MigratedDate < x.StatusUpdatedDate)
+            .Limit(batchSize);
+
+        return await RetryPolicy.ExecuteAsync(
+            async _ => await (await collection.AggregateAsync(pipeline)).ToListAsync(),
+            new Context(nameof(FetchBatch))
+        );
+    }
+
+    public async Task MarkMigrated(List<Guid> ids)
+    {
+        var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
+        var updateDef = Builders<ApplicationReview>.Update.Set(x => x.MigratedDate, timeService.UtcNow);
+        
+        var collection = GetCollection<ApplicationReview>();
+        await RetryPolicy.ExecuteAsync(
+            _ => collection.UpdateManyAsync(filterDef, updateDef),
+            new Context(nameof(MarkMigrated))
+        );
+    }
+}

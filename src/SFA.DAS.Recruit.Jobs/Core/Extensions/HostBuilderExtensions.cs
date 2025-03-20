@@ -90,16 +90,8 @@ public static class HostBuilderExtensions
                         options.ConnectionString = appInsightsConnectionString;
                     });
                 }
-                
-                var mongoConnectionString = context.Configuration.GetConnectionString("MongoDb");
-                if (!string.IsNullOrWhiteSpace(mongoConnectionString))
-                {
-                    services.Configure<MongoDbConnectionDetails>(options =>
-                    {
-                        options.ConnectionString = mongoConnectionString;
-                    });    
-                }
             })
+            .ConfigureMongoDb()
             .UseConsoleLifetime();
     }
     
@@ -107,7 +99,9 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
-            
+            services.AddTransient<ITimeService, TimeService>();
+            services.AddTransient<ApplicationReviewsMigrationRepository>();
+            services.AddTransient<ApplicationReviewMigrationStrategy>();
         });
     }
 }
