@@ -10,12 +10,12 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((context, services) =>
         {
-            var mongoConnectionString = context.Configuration.GetConnectionString("MongoDb");
-            if (!string.IsNullOrWhiteSpace(mongoConnectionString))
+            var connectionString = context.Configuration.GetConnectionString("MongoDb");
+            if (!string.IsNullOrWhiteSpace(connectionString))
             {
                 services.Configure<MongoDbConnectionDetails>(options =>
                 {
-                    options.ConnectionString = mongoConnectionString;
+                    options.ConnectionString = connectionString;
                 });    
             }
             

@@ -13,7 +13,6 @@ namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 public abstract class MongoDbCollectionBase
     {
         private readonly string _dbName;
-        private readonly string _collectionName;
         private readonly MongoDbConnectionDetails _config;
         private readonly Lazy<ILogger> _mongoCommandLogger;
         private readonly string[] _excludedCommands = { "isMaster", "buildInfo", "saslStart", "saslContinue", "getLastError" };
@@ -22,10 +21,9 @@ public abstract class MongoDbCollectionBase
 
         protected AsyncRetryPolicy RetryPolicy { get; set; }
 
-        protected MongoDbCollectionBase(ILoggerFactory loggerFactory, string dbName, string collectionName, IOptions<MongoDbConnectionDetails> config)
+        protected MongoDbCollectionBase(ILoggerFactory loggerFactory, string dbName, IOptions<MongoDbConnectionDetails> config)
         {
             _dbName = dbName;
-            _collectionName = collectionName;
             
             _config = config.Value;
 
@@ -49,10 +47,10 @@ public abstract class MongoDbCollectionBase
             return database;
         }
 
-        protected IMongoCollection<T> GetCollection<T>()
+        protected IMongoCollection<T> GetCollection<T>(string collectionName)
         {
             var database = GetDatabase();
-            var collection = database.GetCollection<T>(_collectionName);
+            var collection = database.GetCollection<T>(collectionName);
 
             return collection;
         }

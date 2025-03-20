@@ -8,8 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.Core.Services;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
+using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
@@ -90,9 +92,13 @@ public static class HostBuilderExtensions
                         options.ConnectionString = appInsightsConnectionString;
                     });
                 }
+                
+                RegisterDasEncodingService(services, context.Configuration);
             })
+            .UseConsoleLifetime()
             .ConfigureMongoDb()
-            .UseConsoleLifetime();
+            .ConfigureSqlDb()
+            .ConfigureApplicationReviewsMigration();
     }
     
     private static IHostBuilder SetupIocContainer(this IHostBuilder builder)
@@ -100,8 +106,14 @@ public static class HostBuilderExtensions
         return builder.ConfigureServices((_, services) =>
         {
             services.AddTransient<ITimeService, TimeService>();
-            services.AddTransient<ApplicationReviewsMigrationRepository>();
-            services.AddTransient<ApplicationReviewMigrationStrategy>();
         });
+    }
+    
+    private static void RegisterDasEncodingService(IServiceCollection services, IConfiguration configuration)
+    {
+        var dasEncodingConfig = new EncodingConfig { Encodings = [] };
+        configuration.GetSection(nameof(dasEncodingConfig.Encodings)).Bind(dasEncodingConfig.Encodings);
+        services.AddSingleton(dasEncodingConfig);
+        services.AddSingleton<IEncodingService, EncodingService>();
     }
 }

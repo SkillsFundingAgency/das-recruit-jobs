@@ -1,39 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Services;
-using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 public class ApplicationReviewMigrationStrategy(
     ILogger<ApplicationReviewMigrationStrategy> logger,
-    ApplicationReviewsMigrationRepository repository,
-    ITimeService timeService)
+    ApplicationReviewsMigrationMongoRepository mongoRepository,
+    ApplicationReviewsMigrationSqlRepository sqlRepository,
+    ITimeService timeService,
+    ApplicationReviewMapper mapper)
 {
-    private const int BatchSize = 1;
+    private const int BatchSize = 50;
 
     public async Task RunAsync()
-    {        
-        var applicationReviews = await repository.FetchBatch(BatchSize);
-        while (applicationReviews is { Count: > 0 } && timeService.GmtNow is { Hour: <5 })
-        {
-            var migratedIds = await MigrateBatch(applicationReviews);
-            await repository.MarkMigrated(migratedIds);
-            applicationReviews = await repository.FetchBatch(BatchSize);
-        }
-    }
-
-    private async Task<List<Guid>> MigrateBatch(IEnumerable<ApplicationReview> applicationReviews)
     {
-        var migratedIds = new List<Guid>();
-        foreach (var applicationReview in applicationReviews)
+        var applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
+        while (applicationReviews is { Count: > 0 } && timeService.GmtNow is { Hour: <500 })
         {
-            // repository.Upsert(applicationReview);
-            migratedIds.Add(applicationReview.Id);
+            logger.LogInformation("Processing {count} records", applicationReviews.Count);
+            
+            // Fetch the associated vacancies
+            var vacancyReferences = applicationReviews.Select(x => x.VacancyReference).Distinct();
+            var vacancies = await mongoRepository.FetchVacanciesAsync(vacancyReferences);
+            
+            // Map the records 
+            var mappedRecords = applicationReviews.Select(x => mapper.MapFrom(x, vacancies));
+            
+            // Upsert into SQL
+            await sqlRepository.UpsertBatchAsync(mappedRecords);
+            
+            // Mark migrated
+            await mongoRepository.BulkSetMigratedAsync(applicationReviews.Select(x => x.Id));
+            
+            // Fetch the next batch
+            applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
         }
-        
-        return migratedIds;
     }
 }
