@@ -8,8 +8,13 @@ namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 public class ApplicationReviewsMigrationSqlRepository(RecruitJobsDataContext dataContext)
 {
-    public async Task UpsertBatchAsync(IEnumerable<ApplicationReview> applicationReviews)
+    public async Task UpsertApplicationReviewsBatchAsync(List<ApplicationReview> applicationReviews)
     {
         await dataContext.BulkInsertOrUpdateAsync(applicationReviews);
+    }
+
+    public async Task UpsertLegacyApplicationsBatchAsync(List<LegacyApplication> legacyApplications)
+    {
+        await dataContext.BulkInsertOrUpdateAsync(legacyApplications);
     }
 }

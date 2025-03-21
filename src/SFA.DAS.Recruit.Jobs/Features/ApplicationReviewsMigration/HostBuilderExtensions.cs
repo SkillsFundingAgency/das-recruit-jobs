@@ -9,9 +9,10 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
+            services.AddTransient<ApplicationReviewMapper>();
+            services.AddTransient<LegacyApplicationMapper>();
             services.AddTransient<ApplicationReviewsMigrationMongoRepository>();
             services.AddTransient<ApplicationReviewMigrationStrategy>();
-            services.AddTransient<ApplicationReviewMapper>();
         });
     }
 }

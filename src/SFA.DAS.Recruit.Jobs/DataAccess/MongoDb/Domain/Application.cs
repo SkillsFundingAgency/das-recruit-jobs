@@ -33,12 +33,12 @@ public class Application
     public List<ApplicationJob> Jobs { get; set; }
 
     public string FullName => $"{FirstName} {LastName}";
-    public string AdditionalQuestion1 { get; set; }
-    public string AdditionalQuestion2 { get; set; }
-    public bool IsFaaV2Application { get; set; }
-    public string WhatIsYourInterest { get; set; }
-    public string AdditionalQuestion1Text { get; set; }
-    public string AdditionalQuestion2Text { get; set; }
+    public string? AdditionalQuestion1 { get; set; }
+    public string? AdditionalQuestion2 { get; set; }
+    public bool? IsFaaV2Application { get; set; }
+    public string? WhatIsYourInterest { get; set; }
+    public string? AdditionalQuestion1Text { get; set; }
+    public string? AdditionalQuestion2Text { get; set; }
     
     public Guid ApplicationId { get; set; }
 }

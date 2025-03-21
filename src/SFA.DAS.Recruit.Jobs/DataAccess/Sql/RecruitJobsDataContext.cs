@@ -11,6 +11,8 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     private readonly RecruitJobsConfiguration _configuration = config.Value;
     
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
+    
+    public DbSet<LegacyApplication> LegacyApplication { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
