@@ -6,11 +6,10 @@ public class ApplicationReview
 {
     public DateTime? DateSharedWithEmployer { get; init; }
     public DateTime? ReviewedDate { get; init; }
+    public DateTime? StatusUpdatedDate { get; init; }
     public DateTime? WithdrawnDate { get; init; }
     public Guid? ApplicationId { get; init; }
     public Guid? LegacyApplicationId { get; init; }
-    public Guid? StatusUpdatedByUserId { get; init; }
-    public Owner? StatusUpdatedBy { get; init; }
     public bool HasEverBeenEmployerInterviewing { get; init; }
     public required ApplicationReviewStatus Status { get; init; }
     public required DateTime CreatedDate { get; init; }

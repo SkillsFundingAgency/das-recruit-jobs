@@ -70,8 +70,7 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             Owner = owner,
             ReviewedDate = source.ReviewedDate,
             Status = MapStatus(source.Status),
-            StatusUpdatedBy = null, // TODO: how do we determine this?
-            StatusUpdatedByUserId = userIdParsedOk ? statusUpdatedByUserId : null,
+            StatusUpdatedDate = source.StatusUpdatedDate,
             SubmittedDate = source.SubmittedDate,
             Ukprn = (int)(vacancy?.TrainingProvider?.Ukprn ?? -1),
             VacancyReference = source.VacancyReference,

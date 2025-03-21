@@ -30,7 +30,7 @@ public class ApplicationReviewMigrationStrategy(
             await sqlRepository.UpsertLegacyApplicationsBatchAsync(legacyApplications);
             
             // Fetch the associated vacancies
-            var vacancyReferences = applicationReviews.Select(x => x.VacancyReference).Distinct();
+            var vacancyReferences = applicationReviews.Select(x => x.VacancyReference).Distinct().ToList();
             var vacancies = await mongoRepository.FetchVacanciesAsync(vacancyReferences);
             
             // Map the records 
@@ -40,7 +40,7 @@ public class ApplicationReviewMigrationStrategy(
             await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedRecords);
             
             // Mark migrated
-            await mongoRepository.BulkSetMigratedAsync(applicationReviews.Select(x => x.Id));
+            await mongoRepository.UpdateMigratedDateBatchAsync(applicationReviews.Select(x => x.Id).ToList());
             
             // Fetch the next batch
             applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);

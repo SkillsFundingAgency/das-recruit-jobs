@@ -30,18 +30,18 @@ public class ApplicationReviewsMigrationMongoRepository(
         );
     }
 
-    public async Task BulkSetMigratedAsync(IEnumerable<Guid> ids)
+    public async Task UpdateMigratedDateBatchAsync(List<Guid> ids)
     {
         var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
         var updateDef = Builders<ApplicationReview>.Update.Set(x => x.MigratedDate, timeService.UtcNow);
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         await RetryPolicy.ExecuteAsync(
             _ => collection.UpdateManyAsync(filterDef, updateDef),
-            new Context(nameof(BulkSetMigratedAsync))
+            new Context(nameof(UpdateMigratedDateBatchAsync))
         );
     }
 
-    public async Task<List<Vacancy>> FetchVacanciesAsync(IEnumerable<long> vacancyReferences)
+    public async Task<List<Vacancy>> FetchVacanciesAsync(List<long> vacancyReferences)
     {
         var filterDef = Builders<Vacancy>.Filter.In(x => x.VacancyReference, vacancyReferences);
         var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
