@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Services;
@@ -15,9 +17,12 @@ public class ApplicationReviewMigrationStrategy(
 {
     private const int BatchSize = 50;
 
-    public async Task RunAsync()
+    public async Task RunAsync(List<Guid>? ids = null)
     {
-        var applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
+        var applicationReviews = ids is { Count: > 0 }
+            ? await mongoRepository.FetchBatchByIdsAsync(ids)
+            : await mongoRepository.FetchBatchAsync(BatchSize);
+        
         while (applicationReviews is { Count: > 0 } && timeService.GmtNow is { Hour: <5 })
         {
             logger.LogInformation("Processing {count} records", applicationReviews.Count);

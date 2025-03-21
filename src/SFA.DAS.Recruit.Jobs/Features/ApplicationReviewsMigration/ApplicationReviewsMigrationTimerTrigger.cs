@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
-public class ApplicationReviewsMigrationTrigger(
-    ILogger<ApplicationReviewsMigrationTrigger> logger,
+public class ApplicationReviewsMigrationTimerTrigger(
+    ILogger<ApplicationReviewsMigrationTimerTrigger> logger,
     ApplicationReviewMigrationStrategy applicationReviewMigrationStrategy)
 {
-    private const string TriggerName = nameof(ApplicationReviewsMigrationTrigger);
+    private const string TriggerName = nameof(ApplicationReviewsMigrationTimerTrigger);
     
-    public async Task MigrationApplicationReviewsAsync([TimerTrigger("0 0 * * *", RunOnStartup = true)] TimerInfo _)
+    public async Task MigrationApplicationReviewsAsync([TimerTrigger("0 0 * * *")] TimerInfo _)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

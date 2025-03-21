@@ -29,6 +29,17 @@ public class ApplicationReviewsMigrationMongoRepository(
             new Context(nameof(FetchBatchAsync))
         );
     }
+    
+    public async Task<List<ApplicationReview>> FetchBatchByIdsAsync(List<Guid> ids)
+    {
+        var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
+        var filterDefinition = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
+
+        return await RetryPolicy.ExecuteAsync(
+            _ => collection.Find(filterDefinition).ToListAsync(),
+            new Context(nameof(FetchBatchAsync))
+        );
+    }
 
     public async Task UpdateMigratedDateBatchAsync(List<Guid> ids)
     {
