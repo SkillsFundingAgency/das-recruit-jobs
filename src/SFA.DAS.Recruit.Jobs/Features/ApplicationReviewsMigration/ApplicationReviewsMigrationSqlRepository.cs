@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using EFCore.BulkExtensions;
+﻿using EFCore.BulkExtensions;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 

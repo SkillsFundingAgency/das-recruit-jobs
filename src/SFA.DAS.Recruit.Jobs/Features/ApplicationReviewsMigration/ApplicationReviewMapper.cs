@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;

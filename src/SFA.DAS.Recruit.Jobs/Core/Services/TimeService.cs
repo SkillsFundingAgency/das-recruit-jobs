@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.Recruit.Jobs.Core.Services;
+﻿namespace SFA.DAS.Recruit.Jobs.Core.Services;
 
 public interface ITimeService
 {

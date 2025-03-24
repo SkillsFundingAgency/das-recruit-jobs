@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Recruit.Jobs", "SFA.DAS.Recruit.Jobs\SFA.DAS.Recruit.Jobs.csproj", "{1D68887D-8136-425E-90BE-72D6C031628E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Recruit.Jobs", "SFA.DAS.Recruit.Jobs\SFA.DAS.Recruit.Jobs.csproj", "{FA362D52-31CA-4E76-934C-A8189CA5DA86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Recruit.Jobs.UnitTests", "SFA.DAS.Recruit.Jobs.UnitTests\SFA.DAS.Recruit.Jobs.UnitTests.csproj", "{83C05C67-F086-458B-AC68-6B6FB8BDF848}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Recruit.Jobs.UnitTests", "SFA.DAS.Recruit.Jobs.UnitTests\SFA.DAS.Recruit.Jobs.UnitTests.csproj", "{0145DB3E-BF8D-4117-B4F4-5A234EB0346A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CB2E429D-A158-48D6-B6FB-D91EA818F2D3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{10BBFDF9-99E0-437A-8BFA-0649ADE41D2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,22 +15,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1D68887D-8136-425E-90BE-72D6C031628E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D68887D-8136-425E-90BE-72D6C031628E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D68887D-8136-425E-90BE-72D6C031628E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D68887D-8136-425E-90BE-72D6C031628E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83C05C67-F086-458B-AC68-6B6FB8BDF848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83C05C67-F086-458B-AC68-6B6FB8BDF848}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83C05C67-F086-458B-AC68-6B6FB8BDF848}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83C05C67-F086-458B-AC68-6B6FB8BDF848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA362D52-31CA-4E76-934C-A8189CA5DA86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA362D52-31CA-4E76-934C-A8189CA5DA86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA362D52-31CA-4E76-934C-A8189CA5DA86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA362D52-31CA-4E76-934C-A8189CA5DA86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0145DB3E-BF8D-4117-B4F4-5A234EB0346A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0145DB3E-BF8D-4117-B4F4-5A234EB0346A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0145DB3E-BF8D-4117-B4F4-5A234EB0346A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0145DB3E-BF8D-4117-B4F4-5A234EB0346A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-        {83C05C67-F086-458B-AC68-6B6FB8BDF848} = {CB2E429D-A158-48D6-B6FB-D91EA818F2D3}
-    EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {365B421A-D6D6-4217-973D-E551F3DF98DC}
+		SolutionGuid = {101CB693-6173-441A-81AC-E64899C99181}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0145DB3E-BF8D-4117-B4F4-5A234EB0346A} = {10BBFDF9-99E0-437A-8BFA-0649ADE41D2F}
 	EndGlobalSection
 EndGlobal

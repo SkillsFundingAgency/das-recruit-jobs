@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoApplication = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Application;
