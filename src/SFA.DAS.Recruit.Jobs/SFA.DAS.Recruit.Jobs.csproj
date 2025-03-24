@@ -20,7 +20,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
     <PackageReference Include="Polly" Version="8.5.2" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.136-prerelease-4" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.76" />
   </ItemGroup>
   <ItemGroup>

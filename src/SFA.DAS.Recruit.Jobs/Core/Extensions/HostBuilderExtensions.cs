@@ -38,6 +38,8 @@ public static class HostBuilderExtensions
                 {
                     appBuilder.AddAzureTableStorage(options =>
                     {
+                        options.ConfigurationNameIncludesVersionNumber = true;
+                        options.PreFixConfigurationKeys = false;
     #if DEBUG
                         options.ConfigurationKeys = config["Values:ConfigNames"].Split(",");
                         options.StorageConnectionString = config["Values:ConfigurationStorageConnectionString"];
@@ -47,7 +49,6 @@ public static class HostBuilderExtensions
                         options.StorageConnectionString = config["ConfigurationStorageConnectionString"];
                         options.EnvironmentName = config["EnvironmentName"];
     #endif
-                        options.PreFixConfigurationKeys = false;
                     });    
                 }
             })
@@ -81,7 +82,7 @@ public static class HostBuilderExtensions
                 services.AddSingleton(dasEncodingConfig);
                 services.AddSingleton<IEncodingService, EncodingService>();
                 
-                // Configure project dependencies
+                // Configure core project dependencies
                 services.AddTransient<ITimeService, TimeService>();
             })
             .ConfigureMongoDb()

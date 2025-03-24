@@ -9,8 +9,8 @@ public class ApplicationReviewsMigrationTimerTrigger(
 {
     private const string TriggerName = nameof(ApplicationReviewsMigrationTimerTrigger);
     
-    [Function("ApplicationReviewsMigrationTimerTrigger")]
-    public async Task MigrationApplicationReviewsAsync([TimerTrigger("0 0 * * *")] TimerInfo timerInfo)
+    [Function(TriggerName)]
+    public async Task Run([TimerTrigger("*/5 23-5 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
