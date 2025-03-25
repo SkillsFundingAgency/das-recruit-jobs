@@ -65,7 +65,7 @@ public class ApplicationReviewMigrationStrategy(
         if (excludedApplicationReviews is { Count: > 0 })
         {
             await mongoRepository.UpdateFailedMigrationDateBatchAsync(excludedApplicationReviews.Select(x => x.Id).ToList());
-            logger.LogInformation("Failed to migration {FailedCount} application reviews", excludedApplicationReviews.Count);
+            logger.LogInformation("Failed to migrate {FailedCount} application reviews", excludedApplicationReviews.Count);
         }
     }
 
