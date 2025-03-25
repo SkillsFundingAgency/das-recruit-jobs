@@ -17,51 +17,55 @@ public class ApplicationReviewMigrationStrategy(
     private const int BatchSize = 50;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
 
-    public async Task RunAsync(List<Guid>? ids = null)
+    public async Task RunAsync(List<Guid> ids)
+    {
+        var applicationReviews = await mongoRepository.FetchBatchByIdsAsync(ids);
+        await ProcessBatch(applicationReviews);
+    }
+    
+    public async Task RunAsync()
     {
         var startTime = timeService.UtcNow;
-        
-        var applicationReviews = ids is { Count: > 0 }
-            ? await mongoRepository.FetchBatchByIdsAsync(ids)
-            : await mongoRepository.FetchBatchAsync(BatchSize);
-        
+        var applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
         while (applicationReviews is { Count: > 0 } && timeService.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
-            logger.LogInformation("Started processing a batch of {count} records", applicationReviews.Count);
-            
-            var excludedApplicationReviews = new List<MongoApplicationReview>();
-            
-            // Fetch the associated vacancies
-            var mappedApplicationReviews = await GetApplicationReviews(applicationReviews, excludedApplicationReviews);
-            if (mappedApplicationReviews is { Count: > 0 })
-            {
-                // Create the legacy applications
-                var legacyApplications = GetLegacyApplications(applicationReviews);
-
-                // Push the data to SQL server
-                await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedApplicationReviews);
-                logger.LogInformation("Imported {count} application reviews", mappedApplicationReviews.Count);
-                
-                if (legacyApplications is { Count: >0 })
-                {
-                    await sqlRepository.UpsertLegacyApplicationsBatchAsync(legacyApplications);
-                    logger.LogInformation("Imported {count} legacy applications", legacyApplications.Count);
-                }
-                
-                // Mark migrated in Mongo
-                await mongoRepository.UpdateMigrationDateBatchAsync(mappedApplicationReviews.Select(x => x.Id).ToList());
-                logger.LogInformation("Marked {SuccessCount} application reviews as migrated", mappedApplicationReviews.Count);
-            }
-
-            // Mark failed migrations in Mongo
-            if (excludedApplicationReviews is { Count: > 0 })
-            {
-                await mongoRepository.UpdateFailedMigrationDateBatchAsync(excludedApplicationReviews.Select(x => x.Id).ToList());
-                logger.LogInformation("Failed to migration {FailedCount} application reviews", excludedApplicationReviews.Count);
-            }
-            
-            // Fetch the next batch
+            await ProcessBatch(applicationReviews);
             applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
+        }
+    }
+
+    private async Task ProcessBatch(List<MongoApplicationReview> applicationReviews)
+    {
+        logger.LogInformation("Started processing a batch of {count} records", applicationReviews.Count);
+        var excludedApplicationReviews = new List<MongoApplicationReview>();
+        
+        // Fetch the associated vacancies
+        var mappedApplicationReviews = await GetApplicationReviews(applicationReviews, excludedApplicationReviews);
+        if (mappedApplicationReviews is { Count: > 0 })
+        {
+            // Create the legacy applications
+            var legacyApplications = GetLegacyApplications(applicationReviews);
+
+            // Push the data to SQL server
+            await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedApplicationReviews);
+            logger.LogInformation("Imported {count} application reviews", mappedApplicationReviews.Count);
+            
+            if (legacyApplications is { Count: >0 })
+            {
+                await sqlRepository.UpsertLegacyApplicationsBatchAsync(legacyApplications);
+                logger.LogInformation("Imported {count} legacy applications", legacyApplications.Count);
+            }
+            
+            // Mark migrated in Mongo
+            await mongoRepository.UpdateMigrationDateBatchAsync(mappedApplicationReviews.Select(x => x.Id).ToList());
+            logger.LogInformation("Marked {SuccessCount} application reviews as migrated", mappedApplicationReviews.Count);
+        }
+
+        // Mark failed migrations in Mongo
+        if (excludedApplicationReviews is { Count: > 0 })
+        {
+            await mongoRepository.UpdateFailedMigrationDateBatchAsync(excludedApplicationReviews.Select(x => x.Id).ToList());
+            logger.LogInformation("Failed to migration {FailedCount} application reviews", excludedApplicationReviews.Count);
         }
     }
 
