@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoApplication = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Application;
 
@@ -7,6 +8,26 @@ namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 public class LegacyApplicationMapper(ILogger<LegacyApplicationMapper> logger)
 {
+    private static DateTime? ImportDate(DateTime? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (value?.Year < 1900 || value?.Year > DateTime.Now.Year)
+        {
+            return null;
+        }
+
+        return value;
+    }
+
+    private static string? StringOrNull(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+    
     public LegacyApplication MapFrom(Guid sourceId, MongoApplication source)
     {
         if (string.IsNullOrWhiteSpace(source!.DisabilityStatus?.ToString()))
@@ -19,32 +40,32 @@ public class LegacyApplicationMapper(ILogger<LegacyApplicationMapper> logger)
         {
             qualifications = JsonSerializer.Serialize(source.Qualifications);
         }
-        
+
         return new LegacyApplication
         {
             AddressLine1 = source.AddressLine1,
-            AddressLine2 = source.AddressLine2,
-            AddressLine3 = source.AddressLine3,
-            AddressLine4 = source.AddressLine4,
-            ApplicationDate = source.ApplicationDate,
-            ApplicationReviewDisabilityStatus = source.DisabilityStatus?.ToString() ?? string.Empty,
-            BirthDate = source.BirthDate,
+            AddressLine2 = StringOrNull(source.AddressLine2),
+            AddressLine3 = StringOrNull(source.AddressLine3),
+            AddressLine4 = StringOrNull(source.AddressLine4),
+            ApplicationDate = ImportDate(source.ApplicationDate),
+            ApplicationReviewDisabilityStatus = source.DisabilityStatus?.ToString() ?? ApplicationReviewDisabilityStatus.Unknown.ToString(),
+            BirthDate = ImportDate(source.BirthDate),
             CandidateId = source.CandidateId,
-            EducationFromYear = source.EducationFromYear,
-            EducationInstitution = source.EducationInstitution,
-            EducationToYear = source.EducationToYear,
+            EducationFromYear = source.EducationFromYear == 0 ? null : source.EducationFromYear,
+            EducationInstitution = StringOrNull(source.EducationInstitution),
+            EducationToYear = source.EducationToYear == 0 ? null : source.EducationToYear,
             Email = source.Email,
             FirstName = source.FirstName,
-            HobbiesAndInterests = source.HobbiesAndInterests,
+            HobbiesAndInterests = StringOrNull(source.HobbiesAndInterests),
             Id = sourceId,
-            Improvements = source.Improvements,
+            Improvements = StringOrNull(source.Improvements),
             LastName = source.LastName,
             Phone = source.Phone,
             Postcode = source.Postcode,
             Qualifications = qualifications,
-            Skills = string.Join(',', source.Skills),
-            Strengths = source.Strengths,
-            Support = source.Support,
+            Skills = source.Skills == null ? null : StringOrNull(string.Join(",", source.Skills)),
+            Strengths = StringOrNull(source.Strengths),
+            Support = StringOrNull(source.Support),
         };
     }
 }

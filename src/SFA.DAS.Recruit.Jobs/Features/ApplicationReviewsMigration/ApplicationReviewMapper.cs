@@ -13,17 +13,8 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
 {
     public SqlApplicationReview MapFrom(MongoApplicationReview source, List<Vacancy> vacancies)
     {
-        var vacancy = vacancies.FirstOrDefault(x => x.VacancyReference == source.VacancyReference);
-        if (vacancy is null)
-        {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to find associated vacancy: '{vacancyReference}'", source.Id, source.VacancyReference);
-        }
-
-        var userIdParsedOk = Guid.TryParse(source.StatusUpdatedBy?.UserId, out var statusUpdatedByUserId);
-        if (userIdParsedOk is false && source is { StatusUpdatedBy.UserId : not null })
-        {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to parse StatusUpdatedBy from value: '{sourceValue}'", source.Id, source.StatusUpdatedBy?.UserId);
-        }
+        // We should be guaranteed a vacancy here
+        var vacancy = vacancies.First(x => x.VacancyReference == source.VacancyReference);
 
         if (!Enum.TryParse(vacancy?.OwnerType, true, out Owner owner))
         {
@@ -31,24 +22,18 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
         }
 
         // currently TryDecode throws if null/"" is passed :/
-        long accountId = 0;
-        if (vacancy?.EmployerAccountId is null || !encodingService.TryDecode(vacancy?.EmployerAccountId, EncodingType.AccountId, out accountId))
+        if (string.IsNullOrWhiteSpace(vacancy?.EmployerAccountId) || !encodingService.TryDecode(vacancy?.EmployerAccountId, EncodingType.AccountId, out var accountId))
         {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to decode EmployerAccountId from value: '{sourceValue}'", source.Id, vacancy?.EmployerAccountId);
+            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad EmployerAccountId value '{sourceValue}'", source.Id, vacancy?.EmployerAccountId);
+            return SqlApplicationReview.None;
         }
 
-        long accountLegalEntityId = 0;
-        if (vacancy?.AccountLegalEntityPublicHashedId is null || !encodingService.TryDecode(vacancy?.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out accountLegalEntityId))
+        if (string.IsNullOrWhiteSpace(vacancy?.AccountLegalEntityPublicHashedId) || !encodingService.TryDecode(vacancy?.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId))
         {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to decode AccountLegalEntityPublicHashedId from value: '{sourceValue}'", source.Id, vacancy?.AccountLegalEntityPublicHashedId);
+            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad AccountLegalEntityPublicHashedId value '{sourceValue}'", source.Id, vacancy?.AccountLegalEntityPublicHashedId);
+            return SqlApplicationReview.None;
         }
 
-        var vacancyTitle = vacancy?.Title;
-        if (string.IsNullOrWhiteSpace(vacancyTitle))
-        {
-	        logger.LogWarning("[{ApplicationReviewId}] Referenced Vacancy has no title: '{VacancyReference}'", source.Id, source.VacancyReference);
-        }
-        
         return new SqlApplicationReview
         {
             AccountId = accountId,
@@ -71,7 +56,7 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             SubmittedDate = source.SubmittedDate,
             Ukprn = (int)(vacancy?.TrainingProvider?.Ukprn ?? -1),
             VacancyReference = source.VacancyReference,
-            VacancyTitle = vacancyTitle ?? string.Empty,
+            VacancyTitle = vacancy?.Title ?? string.Empty,
             WithdrawnDate = source.WithdrawnDate,
         };
     }

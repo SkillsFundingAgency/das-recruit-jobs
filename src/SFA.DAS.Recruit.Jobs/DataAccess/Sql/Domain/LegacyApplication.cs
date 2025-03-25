@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+﻿namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 public class LegacyApplication
 {
     public DateTime? ApplicationDate { get; set; }
     public DateTime? BirthDate { get; set; }
-    public Guid CandidateId { get; set; }
-    public Guid Id { get; set; }
+    public required Guid CandidateId { get; set; }
+    public required Guid Id { get; set; }
     public int? EducationFromYear { get; set; }
     public int? EducationToYear { get; set; }
     public required string ApplicationReviewDisabilityStatus { get; set; }

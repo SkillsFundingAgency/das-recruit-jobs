@@ -18,7 +18,7 @@ public class ApplicationReviewsMigrationMongoRepository(
     {
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         var pipeline = new EmptyPipelineDefinition<ApplicationReview>()
-            .Match(x => x.MigratedDate == null || x.MigratedDate < x.StatusUpdatedDate)
+            .Match(x => (x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) && x.MigrationFailed == null)
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
@@ -38,14 +38,27 @@ public class ApplicationReviewsMigrationMongoRepository(
         );
     }
 
-    public async Task UpdateMigratedDateBatchAsync(List<Guid> ids)
+    public async Task UpdateMigrationDateBatchAsync(List<Guid> ids)
     {
         var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
-        var updateDef = Builders<ApplicationReview>.Update.Set(x => x.MigratedDate, timeService.UtcNow);
+        var updateDef = Builders<ApplicationReview>.Update.Set(x => x.MigrationDate, timeService.UtcNow);
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         await RetryPolicy.ExecuteAsync(
             _ => collection.UpdateManyAsync(filterDef, updateDef),
-            new Context(nameof(UpdateMigratedDateBatchAsync))
+            new Context(nameof(UpdateMigrationDateBatchAsync))
+        );
+    }
+    
+    public async Task UpdateFailedMigrationDateBatchAsync(List<Guid> ids)
+    {
+        var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
+        var updateDef = Builders<ApplicationReview>.Update
+            .Set(x => x.MigrationDate, timeService.UtcNow)
+            .Set(x => x.MigrationFailed, true);
+        var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
+        await RetryPolicy.ExecuteAsync(
+            _ => collection.UpdateManyAsync(filterDef, updateDef),
+            new Context(nameof(UpdateFailedMigrationDateBatchAsync))
         );
     }
 

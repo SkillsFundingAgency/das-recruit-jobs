@@ -27,5 +27,6 @@ public class ApplicationReview
     public bool? HasEverBeenEmployerInterviewing { get; set; }
     public string? VacancyTitle { get; set; }
     
-    public DateTime? MigratedDate { get; set; }
+    public DateTime? MigrationDate { get; set; }
+    public bool? MigrationFailed { get; set; }
 }

@@ -4,6 +4,21 @@ namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 public class ApplicationReview
 {
+    public static readonly ApplicationReview None = new ()
+    {
+        Status = ApplicationReviewStatus.New,
+        CreatedDate = default,
+        SubmittedDate = default,
+        CandidateId = Guid.Empty,
+        Id = Guid.Empty,
+        Owner = Owner.Provider,
+        Ukprn = 0,
+        AccountId = 0,
+        AccountLegalEntityId = 0,
+        VacancyReference = 0,
+        VacancyTitle = string.Empty
+    };
+
     public DateTime? DateSharedWithEmployer { get; init; }
     public DateTime? ReviewedDate { get; init; }
     public DateTime? StatusUpdatedDate { get; init; }
