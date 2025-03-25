@@ -14,7 +14,7 @@ public class ApplicationReviewsMigrationHttpTrigger(
     private const string TriggerName = nameof(ApplicationReviewsMigrationHttpTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([HttpTrigger(AuthorizationLevel.Anonymous, "post",Route = null)] HttpRequestData requestData)
+    public async Task Run([HttpTrigger(AuthorizationLevel.Function, "post",Route = null)] HttpRequestData requestData)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
