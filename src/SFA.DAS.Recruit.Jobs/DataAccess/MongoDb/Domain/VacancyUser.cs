@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
+
+[ExcludeFromCodeCoverage]
 public class VacancyUser
 {
     public string UserId { get; set; }

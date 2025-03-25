@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
+
+[ExcludeFromCodeCoverage]
 internal static class MongoDbCollectionNames
 {
     internal const string ApplicationReviews = "applicationReviews";

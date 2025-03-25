@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Services;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.ApplicationReview;
@@ -6,6 +7,7 @@ using SqlApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.Applicat
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReviewMigrationStrategy(
     ILogger<ApplicationReviewMigrationStrategy> logger,
     ApplicationReviewsMigrationMongoRepository mongoRepository,

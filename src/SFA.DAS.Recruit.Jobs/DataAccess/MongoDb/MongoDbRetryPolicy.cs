@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
@@ -6,6 +7,7 @@ using Polly.Retry;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 
+[ExcludeFromCodeCoverage]
 internal static class MongoDbRetryPolicy
 {
     public static AsyncRetryPolicy GetRetryPolicy(ILogger logger)

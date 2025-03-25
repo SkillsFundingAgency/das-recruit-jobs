@@ -1,4 +1,5 @@
-﻿using System.Security.Authentication;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -8,6 +9,7 @@ using Polly.Retry;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 
+[ExcludeFromCodeCoverage]
 public abstract class MongoDbCollectionBase
     {
         private readonly string _dbName;

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
@@ -6,6 +7,7 @@ using MongoApplication = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Applicat
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class LegacyApplicationMapper(ILogger<LegacyApplicationMapper> logger)
 {
     private static DateTime? ImportDate(DateTime? value)

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReview
 {
     public static readonly ApplicationReview None = new ()

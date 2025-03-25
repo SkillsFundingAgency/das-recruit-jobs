@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
+[ExcludeFromCodeCoverage]
 public class Application
 {
     public Guid CandidateId { get; set; }

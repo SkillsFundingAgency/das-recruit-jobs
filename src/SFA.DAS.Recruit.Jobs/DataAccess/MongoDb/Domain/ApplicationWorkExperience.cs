@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationWorkExperience
 {
     public string Employer { get; set; }

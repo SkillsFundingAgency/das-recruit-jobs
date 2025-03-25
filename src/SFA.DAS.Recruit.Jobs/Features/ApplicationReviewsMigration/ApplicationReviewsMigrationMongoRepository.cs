@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Polly;
@@ -8,6 +9,7 @@ using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReviewsMigrationMongoRepository(
     ILoggerFactory loggerFactory,
     IOptions<MongoDbConnectionDetails> config,

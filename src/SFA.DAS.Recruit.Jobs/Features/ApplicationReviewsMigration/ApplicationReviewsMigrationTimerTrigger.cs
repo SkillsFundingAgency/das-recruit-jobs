@@ -1,8 +1,10 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReviewsMigrationTimerTrigger(
     ILogger<ApplicationReviewsMigrationTimerTrigger> logger,
     ApplicationReviewMigrationStrategy applicationReviewMigrationStrategy)

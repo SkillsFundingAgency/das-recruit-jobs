@@ -1,7 +1,9 @@
-﻿using MongoDB.Bson.Serialization.Conventions;
+﻿using System.Diagnostics.CodeAnalysis;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 
+[ExcludeFromCodeCoverage]
 internal static class MongoDbConventions
 {
     public static void RegisterMongoConventions()

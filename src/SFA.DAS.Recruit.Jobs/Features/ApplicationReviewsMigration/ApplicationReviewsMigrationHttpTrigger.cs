@@ -1,10 +1,12 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReviewsMigrationHttpTrigger(
     ILogger<ApplicationReviewsMigrationHttpTrigger> logger,
     ApplicationReviewMigrationStrategy applicationReviewMigrationStrategy)

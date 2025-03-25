@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
@@ -9,6 +10,7 @@ using MongoApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Ap
 
 namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
+[ExcludeFromCodeCoverage]
 public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IEncodingService encodingService)
 {
     public SqlApplicationReview MapFrom(MongoApplicationReview source, List<Vacancy> vacancies)

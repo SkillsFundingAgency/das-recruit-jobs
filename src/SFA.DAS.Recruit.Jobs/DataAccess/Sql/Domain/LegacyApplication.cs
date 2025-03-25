@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+
+[ExcludeFromCodeCoverage]
 public class LegacyApplication
 {
     public DateTime? ApplicationDate { get; set; }
