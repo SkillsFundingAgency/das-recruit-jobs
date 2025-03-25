@@ -57,7 +57,7 @@ public class ApplicationReviewMigrationStrategy(
             }
             
             // Mark migrated in Mongo
-            await mongoRepository.UpdateMigrationDateBatchAsync(mappedApplicationReviews.Select(x => x.Id).ToList());
+            await mongoRepository.UpdateSuccessMigrationDateBatchAsync(mappedApplicationReviews.Select(x => x.Id).ToList());
             logger.LogInformation("Marked {SuccessCount} application reviews as migrated", mappedApplicationReviews.Count);
         }
 

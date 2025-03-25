@@ -38,14 +38,16 @@ public class ApplicationReviewsMigrationMongoRepository(
         );
     }
 
-    public async Task UpdateMigrationDateBatchAsync(List<Guid> ids)
+    public async Task UpdateSuccessMigrationDateBatchAsync(List<Guid> ids)
     {
         var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
-        var updateDef = Builders<ApplicationReview>.Update.Set(x => x.MigrationDate, timeService.UtcNow);
+        var updateDef = Builders<ApplicationReview>.Update
+            .Set(x => x.MigrationDate, timeService.UtcNow)
+            .Set(x => x.MigrationFailed, null);
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         await RetryPolicy.ExecuteAsync(
             _ => collection.UpdateManyAsync(filterDef, updateDef),
-            new Context(nameof(UpdateMigrationDateBatchAsync))
+            new Context(nameof(UpdateSuccessMigrationDateBatchAsync))
         );
     }
     
