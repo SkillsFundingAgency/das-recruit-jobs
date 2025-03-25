@@ -15,6 +15,6 @@ public class Vacancy
     public string OwnerType { get; set; } = string.Empty;
     public TrainingProvider? TrainingProvider { get; init; }
     public long VacancyReference { get; init; }
-    public required string Title { get; set; }
+    public string? Title { get; set; }
 }
 

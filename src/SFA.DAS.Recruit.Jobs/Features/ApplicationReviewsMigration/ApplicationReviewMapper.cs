@@ -16,21 +16,27 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
         // We should be guaranteed a vacancy here
         var vacancy = vacancies.First(x => x.VacancyReference == source.VacancyReference);
 
-        if (!Enum.TryParse(vacancy?.OwnerType, true, out Owner owner))
+        if (vacancy.TrainingProvider?.Ukprn is null)
         {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to parse OwnerType from value: '{sourceValue}'", source.Id, vacancy?.OwnerType);
-        }
-
-        // currently TryDecode throws if null/"" is passed :/
-        if (string.IsNullOrWhiteSpace(vacancy?.EmployerAccountId) || !encodingService.TryDecode(vacancy?.EmployerAccountId, EncodingType.AccountId, out var accountId))
-        {
-            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad EmployerAccountId value '{sourceValue}'", source.Id, vacancy?.EmployerAccountId);
+            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad Ukprn value '{sourceValue}'", source.Id, vacancy.TrainingProvider?.Ukprn);
             return SqlApplicationReview.None;
         }
 
-        if (string.IsNullOrWhiteSpace(vacancy?.AccountLegalEntityPublicHashedId) || !encodingService.TryDecode(vacancy?.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId))
+        if (!Enum.TryParse(vacancy.OwnerType, true, out Owner owner))
         {
-            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad AccountLegalEntityPublicHashedId value '{sourceValue}'", source.Id, vacancy?.AccountLegalEntityPublicHashedId);
+            logger.LogWarning("[{ApplicationReviewId}] Failed to parse OwnerType from value: '{sourceValue}'", source.Id, vacancy.OwnerType);
+        }
+
+        // currently TryDecode throws if null/"" is passed :/
+        if (string.IsNullOrWhiteSpace(vacancy.EmployerAccountId) || !encodingService.TryDecode(vacancy.EmployerAccountId, EncodingType.AccountId, out var accountId))
+        {
+            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad EmployerAccountId value '{sourceValue}'", source.Id, vacancy.EmployerAccountId);
+            return SqlApplicationReview.None;
+        }
+
+        if (string.IsNullOrWhiteSpace(vacancy.AccountLegalEntityPublicHashedId) || !encodingService.TryDecode(vacancy.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId))
+        {
+            logger.LogWarning("Failed to migrate '{ApplicationReviewId}' due to bad AccountLegalEntityPublicHashedId value '{sourceValue}'", source.Id, vacancy.AccountLegalEntityPublicHashedId);
             return SqlApplicationReview.None;
         }
 
@@ -54,9 +60,9 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             Status = MapStatus(source.Status),
             StatusUpdatedDate = source.StatusUpdatedDate,
             SubmittedDate = source.SubmittedDate,
-            Ukprn = (int)(vacancy?.TrainingProvider?.Ukprn ?? -1),
+            Ukprn = (int)vacancy.TrainingProvider.Ukprn,
             VacancyReference = source.VacancyReference,
-            VacancyTitle = vacancy?.Title ?? string.Empty,
+            VacancyTitle = vacancy.Title ?? string.Empty,
             WithdrawnDate = source.WithdrawnDate,
         };
     }
