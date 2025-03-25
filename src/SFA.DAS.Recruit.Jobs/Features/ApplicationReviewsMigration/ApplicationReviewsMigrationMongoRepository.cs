@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Polly;
-using SFA.DAS.Recruit.Jobs.Core.Services;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
@@ -12,8 +11,7 @@ namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 [ExcludeFromCodeCoverage]
 public class ApplicationReviewsMigrationMongoRepository(
     ILoggerFactory loggerFactory,
-    IOptions<MongoDbConnectionDetails> config,
-    ITimeService timeService)
+    IOptions<MongoDbConnectionDetails> config)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
 {
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
@@ -44,7 +42,7 @@ public class ApplicationReviewsMigrationMongoRepository(
     {
         var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
         var updateDef = Builders<ApplicationReview>.Update
-            .Set(x => x.MigrationDate, timeService.UtcNow)
+            .Set(x => x.MigrationDate, DateTime.UtcNow)
             .Set(x => x.MigrationFailed, null);
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         await RetryPolicy.ExecuteAsync(
@@ -57,7 +55,7 @@ public class ApplicationReviewsMigrationMongoRepository(
     {
         var filterDef = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
         var updateDef = Builders<ApplicationReview>.Update
-            .Set(x => x.MigrationDate, timeService.UtcNow)
+            .Set(x => x.MigrationDate, DateTime.UtcNow)
             .Set(x => x.MigrationFailed, true);
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         await RetryPolicy.ExecuteAsync(

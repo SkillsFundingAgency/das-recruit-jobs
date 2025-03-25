@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.Core.Services;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.ApplicationReview;
 using SqlApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApplicationReview;
@@ -12,7 +11,6 @@ public class ApplicationReviewMigrationStrategy(
     ILogger<ApplicationReviewMigrationStrategy> logger,
     ApplicationReviewsMigrationMongoRepository mongoRepository,
     ApplicationReviewsMigrationSqlRepository sqlRepository,
-    ITimeService timeService,
     ApplicationReviewMapper applicationReviewMapper,
     LegacyApplicationMapper legacyApplicationMapper)
 {
@@ -27,9 +25,9 @@ public class ApplicationReviewMigrationStrategy(
     
     public async Task RunAsync()
     {
-        var startTime = timeService.UtcNow;
+        var startTime = DateTime.UtcNow;
         var applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
-        while (applicationReviews is { Count: > 0 } && timeService.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
+        while (applicationReviews is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
             await ProcessBatch(applicationReviews);
             applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);

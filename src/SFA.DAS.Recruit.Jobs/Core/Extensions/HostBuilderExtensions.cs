@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.Core.Services;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
@@ -83,7 +82,7 @@ public static class HostBuilderExtensions
                 services.AddSingleton<IEncodingService, EncodingService>();
                 
                 // Configure core project dependencies
-                services.AddTransient<ITimeService, TimeService>();
+                // services.AddTransient<,>();
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
