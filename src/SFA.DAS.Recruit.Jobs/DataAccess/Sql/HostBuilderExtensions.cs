@@ -25,8 +25,6 @@ public static class HostBuilderExtensions
             services.AddDbContext<RecruitJobsDataContext>(ServiceLifetime.Transient);
             services.AddScoped<RecruitJobsDataContext>();
             services.AddScoped(provider => new Lazy<RecruitJobsDataContext>(provider.GetService<RecruitJobsDataContext>()!));
-            
-            services.AddTransient<ApplicationReviewsMigrationSqlRepository>();
         });
     }
 }
