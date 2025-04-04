@@ -13,6 +13,7 @@ public static class HostBuilderExtensions
         {
             services.AddTransient<UserNotificationPreferencesMigrationMongoRepository>();
             services.AddTransient<UserNotificationPreferencesMigrationSqlRepository>();
+            services.AddTransient<UserNotificationPreferencesMapper>();
             services.AddTransient<UserNotificationPreferencesMigrationStrategy>();
         });
     }

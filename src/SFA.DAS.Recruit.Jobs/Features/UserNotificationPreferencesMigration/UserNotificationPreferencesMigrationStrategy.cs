@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoUserNotificationPreferences = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.UserNotificationPreferences;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
@@ -8,7 +9,8 @@ namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 public class UserNotificationPreferencesMigrationStrategy(
     ILogger<UserNotificationPreferencesMigrationStrategy> logger,
     UserNotificationPreferencesMigrationMongoRepository mongoRepository,
-    UserNotificationPreferencesMigrationSqlRepository sqlRepository)
+    UserNotificationPreferencesMigrationSqlRepository sqlRepository,
+    UserNotificationPreferencesMapper mapper)
 {
     private const int BatchSize = 500;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
@@ -35,12 +37,25 @@ public class UserNotificationPreferencesMigrationStrategy(
         logger.LogInformation("Started processing a batch of {count} records", userNotificationPreferences.Count);
         
         // Process the records
-        var toMap = userNotificationPreferences.Where(x => Guid.TryParse(x.Id, out _)).ToList();
+        // Filter out uppercase guid ids as there can be duplicated records differentiated by case
+        var toMap = userNotificationPreferences.Where(x => x.Id.Equals(x.Id.ToLower(), StringComparison.Ordinal) && Guid.TryParse(x.Id, out _)).ToList();
         var toIgnore = userNotificationPreferences.Except(toMap).ToList();
 
         if (toMap is { Count: > 0 })
         {
-            var mappedRecords = toMap.Select(UserNotificationPreferencesMapper.MapFrom).ToList();
+            var mappedRecords = toMap
+                .Select(x =>
+                {
+                    var mappedValue = mapper.MapFrom(x);
+                    if (mappedValue == UserNotificationPreferences.None)
+                    {
+                        toIgnore.Add(x);
+                    }
+
+                    return mappedValue;
+                })
+                .Where(x => x != UserNotificationPreferences.None)
+                .ToList();
             
             // Push the data to SQL server
             await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedRecords);

@@ -19,7 +19,8 @@ public enum NotificationTypes
     VacancyClosingSoon = 1 << 1,
     ApplicationSubmitted = 1 << 2,
     VacancySentForReview = 1 << 3,
-    VacancyRejectedByEmployer = 1 << 4
+    VacancyRejectedByEmployer = 1 << 4,
+    VacancySubmittedForReview = 1 << 5, // this no longer exists
 }
 
 public enum NotificationScope
