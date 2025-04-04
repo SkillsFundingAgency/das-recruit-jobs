@@ -12,10 +12,9 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     private readonly RecruitJobsConfiguration _configuration = config.Value;
     
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
-    
     public DbSet<LegacyApplication> LegacyApplication { get; set; }
-    
     public DbSet<ProhibitedContent> ProhibitedContent { get; set; }
+    public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,5 +42,27 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .Entity<ProhibitedContent>()
             .Property(e => e.ContentType)
             .HasConversion<int>();
+
+        modelBuilder
+            .Entity<UserNotificationPreferences>()
+            .HasKey(x => x.UserId);
+        modelBuilder
+            .Entity<UserNotificationPreferences>()
+            .Property(x => x.Types)
+            .HasConversion(
+                v => v.ToString(),
+                v => (NotificationTypes)Enum.Parse(typeof(NotificationTypes), v));
+        modelBuilder
+            .Entity<UserNotificationPreferences>()
+            .Property(x => x.Frequency)
+            .HasConversion(
+                v => v.ToString(),
+                v => (NotificationFrequency)Enum.Parse(typeof(NotificationFrequency), v));
+        modelBuilder
+            .Entity<UserNotificationPreferences>()
+            .Property(x => x.Scope)
+            .HasConversion(
+                v => v.ToString(),
+                v => (NotificationScope)Enum.Parse(typeof(NotificationScope), v));
     }
 }

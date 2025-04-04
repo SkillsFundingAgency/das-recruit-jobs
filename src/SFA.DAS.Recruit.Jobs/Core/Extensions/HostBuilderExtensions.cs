@@ -12,6 +12,7 @@ using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
+using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
 
@@ -21,7 +22,7 @@ public static class HostBuilderExtensions
     public static IHostBuilder ConfigureRecruitJobs(this IHostBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        
+
         return builder
             .ConfigureFunctionsWebApplication()
             .ConfigureAppConfiguration(appBuilder =>
@@ -29,9 +30,9 @@ public static class HostBuilderExtensions
                 appBuilder
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddEnvironmentVariables();
-        
+
                 appBuilder.AddJsonFile("local.settings.json", optional: true);
-        
+
                 var config = appBuilder.Build();
                 var environmentName = config["Values:EnvironmentName"] ?? config["EnvironmentName"];
                 if (!environmentName!.Equals("DEV", StringComparison.CurrentCultureIgnoreCase))
@@ -40,16 +41,16 @@ public static class HostBuilderExtensions
                     {
                         options.ConfigurationNameIncludesVersionNumber = true;
                         options.PreFixConfigurationKeys = false;
-    #if DEBUG
+#if DEBUG
                         options.ConfigurationKeys = config["Values:ConfigNames"].Split(",");
                         options.StorageConnectionString = config["Values:ConfigurationStorageConnectionString"];
                         options.EnvironmentName = config["Values:EnvironmentName"];
-    #else
+#else
                         options.ConfigurationKeys = config["ConfigNames"].Split(",");
                         options.StorageConnectionString = config["ConfigurationStorageConnectionString"];
                         options.EnvironmentName = config["EnvironmentName"];
-    #endif
-                    });    
+#endif
+                    });
                 }
             })
             .ConfigureServices((context, services) =>
@@ -57,9 +58,9 @@ public static class HostBuilderExtensions
                 // Setup application insights
                 services.AddApplicationInsightsTelemetryWorkerService(options =>
                 {
-    #if DEBUG
+#if DEBUG
                     options.DeveloperMode = true;
-    #endif
+#endif
                 });
                 services.ConfigureFunctionsApplicationInsights();
                 services.AddLogging(loggingBuilder =>
@@ -75,19 +76,20 @@ public static class HostBuilderExtensions
 
                 services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), context.Configuration));
                 services.AddOptions();
-        
+
                 // Configure the DAS Encoding service
                 var dasEncodingConfig = new EncodingConfig { Encodings = [] };
                 context.Configuration.GetSection(nameof(dasEncodingConfig.Encodings)).Bind(dasEncodingConfig.Encodings);
                 services.AddSingleton(dasEncodingConfig);
                 services.AddSingleton<IEncodingService, EncodingService>();
-                
+
                 // Configure core project dependencies
                 // services.AddTransient<,>();
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
             .ConfigureApplicationReviewsMigration()
-            .ConfigureProhibitedContentMigration();
+            .ConfigureProhibitedContentMigration()
+            .ConfigureUserNotificationPreferencesMigration();
     }
 }
