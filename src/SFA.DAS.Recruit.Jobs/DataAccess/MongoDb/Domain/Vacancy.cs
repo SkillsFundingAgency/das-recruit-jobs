@@ -13,7 +13,6 @@ public class Vacancy
     public Guid Id { get; init; }
     public string AccountLegalEntityPublicHashedId { get; init; } = string.Empty;
     public string EmployerAccountId { get; init; } = string.Empty;
-    public string OwnerType { get; set; } = string.Empty;
     public TrainingProvider? TrainingProvider { get; init; }
     public long VacancyReference { get; init; }
     public string? Title { get; set; }

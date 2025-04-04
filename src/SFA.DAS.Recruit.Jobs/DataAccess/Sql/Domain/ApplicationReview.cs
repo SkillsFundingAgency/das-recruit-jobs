@@ -12,7 +12,6 @@ public class ApplicationReview
         SubmittedDate = default,
         CandidateId = Guid.Empty,
         Id = Guid.Empty,
-        Owner = Owner.Provider,
         Ukprn = 0,
         AccountId = 0,
         AccountLegalEntityId = 0,
@@ -32,7 +31,6 @@ public class ApplicationReview
     public required DateTime SubmittedDate { get; init; }
     public required Guid CandidateId { get; init; }
     public required Guid Id { get; init; }
-    public required Owner Owner { get; init; }
     public required int Ukprn { get; init; }
     public required long AccountId { get; init; }
     public required long AccountLegalEntityId { get; init; }

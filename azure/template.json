@@ -77,7 +77,7 @@
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
         "serviceBusName": "[concat(variables('resourceNamePrefix'), '-ns')]",
-        "configNames": "SFA.DAS.Recruit.JobsV2,SFA.DAS.Encoding"
+        "configNames": "SFA.DAS.Recruit.Jobs_2.0,SFA.DAS.Encoding_1.0"
     },
     "resources": [
         {
