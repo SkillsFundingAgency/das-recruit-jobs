@@ -24,11 +24,6 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             return SqlApplicationReview.None;
         }
 
-        if (!Enum.TryParse(vacancy.OwnerType, true, out Owner owner))
-        {
-            logger.LogWarning("[{ApplicationReviewId}] Failed to parse OwnerType from value: '{sourceValue}'", source.Id, vacancy.OwnerType);
-        }
-
         // currently TryDecode throws if null/"" is passed :/
         if (string.IsNullOrWhiteSpace(vacancy.EmployerAccountId) || !encodingService.TryDecode(vacancy.EmployerAccountId, EncodingType.AccountId, out var accountId))
         {
@@ -57,7 +52,6 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             HasEverBeenEmployerInterviewing = source.HasEverBeenEmployerInterviewing ?? false,
             Id = source.Id,
             LegacyApplicationId = source.Application?.IsFaaV2Application is false ? null : source.Id,
-            Owner = owner,
             ReviewedDate = source.ReviewedDate,
             Status = MapStatus(source.Status),
             StatusUpdatedDate = source.StatusUpdatedDate,
