@@ -41,6 +41,9 @@ jobs:
             StorageAccountResourceGroup: $(SharedEnvResourceGroup)
             TargetFileName: '*.schema.json'
             TableName: Configuration
+            Version: '2.0'
+            ConfigurationSecrets:
+              RecruitCosmosConnectionString: $(RecruitCosmosConnectionString)
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
