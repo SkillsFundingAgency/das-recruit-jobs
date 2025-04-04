@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SFA.DAS.Recruit.Jobs": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7003",
+      "launchBrowser": false
+    }
+  }
+}
