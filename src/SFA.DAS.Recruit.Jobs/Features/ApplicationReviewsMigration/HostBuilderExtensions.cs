@@ -11,6 +11,7 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
+            services.AddTransient<ApplicationReviewsMigrationSqlRepository>();
             services.AddTransient<ApplicationReviewMapper>();
             services.AddTransient<LegacyApplicationMapper>();
             services.AddTransient<ApplicationReviewsMigrationMongoRepository>();

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
@@ -25,8 +24,6 @@ public static class HostBuilderExtensions
             services.AddDbContext<RecruitJobsDataContext>(ServiceLifetime.Transient);
             services.AddScoped<RecruitJobsDataContext>();
             services.AddScoped(provider => new Lazy<RecruitJobsDataContext>(provider.GetService<RecruitJobsDataContext>()!));
-            
-            services.AddTransient<ApplicationReviewsMigrationSqlRepository>();
         });
     }
 }

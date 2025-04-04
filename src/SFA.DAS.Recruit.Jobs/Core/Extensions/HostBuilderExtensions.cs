@@ -11,6 +11,7 @@ using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
+using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
 
@@ -86,6 +87,7 @@ public static class HostBuilderExtensions
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
-            .ConfigureApplicationReviewsMigration();
+            .ConfigureApplicationReviewsMigration()
+            .ConfigureProhibitedContentMigration();
     }
 }
