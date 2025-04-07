@@ -13,11 +13,17 @@ public class ProhibitedContentMigrationStrategy(
     {
         // Banned Phrases
         var mongoBannedPhrases = await mongoRepository.GetReferenceData<BannedPhraseList>();
-        var bannedPhrases = mongoBannedPhrases.BannedPhrases.Select(x => new ProhibitedContent { ContentType = ProhibitedContentType.BannedPhrases, Content = x }).ToList();
+        var bannedPhrases = mongoBannedPhrases
+            .BannedPhrases
+            .Distinct()
+            .Select(x => new ProhibitedContent { ContentType = ProhibitedContentType.BannedPhrases, Content = x }).ToList();
         
         // Profanities
         var mongoProfanities = await mongoRepository.GetReferenceData<ProfanityList>();
-        var profanities = mongoProfanities.Profanities.Select(x => new ProhibitedContent { ContentType = ProhibitedContentType.Profanity, Content = x }).ToList();
+        var profanities = mongoProfanities
+            .Profanities
+            .Distinct()
+            .Select(x => new ProhibitedContent { ContentType = ProhibitedContentType.Profanity, Content = x }).ToList();
         
         await sqlRepository.UpsertProhibitedContentBatchAsync([..bannedPhrases, ..profanities]);
     }
