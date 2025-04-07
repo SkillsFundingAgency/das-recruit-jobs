@@ -14,6 +14,8 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
     
     public DbSet<LegacyApplication> LegacyApplication { get; set; }
+    
+    public DbSet<ProhibitedContent> ProhibitedContent { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -33,5 +35,13 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .HasConversion(
                 v => v.ToString(),
                 v => (ApplicationReviewStatus)Enum.Parse(typeof(ApplicationReviewStatus), v));
+
+        modelBuilder
+            .Entity<ProhibitedContent>()
+            .HasKey(x => new { x.ContentType, x.Content });
+        modelBuilder
+            .Entity<ProhibitedContent>()
+            .Property(e => e.ContentType)
+            .HasConversion<int>();
     }
 }
