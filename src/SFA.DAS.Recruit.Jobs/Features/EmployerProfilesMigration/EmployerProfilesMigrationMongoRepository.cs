@@ -18,7 +18,7 @@ public class EmployerProfilesMigrationMongoRepository(
     {
         var collection = GetCollection<EmployerProfile>(MongoDbCollectionNames.EmployerProfiles);
         var pipeline = new EmptyPipelineDefinition<EmployerProfile>()
-            .Match(x => x.MigrationDate == null || x.MigrationDate < x.LastUpdatedDate)
+            .Match(x => x.MigrationFailed != true && (x.MigrationDate == null || x.MigrationDate < x.LastUpdatedDate))
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
@@ -50,16 +50,16 @@ public class EmployerProfilesMigrationMongoRepository(
         );
     }
 
-    // public async Task UpdateFailedMigrationDateBatchAsync(List<Guid> ids)
-    // {
-    //     var filterDef = Builders<EmployerProfile>.Filter.In(x => x.Id, ids);
-    //     var updateDef = Builders<EmployerProfile>.Update
-    //         .Set(x => x.MigrationDate, DateTime.UtcNow)
-    //         .Set(x => x.MigrationFailed, true);
-    //     var collection = GetCollection<EmployerProfile>(MongoDbCollectionNames.EmployerProfiles);
-    //     await RetryPolicy.ExecuteAsync(
-    //         _ => collection.UpdateManyAsync(filterDef, updateDef),
-    //         new Context(nameof(UpdateFailedMigrationDateBatchAsync))
-    //     );
-    // }
+    public async Task UpdateFailedMigrationDateBatchAsync(List<string> ids)
+    {
+        var filterDef = Builders<EmployerProfile>.Filter.In(x => x.Id, ids);
+        var updateDef = Builders<EmployerProfile>.Update
+            .Set(x => x.MigrationDate, DateTime.UtcNow)
+            .Set(x => x.MigrationFailed, true);
+        var collection = GetCollection<EmployerProfile>(MongoDbCollectionNames.EmployerProfiles);
+        await RetryPolicy.ExecuteAsync(
+            _ => collection.UpdateManyAsync(filterDef, updateDef),
+            new Context(nameof(UpdateFailedMigrationDateBatchAsync))
+        );
+    }
 }

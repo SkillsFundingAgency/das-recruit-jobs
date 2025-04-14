@@ -10,13 +10,24 @@ namespace SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 
 [ExcludeFromCodeCoverage]
 public class EmployerProfilesMapper(
-    ILogger<UserNotificationPreferencesMapper> logger,
+    ILogger<EmployerProfilesMapper> logger,
     IEncodingService encodingService)
 {
     public EmployerProfile MapProfileFrom(MongoEmployerProfile source)
     {
         encodingService.TryDecode(source.EmployerAccountId, EncodingType.AccountId, out var accountId);
-        encodingService.TryDecode(source.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId);
+
+        if (string.IsNullOrWhiteSpace(source.AccountLegalEntityPublicHashedId))
+        {
+            logger.LogWarning("[{EmployerProfileId}] Failed to find AccountLegalEntityPublicHashedId value on record", source.Id);
+            return EmployerProfile.None;
+        }
+        
+        if (!encodingService.TryDecode(source.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId))
+        {
+            logger.LogWarning("[{EmployerProfileId}] Failed to decode AccountLegalEntityPublicHashedId value: {value}", source.Id, source.AccountLegalEntityPublicHashedId);
+            return EmployerProfile.None;
+        }
 
         return new EmployerProfile
         {

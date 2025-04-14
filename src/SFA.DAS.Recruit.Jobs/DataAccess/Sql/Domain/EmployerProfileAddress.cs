@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
-public class EmployerProfileAddress
+public record EmployerProfileAddress
 {
     [Key]
     public int Id { get; set; }

@@ -32,12 +32,44 @@ public class EmployerProfilesMigrationStrategy(
     private async Task ProcessBatchAsync(List<MongoEmployerProfile> employerProfiles)
     {
         // Map to new records
-        var mappedProfiles = employerProfiles.Select(mapper.MapProfileFrom).ToList();
-        var mappedAddresses = mapper.MapAddressesFrom(employerProfiles).ToList();
+        List<MongoEmployerProfile> excludedEmployerProfiles = [];
+        var mappedProfiles = employerProfiles
+            .Select(x =>
+            {
+                var item = mapper.MapProfileFrom(x);
+                if (item == SqlEmployerProfile.None)
+                {
+                    excludedEmployerProfiles.Add(x);
+                }
 
-        await sqlRepository.UpsertEmployerProfilesBatchAsync(mappedProfiles);
-        await sqlRepository.UpsertEmployerProfileAddressesBatchAsync(mappedAddresses);
-        
-        await mongoRepository.UpdateSuccessMigrationDateBatchAsync(employerProfiles.Select(x => x.Id).ToList());
+                return item;
+            })
+            .Where(x => x != SqlEmployerProfile.None)
+            .ToList();
+
+        var migratedRecords = employerProfiles.Except(excludedEmployerProfiles).ToList();
+
+        // Only get addresses for successful mappings
+        List<SqlEmployerProfileAddress> mappedAddresses = [];
+        if (migratedRecords is { Count: > 1 })
+        {
+            mappedAddresses.AddRange(mapper.MapAddressesFrom(migratedRecords));
+        }
+
+        if (mappedProfiles is { Count: > 0 })
+        {
+            // Push to SQL Server
+            await sqlRepository.UpsertEmployerProfilesBatchAsync(mappedProfiles);
+            await sqlRepository.UpsertEmployerProfileAddressesBatchAsync(mappedAddresses);
+            
+            // Mark migrated
+            await mongoRepository.UpdateSuccessMigrationDateBatchAsync(migratedRecords.Select(x => x.Id).ToList());
+        }
+
+        if (excludedEmployerProfiles is { Count: > 0 })
+        {
+            // Mark failed        
+            await mongoRepository.UpdateFailedMigrationDateBatchAsync(excludedEmployerProfiles.Select(x => x.Id).ToList());
+        }
     }
 }
