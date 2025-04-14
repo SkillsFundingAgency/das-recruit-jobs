@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Encoding;
 using SqlEmployerProfileAddress = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerProfileAddress;
 using SqlEmployerProfile = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerProfile;
 using MongoEmployerProfile = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.EmployerProfile;
-using MongoAddress = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Address;
 
 namespace SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 
@@ -60,16 +58,24 @@ public class EmployerProfilesMigrationStrategy(
         {
             // Push to SQL Server
             await sqlRepository.UpsertEmployerProfilesBatchAsync(mappedProfiles);
-            await sqlRepository.UpsertEmployerProfileAddressesBatchAsync(mappedAddresses);
+            logger.LogInformation("Imported {count} employer profiles", mappedProfiles.Count);
+
+            if (mappedAddresses is { Count: > 0 })
+            {
+                await sqlRepository.UpsertEmployerProfileAddressesBatchAsync(mappedAddresses);
+                logger.LogInformation("Imported {count} employer profile addresses", mappedAddresses.Count);
+            }
             
             // Mark migrated
             await mongoRepository.UpdateSuccessMigrationDateBatchAsync(migratedRecords.Select(x => x.Id).ToList());
+            logger.LogInformation("Marked {SuccessCount} employer profiles as migrated", migratedRecords.Count);
         }
 
         if (excludedEmployerProfiles is { Count: > 0 })
         {
             // Mark failed        
             await mongoRepository.UpdateFailedMigrationDateBatchAsync(excludedEmployerProfiles.Select(x => x.Id).ToList());
+            logger.LogInformation("Failed to migrate {FailedCount} employer profiles", excludedEmployerProfiles.Count);
         }
     }
 }
