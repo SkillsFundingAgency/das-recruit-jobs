@@ -25,7 +25,7 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger)
             ReviewedDate = source.ReviewedDate,
             Status = MapStatus(source),
             SubmissionCount = source.SubmissionCount,
-            ReviewedByUserId = source.ReviewedByUser?.UserId,
+            ReviewedByUserEmail = source.ReviewedByUser?.Email,
             SubmittedByUserEmail = source.SubmittedByUser.Email,
             ClosedDate = source.ClosedDate,
             ManualOutcome = MapQaOutcome(source),

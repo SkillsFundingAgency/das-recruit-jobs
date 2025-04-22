@@ -13,7 +13,7 @@ public class VacancyReview
     public DateTime SlaDeadline { get; init; }
     public DateTime? ReviewedDate { get; init; }
     public ReviewStatus Status { get; init; }
-    public string? ReviewedByUserId { get; init; }
+    public string? ReviewedByUserEmail { get; init; }
     public string SubmittedByUserEmail { get; init; }
     public int SubmissionCount { get; init; }
     public DateTime? ClosedDate { get; init; }
