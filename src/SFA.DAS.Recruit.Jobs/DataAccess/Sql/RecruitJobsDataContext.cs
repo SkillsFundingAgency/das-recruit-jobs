@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<EmployerProfile> EmployerProfile { get; set; }
     public DbSet<EmployerProfileAddress> EmployerProfileAddress { get; set; }
     public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; }
+    public DbSet<VacancyReview> VacancyReview { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -27,6 +29,8 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
 
         optionsBuilder.UseSqlServer(connection, options => options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(20), null));
     }
+
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,5 +80,56 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .Property(x => x.AccountLegalEntityId)
             .HasColumnType("bigint")
             .ValueGeneratedNever();
+
+        // VacancyReview
+        modelBuilder
+            .Entity<VacancyReview>()
+            .HasKey(x => x.Id);
+
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(x => x.UpdatedFieldIdentifiers)
+            .HasConversion(
+                x => JsonSerializer.Serialize(x, JsonOptions),
+                x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)
+            );
+        
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(x => x.DismissedAutomatedQaOutcomeIndicators)
+            .HasConversion(
+                x => JsonSerializer.Serialize(x, JsonOptions),
+                x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)
+            );
+
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(x => x.ManualQaFieldIndicators)
+            .HasConversion(
+                x => JsonSerializer.Serialize(x, JsonOptions),
+                x => JsonSerializer.Deserialize<List<ManualQaFieldIndicator>>(x, JsonOptions)
+            );
+        
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(x => x.AutomatedQaOutcome)
+            .HasConversion(
+                x => JsonSerializer.Serialize(x, JsonOptions),
+                x => JsonSerializer.Deserialize<RuleSetOutcome>(x, JsonOptions)!
+            );
+        
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(e => e.ManualOutcome)
+            .HasConversion(
+                v => v.ToString(),
+                v => (ManualQaOutcome)Enum.Parse(typeof(ManualQaOutcome), v!));
+        
+        modelBuilder
+            .Entity<VacancyReview>()
+            .Property(e => e.Status)
+            .HasConversion(
+                v => v.ToString(),
+                v => (ReviewStatus)Enum.Parse(typeof(ReviewStatus), v));
     }
 }
