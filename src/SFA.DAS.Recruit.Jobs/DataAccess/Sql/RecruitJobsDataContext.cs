@@ -14,6 +14,8 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
     public DbSet<LegacyApplication> LegacyApplication { get; set; }
     public DbSet<ProhibitedContent> ProhibitedContent { get; set; }
+    public DbSet<EmployerProfile> EmployerProfile { get; set; }
+    public DbSet<EmployerProfileAddress> EmployerProfileAddress { get; set; }
     public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,6 +30,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // ApplicationReview
         modelBuilder
             .Entity<ApplicationReview>()
             .Property(e => e.Status)
@@ -35,6 +38,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
                 v => v.ToString(),
                 v => (ApplicationReviewStatus)Enum.Parse(typeof(ApplicationReviewStatus), v));
 
+        // ProhibitedContent
         modelBuilder
             .Entity<ProhibitedContent>()
             .HasKey(x => new { x.ContentType, x.Content });
@@ -43,6 +47,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .Property(e => e.ContentType)
             .HasConversion<int>();
 
+        // UserNotificationPreferences
         modelBuilder
             .Entity<UserNotificationPreferences>()
             .HasKey(x => x.UserId);
@@ -64,5 +69,12 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .HasConversion(
                 v => v.ToString(),
                 v => (NotificationScope)Enum.Parse(typeof(NotificationScope), v));
+        
+        // EmployerProfile
+        modelBuilder
+            .Entity<EmployerProfile>()
+            .Property(x => x.AccountLegalEntityId)
+            .HasColumnType("bigint")
+            .ValueGeneratedNever();
     }
 }
