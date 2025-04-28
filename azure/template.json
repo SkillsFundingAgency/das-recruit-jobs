@@ -35,6 +35,9 @@
         "sharedEnvVirtualNetworkName": {
             "type": "string"
         },
+        "sharedSQLServerName": {
+            "type": "string"
+        },
         "subnetObject": {
             "type": "object"
         },
@@ -144,6 +147,27 @@
             "dependsOn": [
                 "[variables('resourceGroupName')]"
             ]
+        },
+        {
+            "apiVersion": "2021-04-01",
+            "name": "[concat('recruit-worker-sql-firewall-rule-', parameters('utcValue'))]",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'sql-server-firewall-rules.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "serverName": {
+                        "value": "[parameters('sharedSQLServerName')]"
+                    },
+                    "subnetResourceIdList": {
+                        "value": "[createArray(reference(concat(parameters('subnetObject').name, '-', parameters('utcValue'))).outputs.SubnetResourceId.value)]"
+                    }
+                }
+            }
         },
         {
             "apiVersion": "2021-04-01",
