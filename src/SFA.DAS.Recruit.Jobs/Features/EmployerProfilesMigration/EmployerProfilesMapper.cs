@@ -49,6 +49,27 @@ public class EmployerProfilesMapper(
     
     private static EmployerProfileAddress MapAddressFrom(MongoAddress source, long accountLegalEntityId)
     {
+        if (string.IsNullOrWhiteSpace(source.AddressLine1) 
+            && string.IsNullOrWhiteSpace(source.AddressLine2) 
+            && string.IsNullOrWhiteSpace(source.AddressLine3) 
+            && string.IsNullOrWhiteSpace(source.AddressLine4)
+            && source.Postcode.Contains(','))
+        {
+            var addressParts = source.Postcode.Split(',');
+            //This might not be 100% accurate
+            return new EmployerProfileAddress
+            {
+                AccountLegalEntityId = accountLegalEntityId,
+                AddressLine1 = addressParts.First(),
+                AddressLine2 = addressParts.Length > 1 ? addressParts[1] : null,
+                AddressLine3 = addressParts.Length > 2 ? addressParts[2] : null,
+                AddressLine4 = addressParts[^2],
+                Postcode = addressParts.Last(),
+                Latitude = source.Latitude,
+                Longitude = source.Longitude,
+            };
+        }
+        
         return new EmployerProfileAddress
         {
             AccountLegalEntityId = accountLegalEntityId,
