@@ -22,7 +22,7 @@ public class VacancyReview
     public string VacancySnapshot { get; init; }
     public List<string>? UpdatedFieldIdentifiers { get; init; }
     public List<ManualQaFieldIndicator>? ManualQaFieldIndicators { get; init; }
-    public RuleSetOutcome AutomatedQaOutcome {get; init; }
+    public RuleSetOutcome? AutomatedQaOutcome {get; init; }
     [MaxLength(20)]
     public string? AutomatedQaOutcomeIndicators {get; init; }
     public List<string>? DismissedAutomatedQaOutcomeIndicators { get; init; } = [];
