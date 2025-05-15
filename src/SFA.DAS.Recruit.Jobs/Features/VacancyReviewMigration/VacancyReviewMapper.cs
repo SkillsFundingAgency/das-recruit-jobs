@@ -26,7 +26,7 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger)
             Status = MapStatus(source),
             SubmissionCount = source.SubmissionCount,
             ReviewedByUserEmail = source.ReviewedByUser?.Email,
-            SubmittedByUserEmail = source.SubmittedByUser.Email,
+            SubmittedByUserEmail = !string.IsNullOrEmpty(source.SubmittedByUser.Email) ? source.SubmittedByUser.Email : "unknown",
             ClosedDate = source.ClosedDate,
             ManualOutcome = MapQaOutcome(source),
             ManualQaComment = source.ManualQaComment,
