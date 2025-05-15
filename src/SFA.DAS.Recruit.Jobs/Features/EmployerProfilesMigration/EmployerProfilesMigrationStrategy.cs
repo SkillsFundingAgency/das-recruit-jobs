@@ -51,7 +51,7 @@ public class EmployerProfilesMigrationStrategy(
         List<SqlEmployerProfileAddress> mappedAddresses = [];
         if (migratedRecords is { Count: > 1 })
         {
-            mappedAddresses.AddRange(mapper.MapAddressesFrom(migratedRecords));
+            mappedAddresses.AddRange(mapper.MapAddressesFrom(migratedRecords).Where(c=>c != null).ToList());
         }
 
         if (mappedProfiles is { Count: > 0 })

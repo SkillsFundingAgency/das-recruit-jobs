@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Linq;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
@@ -38,36 +39,40 @@ public class EmployerProfilesMapper(
         };
     }
 
-    public IEnumerable<EmployerProfileAddress> MapAddressesFrom(List<MongoEmployerProfile> source)
+    public IEnumerable<EmployerProfileAddress?> MapAddressesFrom(List<MongoEmployerProfile> source)
     {
         return source.SelectMany(x =>
         {
             encodingService.TryDecode(x.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityId);
-            return x.OtherLocations?.Select(address => MapAddressFrom(address, accountLegalEntityId)) ?? [];
+            var employerProfileAddresses = x.OtherLocations.Select(address => MapAddressFrom(address, accountLegalEntityId)).Where(c=>c != null);
+            return employerProfileAddresses.Where(c=>c!=null) ?? [];
         });
     }
     
-    private static EmployerProfileAddress MapAddressFrom(MongoAddress source, long accountLegalEntityId)
+    private static EmployerProfileAddress? MapAddressFrom(MongoAddress source, long accountLegalEntityId)
     {
-        if (string.IsNullOrWhiteSpace(source.AddressLine1) 
-            && string.IsNullOrWhiteSpace(source.AddressLine2) 
-            && string.IsNullOrWhiteSpace(source.AddressLine3) 
-            && string.IsNullOrWhiteSpace(source.AddressLine4)
-            && source.Postcode.Contains(','))
+        if (source.Postcode.Length > 8)
         {
-            var addressParts = source.Postcode.Split(',');
-            //This might not be 100% accurate
-            return new EmployerProfileAddress
+            if (source.Postcode.Contains(','))
             {
-                AccountLegalEntityId = accountLegalEntityId,
-                AddressLine1 = addressParts.First(),
-                AddressLine2 = addressParts.Length > 1 ? addressParts[1] : null,
-                AddressLine3 = addressParts.Length > 2 ? addressParts[2] : null,
-                AddressLine4 = addressParts[^2],
-                Postcode = addressParts.Last(),
-                Latitude = source.Latitude,
-                Longitude = source.Longitude,
-            };
+                var addressParts = source.Postcode.Split(',');
+                //This might not be 100% accurate
+                return new EmployerProfileAddress
+                {
+                    AccountLegalEntityId = accountLegalEntityId,
+                    AddressLine1 = addressParts.First(),
+                    AddressLine2 = addressParts.Length > 1 ? addressParts[1] : null,
+                    AddressLine3 = addressParts.Length > 2 ? addressParts[2] : null,
+                    AddressLine4 = addressParts[^2],
+                    Postcode = addressParts.Last().Length <= 8 ? addressParts.Last() : addressParts.Last()[..8],
+                    Latitude = source.Latitude,
+                    Longitude = source.Longitude,
+                };    
+            }
+            else
+            {
+                return null;
+            }
         }
         
         return new EmployerProfileAddress
