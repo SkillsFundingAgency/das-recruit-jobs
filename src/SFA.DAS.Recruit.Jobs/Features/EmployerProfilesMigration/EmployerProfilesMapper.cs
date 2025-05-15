@@ -60,11 +60,11 @@ public class EmployerProfilesMapper(
                 return new EmployerProfileAddress
                 {
                     AccountLegalEntityId = accountLegalEntityId,
-                    AddressLine1 = addressParts.First(),
-                    AddressLine2 = addressParts.Length > 1 ? addressParts[1] : null,
-                    AddressLine3 = addressParts.Length > 2 ? addressParts[2] : null,
-                    AddressLine4 = addressParts[^2],
-                    Postcode = addressParts.Last().Length <= 8 ? addressParts.Last() : addressParts.Last()[..8],
+                    AddressLine1 = addressParts.First().Trim(),
+                    AddressLine2 = addressParts.Length > 1 ? addressParts[1].Trim() : null,
+                    AddressLine3 = addressParts.Length > 2 ? addressParts[2].Trim() : null,
+                    AddressLine4 = addressParts[^2].Trim(),
+                    Postcode = addressParts.Last().Length <= 8 ? addressParts.Last().Trim() : addressParts.Last()[..8],
                     Latitude = source.Latitude,
                     Longitude = source.Longitude,
                 };    
