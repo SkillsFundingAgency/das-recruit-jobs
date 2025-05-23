@@ -14,11 +14,12 @@ public class ApplicationReviewsMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
 {
+    private static readonly DateTime RemigrationCutOff = new(2025, 5, 25); // cause everything to get migrated again
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
     {
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         var pipeline = new EmptyPipelineDefinition<ApplicationReview>()
-            .Match(x => (x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) && x.MigrationFailed == null)
+            .Match(x => (x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate || x.MigrationDate < RemigrationCutOff) && x.MigrationFailed == null)
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
@@ -26,7 +27,7 @@ public class ApplicationReviewsMigrationMongoRepository(
             new Context(nameof(FetchBatchAsync))
         );
     }
-    
+
     public async Task<List<ApplicationReview>> FetchBatchByIdsAsync(List<Guid> ids)
     {
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);

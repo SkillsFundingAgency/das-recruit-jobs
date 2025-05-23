@@ -21,7 +21,7 @@ public class VacancyReview
     public string? ManualQaComment { get; init; }
     public string VacancySnapshot { get; init; }
     public List<string>? UpdatedFieldIdentifiers { get; init; }
-    public List<ManualQaFieldIndicator>? ManualQaFieldIndicators { get; init; }
+    public List<string>? ManualQaFieldIndicators { get; init; }
     public RuleSetOutcome? AutomatedQaOutcome {get; init; }
     [MaxLength(20)]
     public string? AutomatedQaOutcomeIndicators {get; init; }
@@ -34,12 +34,6 @@ public enum ManualQaOutcome : byte
     Referred,
     Transferred,
     Blocked
-}
-
-public class ManualQaFieldIndicator
-{
-    public string FieldIdentifier { get; set; }
-    public bool IsChangeRequested { get; set; }
 }
 
 public enum ReviewStatus : byte

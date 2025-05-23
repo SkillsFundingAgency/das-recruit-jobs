@@ -96,15 +96,11 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger)
         };
     }
 
-    private static List<ManualQaFieldIndicator> MapManualQaFieldIndicators(MongoVacancyReview source)
+    private static List<string> MapManualQaFieldIndicators(MongoVacancyReview source)
     {
         return source.ManualQaFieldIndicators?
-            .Select(x => new ManualQaFieldIndicator
-            {
-                FieldIdentifier = x.FieldIdentifier,
-                IsChangeRequested = x.IsChangeRequested,
-            })
             .Where(x => x.IsChangeRequested)
+            .Select(x => x.FieldIdentifier)
             .ToList() ?? [];
     }
 
