@@ -107,7 +107,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
             .Property(x => x.ManualQaFieldIndicators)
             .HasConversion(
                 x => JsonSerializer.Serialize(x, JsonOptions),
-                x => JsonSerializer.Deserialize<List<ManualQaFieldIndicator>>(x, JsonOptions)
+                x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)
             );
         
         modelBuilder
