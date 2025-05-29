@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SqlEmployerProfileAddress = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerProfileAddress;
 using SqlEmployerProfile = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerProfile;
 using MongoEmployerProfile = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.EmployerProfile;
@@ -51,7 +52,19 @@ public class EmployerProfilesMigrationStrategy(
         List<SqlEmployerProfileAddress> mappedAddresses = [];
         if (migratedRecords is { Count: > 1 })
         {
-            mappedAddresses.AddRange(mapper.MapAddressesFrom(migratedRecords).Where(c=>c != null).ToList());
+            var records = mapper
+                .MapAddressesFrom(migratedRecords)
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList();
+            mappedAddresses.AddRange(records.DistinctBy(x => $"{x.AccountLegalEntityId}-{x.AddressLine1}-{x.Postcode}"));
+
+            if (records.Count != mappedAddresses.Count)
+            {
+                var groupedRecords = records.GroupBy(x => $"{x.AccountLegalEntityId}-{x.AddressLine1}-{x.Postcode}").Where(x => x.Count() > 1);
+                var ids = string.Join(",", groupedRecords.Select(x => x.First().AccountLegalEntityId));
+                logger.LogWarning("Detected duplicate addresses for the following Employer Profiles: {accountLegalEntityIds}", ids);
+            }
         }
 
         if (mappedProfiles is { Count: > 0 })
@@ -62,6 +75,8 @@ public class EmployerProfilesMigrationStrategy(
 
             if (mappedAddresses is { Count: > 0 })
             {
+                // de-dupe addresses as we can't match on source ids that don't exist
+                mappedAddresses = mappedAddresses.DistinctBy(x => $"{x.AccountLegalEntityId}-{x.AddressLine1}-{x.Postcode}").ToList();
                 await sqlRepository.UpsertEmployerProfileAddressesBatchAsync(mappedAddresses);
                 logger.LogInformation("Imported {count} employer profile addresses", mappedAddresses.Count);
             }
