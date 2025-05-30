@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
@@ -26,6 +27,10 @@ public class VacancyReview
     [MaxLength(20)]
     public string? AutomatedQaOutcomeIndicators {get; init; }
     public List<string>? DismissedAutomatedQaOutcomeIndicators { get; init; } = [];
+    public long AccountId { get; set; }
+    public long AccountLegalEntityId { get; set; }
+    public long Ukprn { get; set; }
+    public OwnerType OwnerType { get; set; }
 }
 
 public enum ManualQaOutcome : byte
