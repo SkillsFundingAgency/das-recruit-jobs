@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoVacancyReview = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.VacancyReview;
 using MongoManualQaOutcome = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.ManualQaOutcome;
@@ -11,7 +12,7 @@ using MongoRuleOutcome = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.RuleOutc
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
 [ExcludeFromCodeCoverage]
-public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger)
+public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger, IEncodingService encodingService)
 {
     public VacancyReview MapFrom(MongoVacancyReview source)
     {
@@ -36,6 +37,10 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger)
             DismissedAutomatedQaOutcomeIndicators = source.DismissedAutomatedQaOutcomeIndicators ?? [],
             UpdatedFieldIdentifiers = source.UpdatedFieldIdentifiers,
             VacancySnapshot = JsonSerializer.Serialize(source.VacancySnapshot),
+            AccountId =  encodingService.Decode(source.VacancySnapshot.EmployerAccountId, EncodingType.AccountId),
+            AccountLegalEntityId = encodingService.Decode(source.VacancySnapshot.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
+            Ukprn = source.VacancySnapshot.TrainingProvider.Ukprn!.Value,
+            OwnerType = source.VacancySnapshot.OwnerType,
         };
     }
 
