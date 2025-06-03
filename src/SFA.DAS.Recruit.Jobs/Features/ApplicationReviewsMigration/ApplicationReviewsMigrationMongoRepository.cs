@@ -22,7 +22,12 @@ public class ApplicationReviewsMigrationMongoRepository(
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
-            async _ => await (await collection.AggregateAsync(pipeline, new AggregateOptions{MaxTime = TimeSpan.FromMinutes(10)})).ToListAsync(),
+            async _ => await (await collection.AggregateAsync(pipeline, new AggregateOptions
+            {
+                MaxTime = TimeSpan.FromMinutes(10), 
+                MaxAwaitTime = TimeSpan.FromMinutes(10),
+                BatchSize = batchSize
+            })).ToListAsync(),
             new Context(nameof(FetchBatchAsync))
         );
     }
