@@ -22,7 +22,7 @@ public class ApplicationReviewsMigrationMongoRepository(
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
-            async _ => await (await collection.AggregateAsync(pipeline)).ToListAsync(),
+            async _ => await (await collection.AggregateAsync(pipeline, new AggregateOptions{MaxTime = TimeSpan.FromMinutes(10)})).ToListAsync(),
             new Context(nameof(FetchBatchAsync))
         );
     }
@@ -33,7 +33,7 @@ public class ApplicationReviewsMigrationMongoRepository(
         var filterDefinition = Builders<ApplicationReview>.Filter.In(x => x.Id, ids);
 
         return await RetryPolicy.ExecuteAsync(
-            _ => collection.Find(filterDefinition).ToListAsync(),
+            _ => collection.Find(filterDefinition, new FindOptions{MaxTime = TimeSpan.FromMinutes(10)}).ToListAsync(),
             new Context(nameof(FetchBatchAsync))
         );
     }
@@ -70,7 +70,7 @@ public class ApplicationReviewsMigrationMongoRepository(
         var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
         
         return await RetryPolicy.ExecuteAsync(_ => collection
-                .Find(filterDef)
+                .Find(filterDef, new FindOptions{MaxTime = TimeSpan.FromMinutes(10)})
                 .Project<Vacancy>(GetProjection<Vacancy>())
                 .ToListAsync(),
             new Context(nameof(FetchVacanciesAsync))
