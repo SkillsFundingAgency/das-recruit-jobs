@@ -17,14 +17,16 @@ public class ApplicationReviewsMigrationMongoRepository(
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
     {
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
-        var pipeline = new EmptyPipelineDefinition<ApplicationReview>()
-            .Match(x => (x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) && x.MigrationFailed == null)
-            .Limit(batchSize);
-
+        
         return await RetryPolicy.ExecuteAsync(
-            async _ => await (await collection.AggregateAsync(pipeline, new AggregateOptions{MaxTime = TimeSpan.FromMinutes(10)})).ToListAsync(),
+            _ => collection
+                .Find(x=>(x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) 
+                                    && x.MigrationFailed == null, new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
+                .Limit(batchSize)
+                .ToListAsync(),
             new Context(nameof(FetchBatchAsync))
         );
+        
     }
 
     public async Task<List<ApplicationReview>> FetchBatchByIdsAsync(List<Guid> ids)
