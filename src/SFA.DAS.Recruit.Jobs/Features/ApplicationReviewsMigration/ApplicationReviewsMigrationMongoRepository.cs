@@ -11,8 +11,8 @@ namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 [ExcludeFromCodeCoverage]
 public class ApplicationReviewsMigrationMongoRepository(
     ILoggerFactory loggerFactory,
-    IOptions<MongoDbConnectionDetails> config)
-    : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
+    IOptions<MongoDbConnectionDetails> config, IMongoClient mongoClient)
+    : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config, mongoClient)
 {
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
     {
@@ -21,7 +21,7 @@ public class ApplicationReviewsMigrationMongoRepository(
         return await RetryPolicy.ExecuteAsync(
             _ => collection
                 .Find(x=>(x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) 
-                                    && x.MigrationFailed == null, new FindOptions{ BatchSize = batchSize})
+                                    && x.MigrationFailed == null, new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
                 .Limit(batchSize)
                 .ToListAsync(),
             new Context(nameof(FetchBatchAsync))

@@ -13,6 +13,7 @@ namespace SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 public abstract class MongoDbCollectionBase
     {
         private readonly string _dbName;
+        private readonly IMongoClient? _mongoClient;
         private readonly MongoDbConnectionDetails _config;
         private readonly Lazy<ILogger> _mongoCommandLogger;
         private readonly string[] _excludedCommands = { "isMaster", "buildInfo", "saslStart", "saslContinue", "getLastError" };
@@ -21,10 +22,11 @@ public abstract class MongoDbCollectionBase
 
         protected AsyncRetryPolicy RetryPolicy { get; set; }
 
-        protected MongoDbCollectionBase(ILoggerFactory loggerFactory, string dbName, IOptions<MongoDbConnectionDetails> config)
+        protected MongoDbCollectionBase(ILoggerFactory loggerFactory, string dbName, IOptions<MongoDbConnectionDetails> config, IMongoClient? mongoClient= null)
         {
             _dbName = dbName;
-            
+            _mongoClient = mongoClient;
+
             _config = config.Value;
 
             Logger = loggerFactory.CreateLogger(this.GetType().FullName);
@@ -44,7 +46,7 @@ public abstract class MongoDbCollectionBase
             //if (_config.ConnectionString.Contains("localhost:27017"))
             LogMongoCommands(settings);
 
-            var client = new MongoClient(settings);
+            var client = _mongoClient ?? new MongoClient(settings);
             var database = client.GetDatabase(_dbName);
 
             return database;
