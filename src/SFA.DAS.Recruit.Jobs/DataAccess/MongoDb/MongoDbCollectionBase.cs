@@ -37,9 +37,11 @@ public abstract class MongoDbCollectionBase
         {
             var settings = MongoClientSettings.FromUrl(new MongoUrl(_config.ConnectionString));
             settings.SslSettings = new SslSettings { EnabledSslProtocols = SslProtocols.Tls12 };
-
-            if (_config.ConnectionString.Contains("localhost:27017"))
-                LogMongoCommands(settings);
+            settings.ConnectTimeout = TimeSpan.FromMinutes(10);
+            settings.SocketTimeout = TimeSpan.FromMinutes(10);
+            
+            //if (_config.ConnectionString.Contains("localhost:27017"))
+            LogMongoCommands(settings);
 
             var client = new MongoClient(settings);
             var database = client.GetDatabase(_dbName);
