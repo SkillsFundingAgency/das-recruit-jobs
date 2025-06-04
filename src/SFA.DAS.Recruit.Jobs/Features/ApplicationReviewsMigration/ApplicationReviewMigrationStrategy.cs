@@ -26,7 +26,9 @@ public class ApplicationReviewMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
+        logger.LogInformation($"Starting application review migration strategy");
         var applicationReviews = await mongoRepository.FetchBatchAsync(BatchSize);
+        logger.LogInformation($"Finished getting application reviews");
         while (applicationReviews is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
             await ProcessBatch(applicationReviews);
