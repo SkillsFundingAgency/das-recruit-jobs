@@ -21,7 +21,7 @@ public class ApplicationReviewsMigrationMongoRepository(
         return await RetryPolicy.ExecuteAsync(
             _ => collection
                 .Find(x=>(x.MigrationDate == null || x.MigrationDate < x.StatusUpdatedDate) 
-                                    && x.MigrationFailed == null, new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
+                                    && x.MigrationFailed == null, new FindOptions{ BatchSize = batchSize})
                 .Limit(batchSize)
                 .ToListAsync(),
             new Context(nameof(FetchBatchAsync))

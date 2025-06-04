@@ -40,6 +40,7 @@ public abstract class MongoDbCollectionBase
             settings.ConnectTimeout = TimeSpan.FromMinutes(10);
             settings.SocketTimeout = TimeSpan.FromMinutes(10);
             
+            
             //if (_config.ConnectionString.Contains("localhost:27017"))
             LogMongoCommands(settings);
 
