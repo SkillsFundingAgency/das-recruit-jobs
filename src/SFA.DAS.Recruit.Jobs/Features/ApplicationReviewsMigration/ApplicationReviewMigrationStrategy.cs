@@ -14,7 +14,7 @@ public class ApplicationReviewMigrationStrategy(
     ApplicationReviewMapper applicationReviewMapper,
     LegacyApplicationMapper legacyApplicationMapper)
 {
-    private const int BatchSize = 1;
+    private const int BatchSize = 50;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
 
     public async Task RunAsync(List<Guid> ids)
