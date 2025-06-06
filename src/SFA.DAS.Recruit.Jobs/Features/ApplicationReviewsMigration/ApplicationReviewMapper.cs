@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SqlApplicationReviewStatus = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApplicationReviewStatus;
 using MongoApplicationReviewStatus = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.ApplicationReviewStatus;
 using SqlApplicationReview = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApplicationReview;
@@ -41,8 +40,8 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
         {
             AccountId = accountId,
             AccountLegalEntityId = accountLegalEntityId,
-            AdditionalQuestion1 = source.Application?.AdditionalQuestion1,
-            AdditionalQuestion2 = source.Application?.AdditionalQuestion2,
+            AdditionalQuestion1 = source.Application?.AdditionalQuestion1Text,
+            AdditionalQuestion2 = source.Application?.AdditionalQuestion2Text,
             ApplicationId = source.Application?.IsFaaV2Application is true ? source.Application?.ApplicationId : null,
             CandidateFeedback = source.CandidateFeedback,
             CandidateId = source.CandidateId,
