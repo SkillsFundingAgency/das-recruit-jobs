@@ -17,7 +17,7 @@ public class ApplicationReviewsMigrationTimerTrigger(
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            //await applicationReviewMigrationStrategy.RunAsync();
+            await applicationReviewMigrationStrategy.RunAsync();
         }
         catch (Exception e)
         {
