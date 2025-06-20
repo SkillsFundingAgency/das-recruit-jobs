@@ -14,7 +14,7 @@ public class VacancyReviewMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
 {
-    private static readonly DateTime RemigrationCutOff = new(2025, 5, 30); // cause everything to get migrated again
+    private static readonly DateTime RemigrationCutOff = new(2025, 6, 21); // cause everything to get migrated again
     public async Task<List<VacancyReview>> FetchBatchAsync(int batchSize, int maxAgeInDays)
     {
         var createdAfterDate = DateTime.UtcNow.AddDays(-maxAgeInDays);
