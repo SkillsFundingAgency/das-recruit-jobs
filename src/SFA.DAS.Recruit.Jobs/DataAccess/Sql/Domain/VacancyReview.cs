@@ -31,6 +31,7 @@ public class VacancyReview
     public long AccountLegalEntityId { get; set; }
     public long Ukprn { get; set; }
     public OwnerType OwnerType { get; set; }
+    public DateTime? VacancyClosingDate { get; set; }
 }
 
 public enum ManualQaOutcome : byte
