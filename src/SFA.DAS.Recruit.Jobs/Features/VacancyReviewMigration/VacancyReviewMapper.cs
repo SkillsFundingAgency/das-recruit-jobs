@@ -40,8 +40,7 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger, IEncodingS
             AccountId =  encodingService.Decode(source.VacancySnapshot.EmployerAccountId, EncodingType.AccountId),
             AccountLegalEntityId = encodingService.Decode(source.VacancySnapshot.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
             Ukprn = source.VacancySnapshot.TrainingProvider.Ukprn!.Value,
-            OwnerType = source.VacancySnapshot.OwnerType,
-            VacancyClosingDate = source.VacancySnapshot.ClosingDate
+            OwnerType = source.VacancySnapshot.OwnerType
         };
     }
 
