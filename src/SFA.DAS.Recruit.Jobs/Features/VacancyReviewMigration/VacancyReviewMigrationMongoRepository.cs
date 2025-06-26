@@ -14,13 +14,13 @@ public class VacancyReviewMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
 {
-    private static readonly DateTime RemigrationCutOff = new(2025, 6, 21); // cause everything to get migrated again
+    private static readonly DateTime RemigrationCutOff = new(2025, 6, 20,0,0,0); // cause everything to get migrated again
     public async Task<List<VacancyReview>> FetchBatchAsync(int batchSize, int maxAgeInDays)
     {
         var createdAfterDate = DateTime.UtcNow.AddDays(-maxAgeInDays);
         var collection = GetCollection<VacancyReview>(MongoDbCollectionNames.VacancyReviews);
         var pipeline = new EmptyPipelineDefinition<VacancyReview>()
-            .Match(x => (x.MigrationDate == null || x.MigrationDate < RemigrationCutOff) && x.MigrationFailed == null && x.MigrationIgnore == null && x.CreatedDate > createdAfterDate)
+            .Match(x => (x.MigrationDate == null || x.MigrationDate < RemigrationCutOff) && x.MigrationFailed == null && x.MigrationIgnore == null)
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(
