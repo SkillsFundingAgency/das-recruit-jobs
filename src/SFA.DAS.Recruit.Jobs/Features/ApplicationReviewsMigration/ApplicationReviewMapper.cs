@@ -58,7 +58,7 @@ public class ApplicationReviewMapper(ILogger<ApplicationReviewMapper> logger, IE
             Ukprn = (int)vacancy.TrainingProvider.Ukprn,
             VacancyReference = source.VacancyReference,
             VacancyTitle = vacancy.Title ?? string.Empty,
-            WithdrawnDate = source.WithdrawnDate,
+            WithdrawnDate = source.WithdrawnDate//source.IsWithdrawn ? new DateTime(2025,01,01) : null
         };
     }
 
