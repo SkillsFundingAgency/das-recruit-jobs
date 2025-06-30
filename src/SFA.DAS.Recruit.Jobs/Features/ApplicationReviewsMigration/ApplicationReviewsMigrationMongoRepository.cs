@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -20,9 +20,8 @@ public class ApplicationReviewsMigrationMongoRepository(
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x=>x.CreatedDate >= new DateTime(2024,01,01) 
-                         && x.MigrationDate < new DateTime(2025,06,21,0,0,0) 
-                         && x.MigrationFailed == null, new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
+                .Find(x=> x.MigrationFailed == true && x.MigrationDate 
+                    < new DateTime(2025,06,30,0,0,0), new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
                 .Limit(batchSize)
                 .ToListAsync(),
             new Context(nameof(FetchBatchAsync))

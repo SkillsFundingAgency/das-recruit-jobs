@@ -82,7 +82,7 @@ public class ApplicationReviewMigrationStrategy(
     private async Task<List<SqlApplicationReview>> GetApplicationReviews(List<MongoApplicationReview> applicationReviews, List<MongoApplicationReview> excludedApplicationReviews)
     {
         // Check for missing applications
-        var appReviewsWithMissingApplications = applicationReviews.Where(x => x.Application is null).ToList();
+        var appReviewsWithMissingApplications = applicationReviews.Where(x => x.Application is null && !x.IsWithdrawn).ToList();
         if (appReviewsWithMissingApplications is { Count: > 0 })
         {
             applicationReviews.RemoveAll(x => appReviewsWithMissingApplications.Contains(x));
