@@ -19,7 +19,7 @@ public static class MigrationUtils
         }
         catch
         {
-            // currently TryDecode throws if null is passed :/
+            // currently TryDecode throws if null is passed :/  
             result = 0;
             return false;
         }
