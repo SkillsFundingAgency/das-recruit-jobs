@@ -15,53 +15,23 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
 {
     public async Task<SqlVacancy> MapFromAsync(MongoVacancy vacancy)
     {
-        var createdByUserId = await userLookupService.LookupUserAsync(vacancy.CreatedByUser);
-        if (createdByUserId == User.None)
-        {
-            logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown CreatedByUser", vacancy.Id);
-            return SqlVacancy.None;
-        }
+        // var createdByUserId = await userLookupService.LookupUserAsync(vacancy.CreatedByUser);
+        // if (createdByUserId == User.None)
+        // {
+        //     logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown CreatedByUser", vacancy.Id);
+        //     return SqlVacancy.None;
+        // }
+        //
+        // var submittedByUserId = await userLookupService.LookupUserAsync(vacancy.SubmittedByUser);
+        // if (submittedByUserId == User.None && vacancy.SubmittedDate is not null)
+        // {
+        //     logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown SubmittedByUser", vacancy.Id);
+        //     return SqlVacancy.None;
+        // }
         
-        var submittedByUserId = await userLookupService.LookupUserAsync(vacancy.SubmittedByUser);
-        if (submittedByUserId == User.None && vacancy.SubmittedDate is null)
-        {
-            logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown SubmittedByUser", vacancy.Id);
-            return SqlVacancy.None;
-        }
-        
-        long? accountId = null;
-        if (!string.IsNullOrWhiteSpace(vacancy.EmployerAccountId))
-        {
-            try
-            {
-                // currently TryDecode throws if null is passed :/
-                encodingService.TryDecode(vacancy.EmployerAccountId, EncodingType.AccountId, out var accountIdValue);
-                accountId = accountIdValue;
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad EmployerAccountId value '{sourceValue}'", vacancy.Id, vacancy.EmployerAccountId);
-                return SqlVacancy.None;
-            }
-        }
+        long? accountId = encodingService.TryDecodeAccountId(vacancy.EmployerAccountId, out var accountIdValue) ? accountIdValue : null;
+        long? accountLegalEntityId = encodingService.TryDecodePublicAccountLegalEntityId(vacancy.AccountLegalEntityPublicHashedId, out var accountLegalEntityIdValue) ? accountLegalEntityIdValue : null;
 
-        long? accountLegalEntityId = null;
-        if (!string.IsNullOrWhiteSpace(vacancy.AccountLegalEntityPublicHashedId))
-        {
-            try
-            {
-                // currently TryDecode throws if null is passed :/
-                encodingService.TryDecode(vacancy.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId, out var accountLegalEntityIdValue);
-                accountLegalEntityId = accountLegalEntityIdValue;
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad AccountLegalEntityPublicHashedId value '{sourceValue}'", vacancy.Id, vacancy.AccountLegalEntityPublicHashedId);
-                return SqlVacancy.None;
-            }
-        }
-
-        // TODO: sort out contacts
         string? contactName = null;
         string? contactEmail = null;
         string? contactPhone = null;
@@ -82,49 +52,13 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         AvailableWhere? locationOption = null;
         if (vacancy.EmployerLocation is not null)
         {
-            locations = MigrationUtils.Serialize(new List<MongoAddress> { vacancy.EmployerLocation });
+            locations = MigrationUtils.SerializeOrNull(new List<MongoAddress> { vacancy.EmployerLocation });
             locationOption = AvailableWhere.OneLocation;
         }
         else if (vacancy.EmployerLocations is { Count: >0 })
         {
-            locations = MigrationUtils.Serialize(vacancy.EmployerLocations);
+            locations = MigrationUtils.SerializeOrNull(vacancy.EmployerLocations);
             locationOption = Enum.Parse<AvailableWhere>(vacancy.EmployerLocationOption!.Value.ToString());
-        }
-
-        string? employerReviewFieldIndicators = null;
-        if (vacancy.EmployerReviewFieldIndicators is not null)
-        {
-            employerReviewFieldIndicators = MigrationUtils.Serialize(vacancy.EmployerReviewFieldIndicators);
-        }
-        
-        string? providerReviewFieldIndicators = null;
-        if (vacancy.ProviderReviewFieldIndicators is not null)
-        {
-            providerReviewFieldIndicators = MigrationUtils.Serialize(vacancy.ProviderReviewFieldIndicators);
-        }
-        
-        string? skills = null;
-        if (vacancy.Skills is not null)
-        {
-            skills = MigrationUtils.Serialize(vacancy.Skills);
-        }
-        
-        string? qualifications = null;
-        if (vacancy.Qualifications is not null)
-        {
-            qualifications = MigrationUtils.Serialize(vacancy.Qualifications);
-        }
-        
-        string? transferInfo = null;
-        if (vacancy.TransferInfo is not null)
-        {
-            transferInfo = MigrationUtils.Serialize(vacancy.TransferInfo);
-        }
-        
-        string? trainingProviderAddress = null;
-        if (vacancy.TrainingProvider?.Address is not null)
-        {
-            trainingProviderAddress = MigrationUtils.Serialize(vacancy.TrainingProvider?.Address);
         }
 
         return new SqlVacancy
@@ -174,14 +108,14 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             NumberOfPositions = vacancy.NumberOfPositions,
             OutcomeDescription = vacancy.OutcomeDescription,
             ProgrammeId = vacancy.ProgrammeId,
-            Skills = skills,
-            Qualifications = qualifications,
+            Skills = MigrationUtils.SerializeOrNull(vacancy.Skills),
+            Qualifications = MigrationUtils.SerializeOrNull(vacancy.Qualifications),
             ThingsToConsider = vacancy.ThingsToConsider,
             TrainingDescription = vacancy.TrainingDescription,
             AdditionalTrainingDescription = vacancy.AdditionalTrainingDescription,
             Ukprn = (int?)vacancy.TrainingProvider?.Ukprn,
             TrainingProvider_Name = vacancy.TrainingProvider?.Name,
-            TrainingProvider_Address = trainingProviderAddress,
+            TrainingProvider_Address = MigrationUtils.SerializeOrNull(vacancy.TrainingProvider?.Address),
             Wage_Duration = vacancy.Wage?.Duration,
             Wage_DurationUnit = vacancy.Wage?.DurationUnit is not null ? Enum.Parse<DurationUnit>(vacancy.Wage.DurationUnit.Value.ToString()) : null,
             Wage_WorkingWeekDescription = vacancy.Wage?.WorkingWeekDescription,
@@ -191,14 +125,14 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             Wage_WageAdditionalInformation = vacancy.Wage?.WageAdditionalInformation,
             Wage_CompanyBenefitsInformation = vacancy.Wage?.CompanyBenefitsInformation,
             ClosureReason = vacancy.ClosureReason is not null ? Enum.Parse<ClosureReason>(vacancy.ClosureReason!.Value.ToString()) : null,
-            TransferInfo = transferInfo,
+            TransferInfo = MigrationUtils.SerializeOrNull(vacancy.TransferInfo),
             AdditionalQuestion1 = vacancy.AdditionalQuestion1,
             AdditionalQuestion2 = vacancy.AdditionalQuestion2,
             HasSubmittedAdditionalQuestions = vacancy.HasSubmittedAdditionalQuestions,
             HasChosenProviderContactDetails = vacancy.HasChosenProviderContactDetails,
             HasOptedToAddQualifications = vacancy.HasOptedToAddQualifications,
-            EmployerReviewFieldIndicators = employerReviewFieldIndicators,
-            ProviderReviewFieldIndicators = providerReviewFieldIndicators,
+            EmployerReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.EmployerReviewFieldIndicators),
+            ProviderReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.ProviderReviewFieldIndicators),
         };
     }
 }

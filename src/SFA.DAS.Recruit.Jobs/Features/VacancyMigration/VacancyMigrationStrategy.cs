@@ -12,8 +12,14 @@ public class VacancyMigrationStrategy(
     VacancyMigrationMongoRepository mongoRepository,
     VacancyMigrationSqlRepository sqlRepository)
 {
-    private const int BatchSize = 100;
+    private const int BatchSize = 200;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
+    
+    public async Task RunAsync(List<Guid> ids)
+    {
+        var mongoVacancies = await mongoRepository.FetchBatchByIdsAsync(ids);
+        await ProcessBatchAsync(mongoVacancies);
+    }
     
     public async Task RunAsync()
     {

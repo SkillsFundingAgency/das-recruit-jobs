@@ -1,12 +1,41 @@
 ﻿using System.Text.Json;
+using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
 namespace SFA.DAS.Recruit.Jobs.Core;
 
 public static class MigrationUtils
 {
-    public static string Serialize<T>(T obj)
+    public static string? SerializeOrNull<T>(T? obj)
     {
-        return JsonSerializer.Serialize(obj, RecruitJobsDataContext.JsonOptions);
-    }   
+        return obj is null ? null : JsonSerializer.Serialize(obj, RecruitJobsDataContext.JsonOptions);
+    }
+
+    public static bool TryDecodeAccountId(this IEncodingService encodingService, string value, out long result)
+    {
+        try
+        {
+            return encodingService.TryDecode(value, EncodingType.AccountId, out result);
+        }
+        catch
+        {
+            // currently TryDecode throws if null is passed :/
+            result = 0;
+            return false;
+        }
+    }
+    
+    public static bool TryDecodePublicAccountLegalEntityId(this IEncodingService encodingService, string value, out long result)
+    {
+        try
+        {
+            return encodingService.TryDecode(value, EncodingType.PublicAccountLegalEntityId, out result);
+        }
+        catch
+        {
+            // currently TryDecode throws if null is passed :/
+            result = 0;
+            return false;
+        }
+    }
 }

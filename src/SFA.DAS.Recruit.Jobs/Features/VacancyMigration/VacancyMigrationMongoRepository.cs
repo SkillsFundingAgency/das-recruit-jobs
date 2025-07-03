@@ -20,7 +20,7 @@ public class VacancyMigrationMongoRepository(
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => x.MigrationDate == null && x.VacancyType != VacancyType.Traineeship, new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
+                .Find(x => x.MigrationDate == null && x.VacancyType != VacancyType.Traineeship, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
                 .Limit(batchSize)
                 .Project<Vacancy>(GetProjection<Vacancy>())
                 .ToListAsync(),
@@ -34,7 +34,10 @@ public class VacancyMigrationMongoRepository(
         var filterDefinition = Builders<Vacancy>.Filter.In(x => x.Id, ids);
 
         return await RetryPolicy.ExecuteAsync(
-            _ => collection.Find(filterDefinition, new FindOptions{MaxTime = TimeSpan.FromMinutes(10)}).ToListAsync(),
+            _ => collection
+                .Find(filterDefinition, new FindOptions{ MaxTime = TimeSpan.FromMinutes(1) })
+                .Project<Vacancy>(GetProjection<Vacancy>())
+                .ToListAsync(),
             new Context(nameof(FetchBatchAsync))
         );
     }
@@ -64,17 +67,4 @@ public class VacancyMigrationMongoRepository(
             new Context(nameof(UpdateFailedMigrationDateBatchAsync))
         );
     }
-
-    // public async Task<List<Vacancy>> FetchVacanciesAsync(List<long> vacancyReferences)
-    // {
-    //     var filterDef = Builders<Vacancy>.Filter.In(x => x.VacancyReference, vacancyReferences);
-    //     var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
-    //     
-    //     return await RetryPolicy.ExecuteAsync(_ => collection
-    //             .Find(filterDef, new FindOptions{MaxTime = TimeSpan.FromMinutes(10)})
-    //             .Project<Vacancy>(GetProjection<Vacancy>())
-    //             .ToListAsync(),
-    //         new Context(nameof(FetchVacanciesAsync))
-    //     );
-    // }
 }
