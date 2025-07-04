@@ -15,6 +15,12 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
 {
     public SqlVacancy MapFrom(MongoVacancy vacancy)
     {
+        if (vacancy.Status is DataAccess.MongoDb.Domain.VacancyStatus.Closed && !int.TryParse(vacancy.ProgrammeId, out var programmeId))
+        {
+            logger.LogWarning("Failed to parse ProgrammeId '{ProgrammeId}' for vacancy '{VacancyReference}', could be a Framework code", vacancy.ProgrammeId, vacancy.VacancyReference);
+            return SqlVacancy.None;
+        }
+        
         long? accountId = encodingService.TryDecodeAccountId(vacancy.EmployerAccountId, out var accountIdValue) ? accountIdValue : null;
         long? accountLegalEntityId = encodingService.TryDecodePublicAccountLegalEntityId(vacancy.AccountLegalEntityPublicHashedId, out var accountLegalEntityIdValue) ? accountLegalEntityIdValue : null;
 
