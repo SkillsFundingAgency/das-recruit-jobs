@@ -11,24 +11,10 @@ using MongoVacancy = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Vacancy;
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 
 [ExcludeFromCodeCoverage]
-public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encodingService, UserLookupService userLookupService)
+public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encodingService)
 {
-    public async Task<SqlVacancy> MapFromAsync(MongoVacancy vacancy)
+    public SqlVacancy MapFrom(MongoVacancy vacancy)
     {
-        // var createdByUserId = await userLookupService.LookupUserAsync(vacancy.CreatedByUser);
-        // if (createdByUserId == User.None)
-        // {
-        //     logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown CreatedByUser", vacancy.Id);
-        //     return SqlVacancy.None;
-        // }
-        //
-        // var submittedByUserId = await userLookupService.LookupUserAsync(vacancy.SubmittedByUser);
-        // if (submittedByUserId == User.None && vacancy.SubmittedDate is not null)
-        // {
-        //     logger.LogWarning("Failed to migrate vacancy '{VacancyId}' due to bad or unknown SubmittedByUser", vacancy.Id);
-        //     return SqlVacancy.None;
-        // }
-        
         long? accountId = encodingService.TryDecodeAccountId(vacancy.EmployerAccountId, out var accountIdValue) ? accountIdValue : null;
         long? accountLegalEntityId = encodingService.TryDecodePublicAccountLegalEntityId(vacancy.AccountLegalEntityPublicHashedId, out var accountLegalEntityIdValue) ? accountLegalEntityIdValue : null;
 
@@ -133,6 +119,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             HasOptedToAddQualifications = vacancy.HasOptedToAddQualifications,
             EmployerReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.EmployerReviewFieldIndicators),
             ProviderReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.ProviderReviewFieldIndicators),
+            SubmittedByUserId = vacancy.SubmittedByUser?.UserId,
         };
     }
 }

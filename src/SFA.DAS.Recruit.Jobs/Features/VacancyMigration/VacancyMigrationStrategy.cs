@@ -38,30 +38,30 @@ public class VacancyMigrationStrategy(
         List<SqlVacancy> mappedVacancies = [];
         foreach (var vacancy in vacancies)
         {
-            var item = await mapper.MapFromAsync(vacancy);
+            var item = mapper.MapFrom(vacancy);
             if (item == SqlVacancy.None)
             {
                 excluded.Add(vacancy);
             }
             else
             {
-                mappedVacancies.Add(item);                
+                mappedVacancies.Add(item);
             }
         }
         
         if (excluded is { Count: > 0 })
         {
             await mongoRepository.UpdateFailedMigrationDateBatchAsync(excluded.Select(x => x.Id).ToList());
-            logger.LogInformation("Failed to migrate {FailedCount} vacancy reviews", excluded.Count);
+            logger.LogInformation("Failed to migrate {FailedCount} Vacancies", excluded.Count);
         }
 
         if (mappedVacancies is { Count: > 0 })
         {
             await sqlRepository.UpsertVacanciesBatchAsync(mappedVacancies);
-            logger.LogInformation("Imported {count} vacancy reviews", mappedVacancies.Count);
+            logger.LogInformation("Imported {count} Vacancies", mappedVacancies.Count);
                 
             await mongoRepository.UpdateSuccessMigrationDateBatchAsync(mappedVacancies.Select(x => x.Id).ToList());
-            logger.LogInformation("Marked {SuccessCount} vacancy reviews as migrated", mappedVacancies.Count);
+            logger.LogInformation("Marked {SuccessCount} Vacancies as migrated", mappedVacancies.Count);
         }
     }
 }

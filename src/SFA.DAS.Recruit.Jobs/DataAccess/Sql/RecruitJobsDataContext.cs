@@ -20,6 +20,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; }
     public DbSet<VacancyReview> VacancyReview { get; set; }
     public DbSet<Vacancy> Vacancy { get; set; }
+    public DbSet<User> User { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -74,5 +75,10 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
         modelBuilder.Entity<Vacancy>().Property(x => x.ApprenticeshipType).HasConversion(v => v.ToString(), v => Enum.Parse<ApprenticeshipTypes>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_FixedWageYearlyAmount).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
+        
+        // User
+        modelBuilder.Entity<User>().HasKey(x => x.Id);
+        modelBuilder.Entity<User>().Property(x => x.UserType).HasConversion(v => v.ToString(), v => Enum.Parse<UserType>(v!));
+        modelBuilder.Entity<User>().Property(x => x.EmployerAccountIds).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)!);
     }
 }

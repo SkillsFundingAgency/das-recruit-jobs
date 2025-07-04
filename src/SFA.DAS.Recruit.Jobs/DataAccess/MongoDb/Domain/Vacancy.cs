@@ -83,10 +83,10 @@ public class Vacancy
 
     public List<string> Skills { get; set; }
     public DateTime? StartDate { get; set; }
-    public string ThingsToConsider { get; set; }
-    public string Title { get; set; }
-    public string TrainingDescription { get; set; }
-    public string AdditionalTrainingDescription { get; set; }
+    public string? ThingsToConsider { get; set; }
+    public string? Title { get; set; }
+    public string? TrainingDescription { get; set; }
+    public string? AdditionalTrainingDescription { get; set; }
     public TrainingProvider TrainingProvider { get; set; }
     public Wage Wage { get; set; }
     public ClosureReason? ClosureReason { get; set; }
@@ -95,9 +95,9 @@ public class Vacancy
     
     public VacancyType? VacancyType { get; set; } // TODO: do we want to migrate this field? ApprenticeshipType supersedes this
 
-    public string AdditionalQuestion1 { get; set; }
-    public string AdditionalQuestion2 { get; set; }
-    public bool HasSubmittedAdditionalQuestions { get; set; }
+    public string? AdditionalQuestion1 { get; set; }
+    public string? AdditionalQuestion2 { get; set; }
+    public bool? HasSubmittedAdditionalQuestions { get; set; }
     public bool? HasChosenProviderContactDetails { get; set; }
     
     public DateTime? MigrationDate { get; set; }

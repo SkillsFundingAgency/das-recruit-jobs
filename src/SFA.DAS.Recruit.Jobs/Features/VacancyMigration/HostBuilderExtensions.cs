@@ -11,7 +11,6 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
-            services.AddTransient<UserLookupService>();
             services.AddTransient<VacancyMapper>();
             services.AddTransient<VacancyMigrationMongoRepository>();
             services.AddTransient<VacancyMigrationSqlRepository>();
