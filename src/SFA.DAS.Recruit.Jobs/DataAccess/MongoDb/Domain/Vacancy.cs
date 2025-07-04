@@ -93,7 +93,7 @@ public class Vacancy
     public string ClosureExplanation { get; set; }
     public TransferInfo TransferInfo { get; set; }
     
-    public VacancyType? VacancyType { get; set; } // TODO: do we want to migrate this field? ApprenticeshipType supersedes this
+    public VacancyType? VacancyType { get; set; }
 
     public string? AdditionalQuestion1 { get; set; }
     public string? AdditionalQuestion2 { get; set; }
