@@ -12,7 +12,7 @@ public class EmployerProfilesMigrationTimerTrigger(
     private const string TriggerName = nameof(EmployerProfilesMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("*/5 23-5 * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("15-25/5 4 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

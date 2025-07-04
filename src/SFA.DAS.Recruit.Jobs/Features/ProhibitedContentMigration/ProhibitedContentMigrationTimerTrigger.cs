@@ -12,7 +12,7 @@ public class ProhibitedContentMigrationTimerTrigger(
     private const string TriggerName = nameof(ProhibitedContentMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("0 0 * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("0 5 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

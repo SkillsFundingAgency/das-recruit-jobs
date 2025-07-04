@@ -13,7 +13,9 @@ using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
+using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
+using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
@@ -94,6 +96,8 @@ public static class HostBuilderExtensions
             .ConfigureProhibitedContentMigration()
             .ConfigureUserNotificationPreferencesMigration()
             .ConfigureEmployerProfilesMigration()
-            .ConfigureVacancyReviewMigration();
+            .ConfigureVacancyReviewMigration()
+            .ConfigureUserMigration()
+            .ConfigureVacancyMigration();
     }
 }
