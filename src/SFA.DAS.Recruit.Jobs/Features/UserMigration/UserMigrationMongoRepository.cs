@@ -20,7 +20,7 @@ public class UserMigrationMongoRepository(
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => x.MigrationDate == null, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
+                .Find(x => x.MigrationDate == null && !string.IsNullOrEmpty(x.Email), new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
                 .Limit(batchSize)
                 .Project<User>(GetProjection<User>())
                 .ToListAsync(),
