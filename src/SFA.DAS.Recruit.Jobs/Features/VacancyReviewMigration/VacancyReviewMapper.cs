@@ -40,7 +40,7 @@ public class VacancyReviewMapper(ILogger<VacancyReviewMapper> logger, IEncodingS
             AccountId = string.IsNullOrEmpty(source.VacancySnapshot.EmployerAccountId) ? 0 : encodingService.Decode(source.VacancySnapshot.EmployerAccountId, EncodingType.AccountId),
             AccountLegalEntityId = string.IsNullOrEmpty(source.VacancySnapshot.AccountLegalEntityPublicHashedId) ? 0 : encodingService.Decode(source.VacancySnapshot.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
             Ukprn = source.VacancySnapshot.TrainingProvider.Ukprn!.Value,
-            OwnerType = source.VacancySnapshot.OwnerType
+            OwnerType = Enum.Parse<OwnerType>(source.VacancySnapshot.OwnerType.ToString())
         };
     }
 

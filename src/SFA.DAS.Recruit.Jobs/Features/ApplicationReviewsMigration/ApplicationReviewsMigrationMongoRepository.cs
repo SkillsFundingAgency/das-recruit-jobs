@@ -68,7 +68,7 @@ public class ApplicationReviewsMigrationMongoRepository(
 
     public async Task<List<Vacancy>> FetchVacanciesAsync(List<long> vacancyReferences)
     {
-        var filterDef = Builders<Vacancy>.Filter.In(x => x.VacancyReference, vacancyReferences);
+        var filterDef = Builders<Vacancy>.Filter.In(x => x.VacancyReference!.Value, vacancyReferences);
         var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
         
         return await RetryPolicy.ExecuteAsync(_ => collection

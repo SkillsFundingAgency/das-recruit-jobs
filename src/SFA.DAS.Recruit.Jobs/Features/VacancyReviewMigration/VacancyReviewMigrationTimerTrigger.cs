@@ -11,8 +11,8 @@ public class VacancyReviewMigrationTimerTrigger(
 {
     private const string TriggerName = nameof(VacancyReviewMigrationTimerTrigger);
     
-    [Function(TriggerName)]
-    public async Task Run([TimerTrigger("*/5 23-5 * * *", RunOnStartup = true)] TimerInfo timerInfo)
+    //[Function(TriggerName)] // disable as migration is complete
+    public async Task Run([TimerTrigger("0-10/5 5 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

@@ -12,7 +12,7 @@ public class UserNotificationPreferencesMigrationTimerTrigger(
     private const string TriggerName = nameof(UserNotificationPreferencesMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("*/5 23-5 * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("30-40/5 4 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

@@ -26,24 +26,4 @@ internal static class MongoDbRetryPolicy
             
         return policyBuilderJittered;
     }
-
-    public static AsyncRetryPolicy GetConnectionRetryPolicy(ILogger logger)
-    {
-        return AddWaitAndRetry(Policy.Handle<MongoConnectionClosedException>(), logger);
-
-    }
-
-    private static AsyncRetryPolicy AddWaitAndRetry(PolicyBuilder policyBuilder, ILogger logger)
-    {
-        return policyBuilder
-            .WaitAndRetryAsync(new[]
-            {
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(2),
-                TimeSpan.FromSeconds(4)
-            }, (exception, timeSpan, retryCount, context) =>
-            {
-                logger.LogWarning($"Error executing Mongo Command for method {context.OperationKey} Reason: {exception.Message}. Retrying in {timeSpan.Seconds} secs...attempt: {retryCount}");
-            });
-    }
 }
