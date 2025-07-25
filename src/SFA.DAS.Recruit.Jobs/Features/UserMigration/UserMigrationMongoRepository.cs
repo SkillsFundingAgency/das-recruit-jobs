@@ -14,13 +14,13 @@ public class UserMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config, IMongoClient mongoClient)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config, mongoClient)
 {
-    public async Task<List<User>> FetchBatchAsync(int batchSize)
+    public async Task<List<User>> FetchBatchAsync(int batchSize, DateTime remigrateIfBeforeDate)
     {
         var collection = GetCollection<User>(MongoDbCollectionNames.Users);
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => x.MigrationDate == null && !string.IsNullOrEmpty(x.Email), new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
+                .Find(x => (x.MigrationDate == null || x.MigrationDate < remigrateIfBeforeDate) && !string.IsNullOrEmpty(x.Email), new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
                 .Limit(batchSize)
                 .Project<User>(GetProjection<User>())
                 .ToListAsync(),

@@ -11,10 +11,16 @@ using MongoVacancy = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Vacancy;
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 
 [ExcludeFromCodeCoverage]
-public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encodingService)
+public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encodingService, UserLocator userLocator)
 {
-    public SqlVacancy MapFrom(MongoVacancy vacancy)
+    public async Task<SqlVacancy> MapFrom(MongoVacancy vacancy)
     {
+        var submittedByUserId = await userLocator.Locate(vacancy.SubmittedByUser);
+        if (vacancy.SubmittedByUser is not null && submittedByUserId is null)
+        {
+            logger.LogWarning("Failed to lookup submitting user for vacancy '{vacancyReference}'", vacancy.VacancyReference);
+        }
+        
         if (vacancy.Status is DataAccess.MongoDb.Domain.VacancyStatus.Closed && !int.TryParse(vacancy.ProgrammeId, out var programmeId))
         {
             logger.LogWarning("Failed to parse ProgrammeId '{ProgrammeId}' for vacancy '{VacancyReference}', could be a Framework code", vacancy.ProgrammeId, vacancy.VacancyReference);
@@ -125,7 +131,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             HasOptedToAddQualifications = vacancy.HasOptedToAddQualifications,
             EmployerReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.EmployerReviewFieldIndicators),
             ProviderReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.ProviderReviewFieldIndicators),
-            SubmittedByUserId = vacancy.SubmittedByUser?.UserId,
+            SubmittedByUserId = submittedByUserId,
         };
     }
 }
