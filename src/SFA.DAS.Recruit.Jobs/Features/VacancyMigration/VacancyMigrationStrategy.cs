@@ -24,11 +24,12 @@ public class VacancyMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
-        var mongoVacancies = await mongoRepository.FetchBatchAsync(BatchSize);
+        var remigrateIfBeforeDate = new DateTime(2025, 01, 01); // set to a date after a migration to trigger reimport
+        var mongoVacancies = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         while (mongoVacancies is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
             await ProcessBatchAsync(mongoVacancies);
-            mongoVacancies = await mongoRepository.FetchBatchAsync(BatchSize);
+            mongoVacancies = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         }
     }
 
@@ -38,7 +39,7 @@ public class VacancyMigrationStrategy(
         List<SqlVacancy> mappedVacancies = [];
         foreach (var vacancy in vacancies)
         {
-            var item = mapper.MapFrom(vacancy);
+            var item = await mapper.MapFromAsync(vacancy);
             if (item == SqlVacancy.None)
             {
                 excluded.Add(vacancy);

@@ -10,7 +10,6 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
-using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
@@ -92,7 +91,6 @@ public static class HostBuilderExtensions
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
-            .ConfigureApplicationReviewsMigration()
             .ConfigureProhibitedContentMigration()
             .ConfigureUserNotificationPreferencesMigration()
             .ConfigureEmployerProfilesMigration()

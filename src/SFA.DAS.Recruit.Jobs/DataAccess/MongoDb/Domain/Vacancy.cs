@@ -28,7 +28,7 @@ public class Vacancy
     public DateTime? CreatedDate { get; set; }
     public VacancyUser CreatedByUser { get; set; }
     public DateTime? SubmittedDate { get; set; }
-    public VacancyUser SubmittedByUser { get; set; }
+    public VacancyUser? SubmittedByUser { get; set; }
     public DateTime? ReviewDate { get; set; }
     public VacancyUser ReviewByUser { get; set; }
     public int ReviewCount { get; set; }
@@ -47,7 +47,7 @@ public class Vacancy
     public DateTime? ClosingDate { get; set; }
     public string Description { get; set; }
     public DisabilityConfident DisabilityConfident { get; set; }
-    public ContactDetail EmployerContact { get; set; }
+    public ContactDetail? EmployerContact { get; set; }
     public string EmployerDescription { get; set; }
     public Address? EmployerLocation { get; set; }
     public List<Address> EmployerLocations { get; set; }
@@ -63,7 +63,7 @@ public class Vacancy
     public string AccountLegalEntityPublicHashedId { get; set; }
     public int? NumberOfPositions { get; set; }
     public string OutcomeDescription { get; set; }
-    public ContactDetail ProviderContact { get; set; }
+    public ContactDetail? ProviderContact { get; set; }
     public List<ProviderReviewFieldIndicator> ProviderReviewFieldIndicators { get; set; }
     public string ProgrammeId { get; set; }
     public bool? HasOptedToAddQualifications { get; set; }

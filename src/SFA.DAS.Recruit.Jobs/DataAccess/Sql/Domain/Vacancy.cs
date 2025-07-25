@@ -80,7 +80,7 @@ public class Vacancy
     public bool? HasOptedToAddQualifications {get; set;}        //  bit                 NULL,
     public string? EmployerReviewFieldIndicators {get; set;}    //  nvarchar(max)       NULL, -- json serialised
     public string? ProviderReviewFieldIndicators {get; set;}    //  nvarchar(max)       NULL, -- json serialised
-    public string? SubmittedByUserId { get; set; }              //  nvarhcar(50)        NULL,
+    public Guid? SubmittedByUserId { get; set; }                //  uniqueidentifier    NULL,
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

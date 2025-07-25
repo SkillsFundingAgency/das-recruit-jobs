@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using MongoUserNotificationPreferences = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.UserNotificationPreferences;
 using MongoNotificationFrequency = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.NotificationFrequency;
 using MongoNotificationScope = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.NotificationScope;
@@ -9,10 +10,17 @@ using MongoNotificationTypes = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.No
 namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 
 [ExcludeFromCodeCoverage]
-public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferencesMapper> logger)
+public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferencesMapper> logger, UserLocator userLocator)
 {
-    public UserNotificationPreferences MapFrom(MongoUserNotificationPreferences source)
+    public async Task<UserNotificationPreferences> MapFromAsync(MongoUserNotificationPreferences source)
     {
+        var userId = await userLocator.LocateAsync(source.Id);
+        if (userId is null)
+        {
+            logger.LogWarning("Failed to migrate '{UserNotificationPreferencesId}', could not locate User", source.Id);
+            return UserNotificationPreferences.None;
+        }
+        
         try
         {
             return new UserNotificationPreferences

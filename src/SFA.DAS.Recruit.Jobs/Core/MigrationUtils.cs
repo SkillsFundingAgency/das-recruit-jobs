@@ -6,6 +6,18 @@ namespace SFA.DAS.Recruit.Jobs.Core;
 
 public static class MigrationUtils
 {
+    public static T? ParseEnumIfNotNull<T>(string? value) where T: struct, IConvertible
+    {
+        if (!typeof(T).IsEnum)
+        {
+            throw new ArgumentException("T must be an enum");
+        }
+        
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : Enum.Parse<T>(value, true);
+    }
+    
     public static string? SerializeOrNull<T>(T? obj)
     {
         return obj is null ? null : JsonSerializer.Serialize(obj, RecruitJobsDataContext.JsonOptions);

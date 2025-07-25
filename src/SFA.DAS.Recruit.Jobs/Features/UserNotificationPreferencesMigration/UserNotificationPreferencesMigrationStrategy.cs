@@ -24,11 +24,12 @@ public class UserNotificationPreferencesMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
-        var userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize);
+        var remigrateIfBeforeDate = new DateTime(2025, 01, 01); // set to a date after a migration to trigger reimport
+        var userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         while (userNotificationPreferences is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
             await ProcessBatch(userNotificationPreferences);
-            userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize);
+            userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         }
     }
     
@@ -39,24 +40,24 @@ public class UserNotificationPreferencesMigrationStrategy(
         // Process the records
         // Filter out uppercase guid ids as there can be duplicated records differentiated by case
         var toMap = userNotificationPreferences.Where(x => x.Id.Equals(x.Id.ToLower(), StringComparison.Ordinal) && Guid.TryParse(x.Id, out _)).ToList();
-        var toIgnore = userNotificationPreferences.Except(toMap).ToList();
+        var excluded = userNotificationPreferences.Except(toMap).ToList();
 
         if (toMap is { Count: > 0 })
         {
-            var mappedRecords = toMap
-                .Select(x =>
+            List<UserNotificationPreferences> mappedRecords = [];
+            foreach (var record in toMap)
+            {
+                var item = await mapper.MapFromAsync(record);
+                if (item == UserNotificationPreferences.None)
                 {
-                    var mappedValue = mapper.MapFrom(x);
-                    if (mappedValue == UserNotificationPreferences.None)
-                    {
-                        toIgnore.Add(x);
-                    }
+                    excluded.Add(record);
+                }
+                else
+                {
+                    mappedRecords.Add(item);
+                }
+            }
 
-                    return mappedValue;
-                })
-                .Where(x => x != UserNotificationPreferences.None)
-                .ToList();
-            
             // Push the data to SQL server
             await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedRecords);
             logger.LogInformation("Imported {count} user notification preferences", mappedRecords.Count);
@@ -66,11 +67,11 @@ public class UserNotificationPreferencesMigrationStrategy(
             logger.LogInformation("Marked {SuccessCount} user notification preferences as migrated", mappedRecords.Count);
         }
 
-        if (toIgnore is { Count: > 0 })
+        if (excluded is { Count: > 0 })
         {
             // Mark 'ignore' in Mongo
-            await mongoRepository.UpdateFailedMigrationDateBatchAsync(toIgnore.Select(x => x.Id).ToList());
-            logger.LogInformation("Marked {IgnoreCount} user notification preferences as 'ignore'", toIgnore.Count);
+            await mongoRepository.UpdateFailedMigrationDateBatchAsync(excluded.Select(x => x.Id).ToList());
+            logger.LogInformation("Marked {IgnoreCount} user notification preferences as 'ignore'", excluded.Count);
         }
     }
 }
