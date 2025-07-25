@@ -39,7 +39,7 @@ public class VacancyMigrationStrategy(
         List<SqlVacancy> mappedVacancies = [];
         foreach (var vacancy in vacancies)
         {
-            var item = await mapper.MapFrom(vacancy);
+            var item = await mapper.MapFromAsync(vacancy);
             if (item == SqlVacancy.None)
             {
                 excluded.Add(vacancy);

@@ -14,12 +14,17 @@ public class UserMigrationSqlRepository(RecruitJobsDataContext dataContext)
         await dataContext.BulkInsertOrUpdateAsync(users);
     }
 
-    public async Task<User?> FindUser(string searchTerm, string? email)
+    public async Task<User?> FindUserByIdAndEmailAsync(string searchTerm, string? email)
     {
         return await dataContext.User.Where(x => (x.IdamsUserId == searchTerm || x.DfEUserId == searchTerm || x.Id.ToString() == searchTerm) && x.Email == email).FirstOrDefaultAsync();
     }
+    
+    public async Task<User?> FindUserByIdAsync(string searchTerm)
+    {
+        return await dataContext.User.Where(x => x.IdamsUserId == searchTerm || x.DfEUserId == searchTerm || x.Id.ToString() == searchTerm).FirstOrDefaultAsync();
+    }
 
-    public async Task<List<User>> FindUsersByEmail(string? email)
+    public async Task<List<User>> FindUsersByEmailAsync(string? email)
     {
         return await dataContext.User.Where(x => x.Email == email).ToListAsync();
     }

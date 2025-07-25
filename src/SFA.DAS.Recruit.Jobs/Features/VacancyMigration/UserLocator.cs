@@ -1,57 +1,74 @@
-﻿using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
+﻿using System.Collections.Concurrent;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 
 public class UserLocator(UserMigrationSqlRepository repository)
 {
-    private readonly Dictionary<string, Guid> _users = [];
+    private readonly ConcurrentDictionary<string, Guid> _users = [];
+
+    public async Task<Guid?> LocateAsync(string id)
+    {
+        return await FindUserByIdAsync(id);
+    }
     
-    public async Task<Guid?> Locate(VacancyUser? mongoUser)
+    public async Task<Guid?> LocateMongoUserAsync(VacancyUser? mongoUser)
     {
         if (mongoUser?.UserId is not null)
         {
-            return await FindUserById(mongoUser.UserId, mongoUser.Email);
+            return await FindUserByIdAndEmailAsync(mongoUser.UserId, mongoUser.Email);
         }
         
         if (mongoUser?.Email is not null)
         {
-            return await FindUserByEmail(mongoUser.Email);
+            return await FindUserByEmailAsync(mongoUser.Email);
         }
 
         return null;
     }
 
-    private async Task<Guid?> FindUserByEmail(string email)
+    private async Task<Guid?> FindUserByEmailAsync(string email)
     {
         if (_users.TryGetValue(email, out var userId))
         {
             return userId;
         }
             
-        var users = await repository.FindUsersByEmail(email);
+        var users = await repository.FindUsersByEmailAsync(email);
         if (users is not { Count: 1 })
         {
             return null;
         }
-            
-        _users.Add(email, users[0].Id);
+        
+        _users.TryAdd(email, users[0].Id);
         return users[0].Id;
     }
 
-    private async Task<Guid?> FindUserById(string id, string? email)
+    private async Task<Guid?> FindUserByIdAndEmailAsync(string id, string? email)
     {
         if (_users.TryGetValue(id, out var userId))
         {
             return userId;
         }
         
-        var sqlUser = await repository.FindUser(id, email);
+        var sqlUser = await repository.FindUserByIdAndEmailAsync(id, email);
         if (sqlUser == null)
         {
             return null;
         }
-        _users.Add(id, sqlUser.Id);
+        _users.TryAdd(id, sqlUser.Id);
         return sqlUser.Id;
+    }
+    
+    private async Task<Guid?> FindUserByIdAsync(string id)
+    {
+        if (_users.TryGetValue(id, out var userId))
+        {
+            return userId;
+        }
+        
+        var sqlUser = await repository.FindUserByIdAsync(id);
+        return sqlUser?.Id;
     }
 }

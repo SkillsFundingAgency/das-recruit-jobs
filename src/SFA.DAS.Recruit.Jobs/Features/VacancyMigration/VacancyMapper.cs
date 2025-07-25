@@ -13,9 +13,9 @@ namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 [ExcludeFromCodeCoverage]
 public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encodingService, UserLocator userLocator)
 {
-    public async Task<SqlVacancy> MapFrom(MongoVacancy vacancy)
+    public async Task<SqlVacancy> MapFromAsync(MongoVacancy vacancy)
     {
-        var submittedByUserId = await userLocator.Locate(vacancy.SubmittedByUser);
+        var submittedByUserId = await userLocator.LocateMongoUserAsync(vacancy.SubmittedByUser);
         if (vacancy.SubmittedByUser is not null && submittedByUserId is null)
         {
             logger.LogWarning("Failed to lookup submitting user for vacancy '{vacancyReference}'", vacancy.VacancyReference);
