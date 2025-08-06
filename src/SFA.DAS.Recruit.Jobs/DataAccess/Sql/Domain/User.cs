@@ -19,7 +19,7 @@ public class User
     public DateTime? ClosedVacanciesBlockedProviderAlertDismissedOn { get; set; }
     public DateTime? TransferredVacanciesBlockedProviderAlertDismissedOn { get; set; }
     public DateTime? ClosedVacanciesWithdrawnByQaAlertDismissedOn { get; set; }
-    public string DfEUserId { get; set; }
+    public string? DfEUserId { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

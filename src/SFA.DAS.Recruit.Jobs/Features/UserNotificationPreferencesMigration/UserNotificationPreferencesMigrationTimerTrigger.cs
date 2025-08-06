@@ -11,7 +11,7 @@ public class UserNotificationPreferencesMigrationTimerTrigger(
 {
     private const string TriggerName = nameof(UserNotificationPreferencesMigrationTimerTrigger);
     
-    [Function(TriggerName)]
+    // [Function(TriggerName)] // disable until the Users have properly migrated
     public async Task Run([TimerTrigger("30-40/5 4 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);

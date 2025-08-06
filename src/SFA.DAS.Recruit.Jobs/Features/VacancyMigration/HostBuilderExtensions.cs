@@ -11,6 +11,7 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
+            services.AddSingleton<UserLocator>(); // singleton so the cache persists - let's see if this causes memory problems on the job
             services.AddTransient<VacancyMapper>();
             services.AddTransient<VacancyMigrationMongoRepository>();
             services.AddTransient<VacancyMigrationSqlRepository>();

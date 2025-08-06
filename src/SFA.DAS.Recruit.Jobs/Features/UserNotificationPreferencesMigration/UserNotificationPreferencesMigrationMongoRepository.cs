@@ -14,12 +14,11 @@ public class UserNotificationPreferencesMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config)
 {
-    public async Task<List<UserNotificationPreferences>> FetchBatchAsync(int batchSize)
+    public async Task<List<UserNotificationPreferences>> FetchBatchAsync(int batchSize, DateTime remigrateIfBeforeDate)
     {
-        var remigrateAfter = DateTime.UtcNow.AddDays(-2);
         var collection = GetCollection<UserNotificationPreferences>(MongoDbCollectionNames.UserNotificationPreferences);
         var pipeline = new EmptyPipelineDefinition<UserNotificationPreferences>()
-            .Match(x => x.MigrationIgnore != true && (x.MigrationDate == null || x.MigrationDate < remigrateAfter))
+            .Match(x => x.MigrationIgnore != true && (x.MigrationDate == null || x.MigrationDate < remigrateIfBeforeDate))
             .Limit(batchSize);
 
         return await RetryPolicy.ExecuteAsync(

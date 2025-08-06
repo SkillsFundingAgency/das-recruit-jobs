@@ -18,11 +18,12 @@ public class UserMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
-        var mongoUsers = await mongoRepository.FetchBatchAsync(BatchSize);
+        var remigrateIfBeforeDate = new DateTime(2025, 01, 01); // set to a date after a migration to trigger reimport
+        var mongoUsers = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         while (mongoUsers is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
             await ProcessBatchAsync(mongoUsers);
-            mongoUsers = await mongoRepository.FetchBatchAsync(BatchSize);
+            mongoUsers = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         }
     }
 
