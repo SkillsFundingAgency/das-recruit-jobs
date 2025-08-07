@@ -20,9 +20,9 @@ public class ApplicationReviewsMigrationHttpTrigger(
         try
         {
             var request = await JsonSerializer.DeserializeAsync<MigrateApplicationReviewsHttpRequest>(requestData.Body);
-            if (request?.ApplicationReviewIds is { Count: > 0 })
+            if (request?.VacancyReference > 0)
             {
-                await applicationReviewMigrationStrategy.RunAsync(request.ApplicationReviewIds);
+                await applicationReviewMigrationStrategy.RunAsync(request.VacancyReference);
             }
         }
         catch (Exception e)

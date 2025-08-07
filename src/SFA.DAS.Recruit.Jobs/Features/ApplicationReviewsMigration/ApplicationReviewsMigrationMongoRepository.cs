@@ -39,7 +39,18 @@ public class ApplicationReviewsMigrationMongoRepository(
 
         return await RetryPolicy.ExecuteAsync(
             _ => collection.Find(filterDefinition, new FindOptions{MaxTime = TimeSpan.FromMinutes(10)}).ToListAsync(),
-            new Context(nameof(FetchBatchAsync))
+            new Context(nameof(FetchBatchByIdsAsync))
+        );
+    }
+    
+    public async Task<List<ApplicationReview>> FetchBatchByVacancyReferenceAsync(long vacancyReference)
+    {
+        var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
+        return await RetryPolicy.ExecuteAsync(
+            _ => collection
+                .Find(x => x.VacancyReference == vacancyReference, new FindOptions { MaxTime = TimeSpan.FromMinutes(10) })
+                .ToListAsync(),
+            new Context(nameof(FetchBatchByVacancyReferenceAsync))
         );
     }
 

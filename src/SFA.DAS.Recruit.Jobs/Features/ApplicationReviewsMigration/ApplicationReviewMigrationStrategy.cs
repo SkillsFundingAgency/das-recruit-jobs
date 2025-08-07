@@ -17,9 +17,9 @@ public class ApplicationReviewMigrationStrategy(
     private const int BatchSize = 100;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
 
-    public async Task RunAsync(List<Guid> ids)
+    public async Task RunAsync(long vacancyReference)
     {
-        var applicationReviews = await mongoRepository.FetchBatchByIdsAsync(ids);
+        var applicationReviews = await mongoRepository.FetchBatchByVacancyReferenceAsync(vacancyReference);
         await ProcessBatch(applicationReviews);
     }
     

@@ -6,6 +6,6 @@ namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 [ExcludeFromCodeCoverage]
 public class MigrateApplicationReviewsHttpRequest
 {
-    [JsonPropertyName("applicationReviewIds")]
-    public required List<Guid> ApplicationReviewIds { get; init; }
+    [JsonPropertyName("vacancyReference")]
+    public required long VacancyReference { get; init; }
 }
