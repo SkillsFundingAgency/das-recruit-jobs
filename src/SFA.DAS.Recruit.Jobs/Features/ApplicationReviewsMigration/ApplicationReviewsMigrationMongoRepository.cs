@@ -16,14 +16,14 @@ public class ApplicationReviewsMigrationMongoRepository(
 {
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
     {
-        //var remigrateIfBeforeDate = new DateTime(2025, 01, 01); // set to a date after a migration to trigger reimport
+        var remigrateIfBeforeDate = new DateTime(2025, 08, 07); // set to a date after a migration to trigger reimport
         var migrateIfCreatedAfterDate = new DateTime(2025, 05, 01);
         
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         return await RetryPolicy.ExecuteAsync(
             _ => collection
                 .Find(x=> 
-                    //x.MigrationDate < remigrateIfBeforeDate ||
+                    x.MigrationDate < remigrateIfBeforeDate &&
                     x.CreatedDate > migrateIfCreatedAfterDate,
                     new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
                 .Limit(batchSize)
