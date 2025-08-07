@@ -23,8 +23,9 @@ public class ApplicationReviewsMigrationMongoRepository(
         return await RetryPolicy.ExecuteAsync(
             _ => collection
                 .Find(x=> 
-                    x.MigrationDate < remigrateIfBeforeDate &&
-                    x.CreatedDate > migrateIfCreatedAfterDate,
+                    x.MigrationDate == null ||
+                    (x.MigrationDate < remigrateIfBeforeDate &&
+                    x.CreatedDate > migrateIfCreatedAfterDate),
                     new FindOptions{MaxTime = TimeSpan.FromMinutes(10), BatchSize = batchSize})
                 .Limit(batchSize)
                 .ToListAsync(),
