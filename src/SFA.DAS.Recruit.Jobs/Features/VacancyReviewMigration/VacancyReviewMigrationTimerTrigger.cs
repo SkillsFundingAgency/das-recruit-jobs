@@ -17,7 +17,7 @@ public class VacancyReviewMigrationTimerTrigger(
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            await vacancyReviewMigrationStrategy.RunAsync();
+            //await vacancyReviewMigrationStrategy.RunAsync();
         }
         catch (Exception e)
         {
