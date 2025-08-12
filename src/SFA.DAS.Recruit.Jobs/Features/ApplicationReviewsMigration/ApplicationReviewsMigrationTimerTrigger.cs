@@ -11,7 +11,7 @@ public class ApplicationReviewsMigrationTimerTrigger(
 {
     private const string TriggerName = nameof(ApplicationReviewsMigrationTimerTrigger);
     
-    //[Function(TriggerName)]
+    [Function(TriggerName)]
     public async Task Run([TimerTrigger("0-10/5 4 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
