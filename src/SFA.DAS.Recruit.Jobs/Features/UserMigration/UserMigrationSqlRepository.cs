@@ -11,7 +11,34 @@ public class UserMigrationSqlRepository(RecruitJobsDataContext dataContext)
 {
     public async Task UpsertUsersBatchAsync(List<User> users)
     {
-        await dataContext.BulkInsertOrUpdateAsync(users);
+        var newUsers = new List<User>();
+        foreach (var user in users)
+        {
+            var existingUser = await dataContext
+                .User
+                .Include(x => x.EmployerAccounts)
+                .FirstOrDefaultAsync(x => x.Id == user.Id);
+            
+            if (existingUser == null)
+            {
+                newUsers.Add(user);
+                continue;
+            }
+            
+            dataContext.Entry(existingUser).CurrentValues.SetValues(user);
+            
+            // remove the deleted employerAccountIds
+            var newEntityIds = user.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
+            existingUser.EmployerAccounts.RemoveAll(x => !newEntityIds.Contains(x.EmployerAccountId));
+
+            // add new employerAccountIds
+            var oldEntityIds = existingUser.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
+            var newEmployerAccounts = user.EmployerAccounts.Where(x => !oldEntityIds.Contains(x.EmployerAccountId)).ToList();
+            existingUser.EmployerAccounts.AddRange(newEmployerAccounts);
+        }
+        
+        dataContext.AddRange(newUsers);
+        await dataContext.SaveChangesAsync();
     }
 
     public async Task<User?> FindUserByIdAndEmailAsync(string searchTerm, string? email)

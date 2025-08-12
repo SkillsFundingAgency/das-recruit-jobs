@@ -21,6 +21,7 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<VacancyReview> VacancyReview { get; set; }
     public DbSet<Vacancy> Vacancy { get; set; }
     public DbSet<User> User { get; set; }
+    public DbSet<UserEmployerAccount> UserEmployerAccount { get; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -77,8 +78,19 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
         
         // User
-        modelBuilder.Entity<User>().HasKey(x => x.Id);
-        modelBuilder.Entity<User>().Property(x => x.UserType).HasConversion(v => v.ToString(), v => Enum.Parse<UserType>(v!));
-        modelBuilder.Entity<User>().Property(x => x.EmployerAccountIds).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)!);
+        var userBuilder = modelBuilder.Entity<User>();
+        userBuilder.ToTable("User").HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+        userBuilder.HasKey(x => x.Id);
+        userBuilder.Property(x => x.UserType).HasConversion(v => v.ToString(), v => Enum.Parse<UserType>(v!));
+        
+        // modelBuilder.Entity<User>().HasKey(x => x.Id);
+        // modelBuilder.Entity<User>().HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+        
+        // UserEmployerAccount
+        var userEmployerAccountBuilder = modelBuilder.Entity<UserEmployerAccount>();
+        userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
+        userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
+        // modelBuilder.Entity<UserEmployerAccount>().HasKey(x => new { x.UserId, x.EmployerAccountId });
+        // modelBuilder.Entity<UserEmployerAccount>().HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
     }
 }
