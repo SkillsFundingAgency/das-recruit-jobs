@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using MongoUserNotificationPreferences = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.UserNotificationPreferences;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
@@ -9,18 +9,18 @@ namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 public class UserNotificationPreferencesMigrationStrategy(
     ILogger<UserNotificationPreferencesMigrationStrategy> logger,
     UserNotificationPreferencesMigrationMongoRepository mongoRepository,
-    UserNotificationPreferencesMigrationSqlRepository sqlRepository,
+    UserMigrationSqlRepository userRepository,
     UserNotificationPreferencesMapper mapper)
 {
     private const int BatchSize = 500;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
-    
+
     public async Task RunAsync(List<string> ids)
     {
         var userNotificationPreferences = await mongoRepository.FetchBatchByIdsAsync(ids);
         await ProcessBatch(userNotificationPreferences);
     }
-    
+
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
@@ -32,40 +32,41 @@ public class UserNotificationPreferencesMigrationStrategy(
             userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         }
     }
-    
+
     private async Task ProcessBatch(List<MongoUserNotificationPreferences> userNotificationPreferences)
     {
         logger.LogInformation("Started processing a batch of {count} records", userNotificationPreferences.Count);
         
         // Process the records
-        // Filter out uppercase guid ids as there can be duplicated records differentiated by case
-        var toMap = userNotificationPreferences.Where(x => x.Id.Equals(x.Id.ToLower(), StringComparison.Ordinal) && Guid.TryParse(x.Id, out _)).ToList();
-        var excluded = userNotificationPreferences.Except(toMap).ToList();
-
-        if (toMap is { Count: > 0 })
+        List<MongoUserNotificationPreferences> excluded = [];
+        List<string> mappedIds = [];
+        foreach (var userNotificationPreference in userNotificationPreferences)
         {
-            List<UserNotificationPreferences> mappedRecords = [];
-            foreach (var record in toMap)
+            var user = await userRepository.FindUserByIdAsync(userNotificationPreference.Id);
+            if (user is null)
             {
-                var item = await mapper.MapFromAsync(record);
-                if (item == UserNotificationPreferences.None)
-                {
-                    excluded.Add(record);
-                }
-                else
-                {
-                    mappedRecords.Add(item);
-                }
+                logger.LogWarning("Could not migrate record '{UserNotificationPreferenceId}' - could not locate a matching user", userNotificationPreference.Id);
+                excluded.Add(userNotificationPreference);
+                continue;
             }
 
-            // Push the data to SQL server
-            await sqlRepository.UpsertApplicationReviewsBatchAsync(mappedRecords);
-            logger.LogInformation("Imported {count} user notification preferences", mappedRecords.Count);
-
-            // Mark migrated in Mongo
-            await mongoRepository.UpdateSuccessMigrationDateBatchAsync(toMap.Select(x => x.Id).ToList());
-            logger.LogInformation("Marked {SuccessCount} user notification preferences as migrated", mappedRecords.Count);
+            if (mapper.MapFrom(user, userNotificationPreference))
+            {
+                mappedIds.Add(userNotificationPreference.Id);
+            }
+            else
+            {
+                excluded.Add(userNotificationPreference);
+            }
         }
+        
+        // Push the data to SQL server
+        await userRepository.SaveChangesAsync();
+        logger.LogInformation("Imported {count} user notification preferences", mappedIds.Count);
+
+        // Mark migrated in Mongo
+        await mongoRepository.UpdateSuccessMigrationDateBatchAsync(mappedIds);
+        logger.LogInformation("Marked {SuccessCount} user notification preferences as migrated", mappedIds.Count);
 
         if (excluded is { Count: > 0 })
         {

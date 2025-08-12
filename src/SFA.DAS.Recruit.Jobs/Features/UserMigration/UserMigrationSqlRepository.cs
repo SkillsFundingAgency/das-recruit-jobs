@@ -55,4 +55,9 @@ public class UserMigrationSqlRepository(RecruitJobsDataContext dataContext)
     {
         return await dataContext.User.Where(x => x.Email == email).ToListAsync();
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await dataContext.SaveChangesAsync();
+    }
 }
