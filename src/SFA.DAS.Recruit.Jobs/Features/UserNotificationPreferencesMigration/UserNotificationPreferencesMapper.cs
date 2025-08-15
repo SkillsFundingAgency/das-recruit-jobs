@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using MongoUserNotificationPreferences = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.UserNotificationPreferences;
 using MongoNotificationFrequency = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.NotificationFrequency;
 using MongoNotificationScope = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.NotificationScope;
@@ -10,62 +10,56 @@ using MongoNotificationTypes = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.No
 namespace SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 
 [ExcludeFromCodeCoverage]
-public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferencesMapper> logger, UserLocator userLocator)
+public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferencesMapper> logger)
 {
-    public async Task<UserNotificationPreferences> MapFromAsync(MongoUserNotificationPreferences source)
+    public bool MapFrom(User user, MongoUserNotificationPreferences source)
     {
-        var userId = await userLocator.LocateAsync(source.Id);
-        if (userId is null)
-        {
-            logger.LogWarning("Failed to migrate '{UserNotificationPreferencesId}', could not locate User", source.Id);
-            return UserNotificationPreferences.None;
-        }
-        
         try
         {
-            return new UserNotificationPreferences
+            var flags = Enum.GetValues<MongoNotificationTypes>().Cast<Enum>().Where(source.NotificationTypes.HasFlag).Cast<MongoNotificationTypes>();
+            var scope = MapScope(source.NotificationScope);
+            var frequency = MapFrequency(source.NotificationFrequency);
+            var prefs = new NotificationPreferences
             {
-                UserId = Guid.Parse(source.Id),
-                Frequency = MapFrequency(source.NotificationFrequency),
-                Scope = MapScope(source.NotificationScope),
-                Types = MapTypes(source.NotificationTypes),
+                EventPreferences = flags.Select(x => x switch
+                {
+                    MongoNotificationTypes.None => null,
+                    MongoNotificationTypes.VacancyRejected => new NotificationPreference(nameof(NotificationTypes.VacancyApprovedOrRejectedByDfE), "Email", scope, "Default"),
+                    MongoNotificationTypes.VacancyClosingSoon => new NotificationPreference(nameof(NotificationTypes.VacancyClosingSoon), "Email", "Default", "Default"),
+                    MongoNotificationTypes.ApplicationSubmitted => new NotificationPreference(nameof(NotificationTypes.ApplicationSubmitted), "Email", scope, frequency),
+                    MongoNotificationTypes.VacancySentForReview => new NotificationPreference(nameof(NotificationTypes.VacancySentForReview), "Email", scope, "Default"),
+                    MongoNotificationTypes.VacancyRejectedByEmployer => new NotificationPreference(nameof(NotificationTypes.VacancyRejectedByEmployer), "Email", scope, "Default"),
+                    _ => null
+                }).Where(x => x is not null).ToList()!
             };
+
+            user.NotificationPreferences = JsonSerializer.Serialize(prefs);
+            return true;
         }
         catch (ArgumentOutOfRangeException e)
         {
             logger.LogWarning("Failed to migrate '{UserNotificationPreferencesId}' due to an invalid enum value, source error: {sourceMessage}'", source.Id, e.Message);
-            return UserNotificationPreferences.None;
+            return false;
         }
     }
 
-    private static NotificationTypes? MapTypes(MongoNotificationTypes? source)
-    {
-        if (source is null) return null;
-        if ((source & MongoNotificationTypes.VacancySubmittedForReview) > 0)
-        {
-            throw new ArgumentOutOfRangeException("NotificationType", "Enum value 'NotificationTypes.VacancySubmittedForReview' is no longer supported.");
-        }
-        var value = (int)source;
-        return (NotificationTypes)value;
-    }
-
-    private static NotificationScope? MapScope(MongoNotificationScope? source)
+    private static string MapScope(MongoNotificationScope? source)
     {
         return source switch {
-            MongoNotificationScope.UserSubmittedVacancies => NotificationScope.UserSubmittedVacancies,
-            MongoNotificationScope.OrganisationVacancies => NotificationScope.OrganisationVacancies,
-            null => null,
+            MongoNotificationScope.UserSubmittedVacancies => nameof(NotificationScope.UserSubmittedVacancies),
+            MongoNotificationScope.OrganisationVacancies => nameof(NotificationScope.OrganisationVacancies),
+            null => "Default",
             _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
     }
 
-    private static NotificationFrequency? MapFrequency(MongoNotificationFrequency? source)
+    private static string MapFrequency(MongoNotificationFrequency? source)
     {
         return source switch {
-            MongoNotificationFrequency.Immediately => NotificationFrequency.Immediately,
-            MongoNotificationFrequency.Daily => NotificationFrequency.Daily,
-            MongoNotificationFrequency.Weekly => NotificationFrequency.Weekly,
-            null => null,
+            MongoNotificationFrequency.Immediately => nameof(NotificationFrequency.Immediately),
+            MongoNotificationFrequency.Daily => nameof(NotificationFrequency.Daily),
+            MongoNotificationFrequency.Weekly => nameof(NotificationFrequency.Weekly),
+            null => "Default",
             _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
         };
     }
