@@ -24,8 +24,14 @@ public class UserMigrationSqlRepository(RecruitJobsDataContext dataContext)
                 newUsers.Add(user);
                 continue;
             }
+
+            // save these
+            var notifications = existingUser.NotificationPreferences;
             
             dataContext.Entry(existingUser).CurrentValues.SetValues(user);
+            
+            // restore them as they'll get wiped otherwise
+            existingUser.NotificationPreferences = notifications;
             
             // remove the deleted employerAccountIds
             var newEntityIds = user.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
