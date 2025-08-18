@@ -24,11 +24,11 @@ public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferenc
                 EventPreferences = flags.Select(x => x switch
                 {
                     MongoNotificationTypes.None => null,
-                    MongoNotificationTypes.VacancyRejected => new NotificationPreference(nameof(NotificationTypes.VacancyApprovedOrRejectedByDfE), "Email", scope, "Default"),
-                    MongoNotificationTypes.VacancyClosingSoon => new NotificationPreference(nameof(NotificationTypes.VacancyClosingSoon), "Email", "Default", "Default"),
+                    MongoNotificationTypes.VacancyRejected => new NotificationPreference(nameof(NotificationTypes.VacancyApprovedOrRejected), "Email", scope, nameof(NotificationFrequency.NotSet)),
+                    MongoNotificationTypes.VacancyClosingSoon => new NotificationPreference(nameof(NotificationTypes.VacancyClosingSoon), "Email", scope, nameof(NotificationFrequency.NotSet)),
                     MongoNotificationTypes.ApplicationSubmitted => new NotificationPreference(nameof(NotificationTypes.ApplicationSubmitted), "Email", scope, frequency),
-                    MongoNotificationTypes.VacancySentForReview => new NotificationPreference(nameof(NotificationTypes.VacancySentForReview), "Email", scope, "Default"),
-                    MongoNotificationTypes.VacancyRejectedByEmployer => new NotificationPreference(nameof(NotificationTypes.VacancyRejectedByEmployer), "Email", scope, "Default"),
+                    MongoNotificationTypes.VacancySentForReview => new NotificationPreference(nameof(NotificationTypes.VacancySentForReview), "Email", scope, nameof(NotificationFrequency.NotSet)),
+                    MongoNotificationTypes.VacancyRejectedByEmployer => new NotificationPreference(nameof(NotificationTypes.VacancyApprovedOrRejected), "Email", scope, nameof(NotificationFrequency.NotSet)),
                     _ => null
                 }).Where(x => x is not null).ToList()!
             };
@@ -48,8 +48,7 @@ public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferenc
         return source switch {
             MongoNotificationScope.UserSubmittedVacancies => nameof(NotificationScope.UserSubmittedVacancies),
             MongoNotificationScope.OrganisationVacancies => nameof(NotificationScope.OrganisationVacancies),
-            null => "Default",
-            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+            _ => nameof(NotificationScope.NotSet),
         };
     }
 
@@ -59,8 +58,7 @@ public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferenc
             MongoNotificationFrequency.Immediately => nameof(NotificationFrequency.Immediately),
             MongoNotificationFrequency.Daily => nameof(NotificationFrequency.Daily),
             MongoNotificationFrequency.Weekly => nameof(NotificationFrequency.Weekly),
-            null => "Default",
-            _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+            _ => nameof(NotificationFrequency.NotSet),
         };
     }
 }
