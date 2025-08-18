@@ -23,7 +23,7 @@ public class UserMapper(ILogger<UserMapper> logger, IEncodingService encodingSer
             DfEUserId = user.DfEUserId,
             LastSignedInDate = user.LastSignedInDate,
             Ukprn = user.Ukprn,
-            EmployerAccounts = user.EmployerAccountIds?.Select(x => new UserEmployerAccount { UserId = user.Id, EmployerAccountId = x }).ToList() ?? [],
+            EmployerAccounts = user.EmployerAccountIds?.Select(x => new UserEmployerAccount { UserId = user.Id, EmployerAccountId = encodingService.Decode(x, EncodingType.AccountId) }).ToList() ?? [],
             ClosedVacanciesBlockedProviderAlertDismissedOn = user.ClosedVacanciesBlockedProviderAlertDismissedOn,
             ClosedVacanciesWithdrawnByQaAlertDismissedOn = user.ClosedVacanciesWithdrawnByQaAlertDismissedOn,
             TransferredVacanciesBlockedProviderAlertDismissedOn = user.TransferredVacanciesBlockedProviderAlertDismissedOn,
