@@ -2,23 +2,23 @@
 
 public enum NotificationTypes
 {
-     VacancyApprovedOrRejectedByDfE,
-     VacancyClosingSoon,
      ApplicationSubmitted,
+     VacancyApprovedOrRejected,
+     VacancyClosingSoon,
      VacancySentForReview,
-     VacancyRejectedByEmployer,
 }
 
 public enum NotificationScope
 {
-    Default,
+    NotSet,
     UserSubmittedVacancies,
     OrganisationVacancies
 }
 
 public enum NotificationFrequency
 {
-    Default,
+    NotSet,
+    Never,
     Immediately,
     Daily,
     Weekly
