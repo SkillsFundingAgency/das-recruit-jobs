@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using MongoUserNotificationPreferences = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.UserNotificationPreferences;
 using MongoNotificationFrequency = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.NotificationFrequency;
@@ -33,7 +34,7 @@ public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferenc
                 }).Where(x => x is not null).ToList()!
             };
 
-            user.NotificationPreferences = JsonSerializer.Serialize(prefs);
+            user.NotificationPreferences = JsonSerializer.Serialize(prefs, RecruitJobsDataContext.JsonOptions);
             return true;
         }
         catch (ArgumentOutOfRangeException e)
