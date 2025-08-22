@@ -17,10 +17,10 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
     public DbSet<ProhibitedContent> ProhibitedContent { get; set; }
     public DbSet<EmployerProfile> EmployerProfile { get; set; }
     public DbSet<EmployerProfileAddress> EmployerProfileAddress { get; set; }
-    public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; }
     public DbSet<VacancyReview> VacancyReview { get; set; }
     public DbSet<Vacancy> Vacancy { get; set; }
     public DbSet<User> User { get; set; }
+    public DbSet<UserEmployerAccount> UserEmployerAccount { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,12 +43,6 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
         modelBuilder.Entity<ProhibitedContent>().HasKey(x => new { x.ContentType, x.Content });
         modelBuilder.Entity<ProhibitedContent>().Property(e => e.ContentType).HasConversion<int>();
 
-        // UserNotificationPreferences
-        modelBuilder.Entity<UserNotificationPreferences>().HasKey(x => x.UserId);
-        modelBuilder.Entity<UserNotificationPreferences>().Property(x => x.Types).HasConversion(v => v.ToString(), v => (NotificationTypes)Enum.Parse(typeof(NotificationTypes), v));
-        modelBuilder.Entity<UserNotificationPreferences>().Property(x => x.Frequency).HasConversion(v => v.ToString(), v => (NotificationFrequency)Enum.Parse(typeof(NotificationFrequency), v));
-        modelBuilder.Entity<UserNotificationPreferences>().Property(x => x.Scope).HasConversion(v => v.ToString(), v => (NotificationScope)Enum.Parse(typeof(NotificationScope), v));
-        
         // EmployerProfile
         modelBuilder.Entity<EmployerProfile>().Property(x => x.AccountLegalEntityId).HasColumnType("bigint").ValueGeneratedNever();
 
@@ -77,8 +71,14 @@ public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, D
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
         
         // User
-        modelBuilder.Entity<User>().HasKey(x => x.Id);
-        modelBuilder.Entity<User>().Property(x => x.UserType).HasConversion(v => v.ToString(), v => Enum.Parse<UserType>(v!));
-        modelBuilder.Entity<User>().Property(x => x.EmployerAccountIds).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions)!);
+        var userBuilder = modelBuilder.Entity<User>();
+        userBuilder.ToTable("User").HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);
+        userBuilder.HasKey(x => x.Id);
+        userBuilder.Property(x => x.UserType).HasConversion(v => v.ToString(), v => Enum.Parse<UserType>(v!));
+        
+        // UserEmployerAccount
+        var userEmployerAccountBuilder = modelBuilder.Entity<UserEmployerAccount>();
+        userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
+        userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
     }
 }
