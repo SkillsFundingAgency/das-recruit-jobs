@@ -20,6 +20,8 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         {
             logger.LogWarning("Failed to lookup submitting user for vacancy '{vacancyReference}'", vacancy.VacancyReference);
         }
+
+        var reviewRequestedBy = await userLocator.LocateMongoUserAsync(vacancy.ReviewByUser);
         
         if (vacancy.Status is DataAccess.MongoDb.Domain.VacancyStatus.Closed && !int.TryParse(vacancy.ProgrammeId, out var programmeId))
         {
@@ -132,6 +134,8 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             EmployerReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.EmployerReviewFieldIndicators),
             ProviderReviewFieldIndicators = MigrationUtils.SerializeOrNull(vacancy.ProviderReviewFieldIndicators),
             SubmittedByUserId = submittedByUserId,
+            ReviewRequestedByUserId = reviewRequestedBy,
+            ReviewRequestedDate = vacancy.ReviewDate
         };
     }
 }

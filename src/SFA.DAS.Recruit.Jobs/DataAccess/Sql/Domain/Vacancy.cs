@@ -81,6 +81,8 @@ public class Vacancy
     public string? EmployerReviewFieldIndicators {get; set;}    //  nvarchar(max)       NULL, -- json serialised
     public string? ProviderReviewFieldIndicators {get; set;}    //  nvarchar(max)       NULL, -- json serialised
     public Guid? SubmittedByUserId { get; set; }                //  uniqueidentifier    NULL,
+    public Guid? ReviewRequestedByUserId { get; set; }           //  uniqueidentifier    NULL,
+    public DateTime? ReviewRequestedDate { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
