@@ -31,7 +31,7 @@ public class UserNotificationPreferencesMapper(ILogger<UserNotificationPreferenc
                     MongoNotificationTypes.VacancySentForReview => new NotificationPreference(nameof(NotificationTypes.VacancySentForReview), "Email", scope, nameof(NotificationFrequency.NotSet)),
                     MongoNotificationTypes.VacancyRejectedByEmployer => new NotificationPreference(nameof(NotificationTypes.VacancyApprovedOrRejected), "Email", scope, nameof(NotificationFrequency.NotSet)),
                     _ => null
-                }).Where(x => x is not null).ToList()!
+                }).Where(x => x is not null).Distinct().ToList()!
             };
 
             user.NotificationPreferences = JsonSerializer.Serialize(prefs, RecruitJobsDataContext.JsonOptions);
