@@ -10,7 +10,7 @@ public class UserMigrationTimerTrigger(ILogger<UserMigrationTimerTrigger> logger
     private const string TriggerName = nameof(UserMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("*/5 23-3 * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("*/5 23-3 * * *", RunOnStartup = true)] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
