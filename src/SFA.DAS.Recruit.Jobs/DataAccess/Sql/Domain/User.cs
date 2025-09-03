@@ -13,13 +13,14 @@ public class User
     public string Email { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime LastSignedInDate { get; set; }
-    public List<string> EmployerAccountIds { get; set; } = [];
+    public virtual List<UserEmployerAccount> EmployerAccounts { get; set; } = [];
     public long? Ukprn { get; set; }
     public DateTime? TransferredVacanciesEmployerRevokedPermissionAlertDismissedOn { get; set; }
     public DateTime? ClosedVacanciesBlockedProviderAlertDismissedOn { get; set; }
     public DateTime? TransferredVacanciesBlockedProviderAlertDismissedOn { get; set; }
     public DateTime? ClosedVacanciesWithdrawnByQaAlertDismissedOn { get; set; }
     public string? DfEUserId { get; set; }
+    public string? NotificationPreferences { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

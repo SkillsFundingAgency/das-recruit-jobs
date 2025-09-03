@@ -12,7 +12,6 @@ public static class HostBuilderExtensions
         return builder.ConfigureServices((_, services) =>
         {
             services.AddTransient<UserNotificationPreferencesMigrationMongoRepository>();
-            services.AddTransient<UserNotificationPreferencesMigrationSqlRepository>();
             services.AddTransient<UserNotificationPreferencesMapper>();
             services.AddTransient<UserNotificationPreferencesMigrationStrategy>();
         });
