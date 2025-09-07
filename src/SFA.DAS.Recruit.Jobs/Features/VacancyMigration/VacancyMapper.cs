@@ -81,7 +81,6 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             CreatedDate = vacancy.CreatedDate,
             LastUpdatedDate = vacancy.LastUpdatedDate,
             SubmittedDate = vacancy.SubmittedDate,
-            ReviewDate = vacancy.ReviewDate,
             ClosedDate = vacancy.ClosedDate,
             DeletedDate = vacancy.DeletedDate,
             LiveDate = vacancy.LiveDate,
