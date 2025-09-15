@@ -16,8 +16,8 @@ public class ApplicationReviewsMigrationMongoRepository(
 {
     public async Task<List<ApplicationReview>> FetchBatchAsync(int batchSize)
     {
-        var remigrateIfBeforeDate = new DateTime(2025, 08, 07); // set to a date after a migration to trigger reimport
-        var migrateIfCreatedAfterDate = new DateTime(2025, 05, 01);
+        var remigrateIfBeforeDate = new DateTime(2025, 09, 16); // set to a date after a migration to trigger reimport
+        var migrateIfCreatedAfterDate = new DateTime(2025, 09, 11);
         
         var collection = GetCollection<ApplicationReview>(MongoDbCollectionNames.ApplicationReviews);
         return await RetryPolicy.ExecuteAsync(
