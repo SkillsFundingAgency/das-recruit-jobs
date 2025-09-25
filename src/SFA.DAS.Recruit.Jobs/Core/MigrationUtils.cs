@@ -13,7 +13,7 @@ public static class MigrationUtils
             throw new ArgumentException("T must be an enum");
         }
         
-        return string.IsNullOrWhiteSpace(value)
+        return string.IsNullOrWhiteSpace(value) || value.Equals("undefined", StringComparison.InvariantCultureIgnoreCase)
             ? null
             : Enum.Parse<T>(value, true);
     }
