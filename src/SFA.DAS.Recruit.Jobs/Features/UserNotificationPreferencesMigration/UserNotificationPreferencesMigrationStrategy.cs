@@ -24,7 +24,7 @@ public class UserNotificationPreferencesMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
-        var remigrateIfBeforeDate = new DateTime(2025, 01, 01); // set to a date after a migration to trigger reimport
+        var remigrateIfBeforeDate = new DateTime(2025, 09, 24); // set to a date after a migration to trigger reimport
         var userNotificationPreferences = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfBeforeDate);
         while (userNotificationPreferences is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
