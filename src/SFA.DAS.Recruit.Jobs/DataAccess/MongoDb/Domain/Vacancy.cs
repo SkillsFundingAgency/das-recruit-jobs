@@ -136,7 +136,8 @@ public enum ClosureReason
     TransferredByQa,
     BlockedByQa,
     TransferredByEmployer,
-    WithdrawnByQa
+    WithdrawnByQa,
+    Undefined
 }
 
 public class TransferInfo
