@@ -89,7 +89,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             ClosingDate = vacancy.ClosingDate,
             ReviewCount = vacancy.ReviewCount,
             ApplicationUrl = vacancy.ApplicationUrl,
-            ApplicationMethod = MigrationUtils.ParseEnumIfNotNull<ApplicationMethod>(vacancy.ApplicationMethod?.ToString()),
+            ApplicationMethod = MigrationUtils.ParseEnumIfNotNull<ApplicationMethod>(vacancy.ApplicationMethod),
             ApplicationInstructions = vacancy.ApplicationInstructions,
             ShortDescription = vacancy.ShortDescription,
             Description = vacancy.Description,

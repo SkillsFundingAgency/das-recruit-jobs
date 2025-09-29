@@ -42,7 +42,7 @@ public class Vacancy
     public VacancyUser DeletedByUser { get; set; }
     public string AnonymousReason { get; set; }
     public string ApplicationInstructions { get; set; }
-    public ApplicationMethod? ApplicationMethod { get; set; }
+    public string? ApplicationMethod { get; set; }
     public string ApplicationUrl { get; set; }
     public DateTime? ClosingDate { get; set; }
     public string Description { get; set; }
