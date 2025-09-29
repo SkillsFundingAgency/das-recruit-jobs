@@ -1,9 +1,11 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 
+[ExcludeFromCodeCoverage]
 public class UserLocator(UserMigrationSqlRepository repository)
 {
     private readonly ConcurrentDictionary<string, Guid> _users = [];

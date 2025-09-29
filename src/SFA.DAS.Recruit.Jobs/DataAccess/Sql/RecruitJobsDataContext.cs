@@ -3,14 +3,15 @@ using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
 [ExcludeFromCodeCoverage]
-public class RecruitJobsDataContext(IOptions<RecruitJobsConfiguration> config, DbContextOptions options) : DbContext(options)
+public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbContextOptions options) : DbContext(options)
 {
-    private readonly RecruitJobsConfiguration _configuration = config.Value;
+    private readonly SqlServerConfiguration _configuration = config.Value;
     
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
     public DbSet<LegacyApplication> LegacyApplication { get; set; }

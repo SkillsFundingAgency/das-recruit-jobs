@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
+using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
+using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
@@ -88,7 +91,16 @@ public static class HostBuilderExtensions
                 services.AddSingleton<IEncodingService, EncodingService>();
 
                 // Configure core project dependencies
-                // services.AddTransient<,>();
+                var recruitConfig = new RecruitJobsConfiguration();
+                context.Configuration.GetSection("RecruitJobsOuterApiConfiguration").Bind(recruitConfig);
+                recruitConfig.QueueStorage = context.Configuration.GetConnectionString("QueueStorage")!;
+                services.AddSingleton(recruitConfig);
+
+                var jsonSerializationOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                services.AddSingleton(jsonSerializationOptions);    
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
@@ -98,6 +110,7 @@ public static class HostBuilderExtensions
             .ConfigureEmployerProfilesMigration()
             .ConfigureVacancyReviewMigration()
             .ConfigureUserMigration()
-            .ConfigureVacancyMigration();
+            .ConfigureVacancyMigration()
+            .ConfigureDelayedNotificationsFeature();
     }
 }
