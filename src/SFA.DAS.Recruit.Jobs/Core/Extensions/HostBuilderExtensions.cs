@@ -7,9 +7,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
@@ -91,10 +92,10 @@ public static class HostBuilderExtensions
                 services.AddSingleton<IEncodingService, EncodingService>();
 
                 // Configure core project dependencies
-                var recruitConfig = new RecruitJobsConfiguration();
-                context.Configuration.GetSection("RecruitJobsOuterApiConfiguration").Bind(recruitConfig);
-                recruitConfig.QueueStorage = context.Configuration.GetConnectionString("QueueStorage")!;
-                services.AddSingleton(recruitConfig);
+                services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
+                services.Configure<RecruitJobsConfiguration>(context.Configuration.GetSection("ConnectionStrings"));
+                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
+                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
 
                 var jsonSerializationOptions = new JsonSerializerOptions
                 {

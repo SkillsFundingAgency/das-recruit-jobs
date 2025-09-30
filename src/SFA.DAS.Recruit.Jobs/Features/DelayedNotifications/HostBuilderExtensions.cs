@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
@@ -35,9 +36,9 @@ public static class HostBuilderExtensions
             services
                 .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>((serviceProvider, httpClient) =>
                 {
-                    var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
-                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.ApimKey!);
-                    httpClient.BaseAddress = new Uri(cfg.ApimBaseUrl!);
+                    var cfg = serviceProvider.GetService<RecruitJobsOuterApiConfiguration>()!;
+                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.Key!);
+                    httpClient.BaseAddress = new Uri(cfg.BaseUrl!);
                 })
                 .AddPolicyHandler(HttpClientRetryPolicy());
         });
