@@ -29,12 +29,10 @@ public class DelayedNotificationsQueueTrigger(
         catch (JsonException)
         {
             logger.LogError("[{TriggerName}] Error deserializing delayed notification email queue item message id: {MessageId}", TriggerName, message.MessageId);
-            throw;
         }
         catch (Exception e)
         {
             logger.LogError(e, "[{TriggerName}] Unhandled Exception occured whilst sending email", TriggerName);
-            throw;
         }
         finally
         {

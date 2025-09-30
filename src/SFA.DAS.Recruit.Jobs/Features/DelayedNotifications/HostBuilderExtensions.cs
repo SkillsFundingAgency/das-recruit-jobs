@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
@@ -23,7 +24,7 @@ public static class HostBuilderExtensions
             services.AddTransient<IDelayedNotificationQueueClient>(serviceProvider =>
             {
                 var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
-                var queueClient = new QueueClient(cfg.QueueStorage, StorageConstants.QueueNames.DelayedNotifications);
+                var queueClient = new QueueClient(cfg.QueueStorage!, StorageConstants.QueueNames.DelayedNotifications);
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new DelayedNotificationQueueClient(queueClient, options);
             });
@@ -35,14 +36,14 @@ public static class HostBuilderExtensions
                 .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>((serviceProvider, httpClient) =>
                 {
                     var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
-                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.ApimKey);
-                    httpClient.BaseAddress = new Uri(cfg.ApimBaseUrl);
+                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.ApimKey!);
+                    httpClient.BaseAddress = new Uri(cfg.ApimBaseUrl!);
                 })
                 .AddPolicyHandler(HttpClientRetryPolicy());
         });
     }
     
-    private static IAsyncPolicy<HttpResponseMessage> HttpClientRetryPolicy()
+    private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()

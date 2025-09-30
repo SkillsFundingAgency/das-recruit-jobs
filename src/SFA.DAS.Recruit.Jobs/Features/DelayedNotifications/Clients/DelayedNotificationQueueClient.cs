@@ -7,7 +7,7 @@ namespace SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
 
 public interface IDelayedNotificationQueueClient
 {
-    Task SendMessageAsync(NotificationEmail items);
+    Task SendMessageAsync(NotificationEmail item);
 }
 
 public class DelayedNotificationQueueClient : IDelayedNotificationQueueClient

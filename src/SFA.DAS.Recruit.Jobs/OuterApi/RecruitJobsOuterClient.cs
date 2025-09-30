@@ -10,12 +10,12 @@ public interface IRecruitJobsOuterClient
 {
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids);
-    Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken);
+    Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
 }
 
 public class RecruitJobsOuterClient(HttpClient httpClient, JsonSerializerOptions jsonSerializationOptions) : ClientBase(httpClient, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
-    public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken)
+    public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {
         const string baseUrl = "delayed-notifications";
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
@@ -31,7 +31,7 @@ public class RecruitJobsOuterClient(HttpClient httpClient, JsonSerializerOptions
         return await PostAsync<NoResponse>("delayed-notifications/delete", ids);
     }
 
-    public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken)
+    public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default)
     {
         var request = new SendEmailRequest(email.TemplateId, email.RecipientAddress, email.Tokens);
         return await PostAsync<NoResponse>("delayed-notifications/send", request, cancellationToken: cancellationToken);

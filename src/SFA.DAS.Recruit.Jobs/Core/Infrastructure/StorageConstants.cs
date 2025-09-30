@@ -1,8 +1,8 @@
 ﻿namespace SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 
-public sealed class StorageConstants
+public static class StorageConstants
 {
-    public sealed class QueueNames
+    public static class QueueNames
     {
         public const string DelayedNotifications = "delayed-notifications";
     }

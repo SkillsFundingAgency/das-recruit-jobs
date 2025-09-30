@@ -19,7 +19,7 @@ public class DelayedNotificationsTimerTrigger(
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(ExecutionDurationInSeconds));
             await handler.RunAsync(cancellationTokenSource.Token);
         }
