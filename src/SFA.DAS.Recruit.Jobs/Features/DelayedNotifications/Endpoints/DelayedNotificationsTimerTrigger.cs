@@ -12,9 +12,9 @@ public class DelayedNotificationsTimerTrigger(
 {
     private const string TriggerName = nameof(DelayedNotificationsTimerTrigger);
     private const int ExecutionDurationInSeconds = 240;
-    
+
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("0/5 * * * *", RunOnStartup = true)] TimerInfo timerInfo, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger("0/5 2-7 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
