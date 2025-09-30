@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
@@ -22,7 +21,7 @@ using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
-namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
+namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 [ExcludeFromCodeCoverage]
 public static class HostBuilderExtensions
@@ -93,7 +92,7 @@ public static class HostBuilderExtensions
 
                 // Configure core project dependencies
                 services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
-                services.Configure<RecruitJobsConfiguration>(context.Configuration.GetSection("ConnectionStrings"));
+                services.Configure<RecruitJobsConfiguration>(context.Configuration);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
 
