@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using Azure.Storage.Queues;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
@@ -15,24 +17,28 @@ public static class HostBuilderExtensions
 {
     public static IHostBuilder ConfigureDelayedNotificationsFeature(this IHostBuilder builder)
     {
-        return builder.ConfigureServices((context, services) =>
+        return builder.ConfigureServices((_, services) =>
         {
-            var sp = services.BuildServiceProvider();
-            var serviceConfig = sp.GetService<RecruitJobsConfiguration>();
-            
             services.AddTransient<IRecruitJobsOuterClient, RecruitJobsOuterClient>();
-            services.AddTransient<IDelayedNotificationQueueClient, DelayedNotificationQueueClient>();
+            services.AddTransient<IDelayedNotificationQueueClient>(serviceProvider =>
+            {
+                var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
+                var queueClient = new QueueClient(cfg.QueueStorage, StorageConstants.QueueNames.DelayedNotifications);
+                var options = serviceProvider.GetService<JsonSerializerOptions>()!;
+                return new DelayedNotificationQueueClient(queueClient, options);
+            });
             services.AddTransient<IDelayedNotificationsEnqueueHandler, DelayedNotificationsEnqueueHandler>();
             services.AddTransient<IDelayedNotificationsDeliveryHandler, DelayedNotificationsDeliveryHandler>();
 
-            // register and configure the http client to call apim 
+            // register and configure the http client to call apim
             services
-                .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>(httpClient =>
+                .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>((serviceProvider, httpClient) =>
                 {
-                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", serviceConfig!.ApimKey);
-                    httpClient.BaseAddress = new Uri(serviceConfig.ApimBaseUrl);
-                });
-                //.AddPolicyHandler(HttpClientRetryPolicy());
+                    var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
+                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.ApimKey);
+                    httpClient.BaseAddress = new Uri(cfg.ApimBaseUrl);
+                })
+                .AddPolicyHandler(HttpClientRetryPolicy());
         });
     }
     

@@ -1,0 +1,56 @@
+﻿using System.Net;
+using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+using SFA.DAS.Recruit.Jobs.OuterApi.Requests;
+
+namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
+
+public class WhenSendingEmail
+{
+    private readonly JsonSerializerOptions _serialiserOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    private RecruitJobsOuterClient CreateSut(HttpMessageHandler handler)
+    {
+        var httpClient = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("http://localhost:8080")
+        };
+        return new RecruitJobsOuterClient(httpClient, _serialiserOptions);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_The_Request_Is_Correct(NotificationEmail email)
+    {
+        // arrange
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
+        var handler = new MockHttpMessageHandler([httpResponse]);
+        var sut = CreateSut(handler);
+        
+        // act
+        await sut.SendEmailAsync(email, CancellationToken.None);
+
+        // assert
+        var request = handler.Requests.Single();
+        request.RequestUri.Should().Be(new Uri("http://localhost:8080/delayed-notifications/send"));
+        request.Method.Should().Be(HttpMethod.Post);
+        request.Headers.GetValues("X-Version").Single().Should().Be("1.0");
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Email_Is_Sent_As_The_Http_Content(NotificationEmail email)
+    {
+        // arrange
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
+        var handler = new MockHttpMessageHandler([httpResponse]);
+        var expectedContent = JsonSerializer.Serialize(new SendEmailRequest(email.TemplateId, email.RecipientAddress, email.Tokens), _serialiserOptions);
+        var sut = CreateSut(handler);
+        
+        // act
+        await sut.SendEmailAsync(email, CancellationToken.None);
+
+        // assert
+        var content = await handler.Requests.Single().Content!.ReadAsStringAsync();
+        content.Should().Be(expectedContent);
+    }
+}

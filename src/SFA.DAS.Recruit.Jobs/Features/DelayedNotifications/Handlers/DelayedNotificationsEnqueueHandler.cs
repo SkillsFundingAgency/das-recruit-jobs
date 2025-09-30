@@ -28,7 +28,7 @@ public class DelayedNotificationsEnqueueHandler(
         try
         {
             var response = await jobsOuterClient.GetDelayedNotificationsBatchBeforeDateAsync(DateTime.UtcNow, cancellationToken);
-            if (!response.Ok || response.Payload is not { Count: > 0 })
+            if (!response.Success || response.Payload is not { Count: > 0 })
             {
                 return false;
             }
@@ -36,7 +36,7 @@ public class DelayedNotificationsEnqueueHandler(
             foreach (var email in response.Payload)
             {
                 var deleteResponse = await jobsOuterClient.DeleteDelayedNotificationsAsync(email.SourceIds);
-                if (!deleteResponse.Ok)
+                if (!deleteResponse.Success)
                 {
                     logger.LogInformation("Request to delete emails failed with status code '{StatusCode}' and error content '{ErrorContent}'", deleteResponse.StatusCode, deleteResponse.ErrorContent);
                     return false;

@@ -15,10 +15,10 @@ public class DelayedNotificationQueueClient : IDelayedNotificationQueueClient
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly QueueClient _queueClient;
 
-    public DelayedNotificationQueueClient(RecruitJobsConfiguration config, JsonSerializerOptions jsonSerializerOptions)
+    public DelayedNotificationQueueClient(QueueClient queueClient, JsonSerializerOptions jsonSerializerOptions)
     {
+        _queueClient = queueClient;
         _jsonSerializerOptions = jsonSerializerOptions;
-        _queueClient = new QueueClient(config.QueueStorage, StorageConstants.QueueNames.DelayedNotifications);
         _queueClient.CreateIfNotExists();
     }
     
