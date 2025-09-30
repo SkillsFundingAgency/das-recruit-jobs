@@ -26,7 +26,6 @@ public class DelayedNotificationsTimerTrigger(
         catch (Exception e)
         {
             logger.LogError(e, "[{TriggerName}] Unhandled Exception occured whilst enqueuing emails", TriggerName);
-            throw;
         }
         finally
         {
