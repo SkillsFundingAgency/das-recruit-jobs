@@ -9,7 +9,7 @@ public class User
     public string Email { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime LastSignedInDate { get; set; }
-    public IList<string> EmployerAccountIds { get; set; } = new List<string>();
+    public IList<string>? EmployerAccountIds { get; set; } = new List<string>();
     public long? Ukprn { get; set; }
     public DateTime? TransferredVacanciesEmployerRevokedPermissionAlertDismissedOn { get; set; }
     public DateTime? ClosedVacanciesBlockedProviderAlertDismissedOn { get; set; }
