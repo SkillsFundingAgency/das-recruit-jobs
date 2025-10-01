@@ -34,12 +34,16 @@ public class UserMigrationSqlRepository(RecruitJobsDataContext dataContext)
             existingUser.NotificationPreferences = notifications;
             
             // remove the deleted employerAccountIds
-            var newEntityIds = user.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
-            existingUser.EmployerAccounts.RemoveAll(x => !newEntityIds.Contains(x.EmployerAccountId));
+            var newEntityIds = user.EmployerAccounts == null ? [] : user.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
+
+            existingUser.EmployerAccounts?.RemoveAll(x => !newEntityIds.Contains(x.EmployerAccountId));
+
 
             // add new employerAccountIds
-            var oldEntityIds = existingUser.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
-            var newEmployerAccounts = user.EmployerAccounts.Where(x => !oldEntityIds.Contains(x.EmployerAccountId)).ToList();
+            var oldEntityIds = existingUser.EmployerAccounts == null ? [] : existingUser.EmployerAccounts.Select(x => x.EmployerAccountId).ToList();
+            var newEmployerAccounts = user.EmployerAccounts == null ? [] : user.EmployerAccounts.Where(x => !oldEntityIds.Contains(x.EmployerAccountId)).ToList();
+
+            existingUser.EmployerAccounts ??= [];
             existingUser.EmployerAccounts.AddRange(newEmployerAccounts);
         }
         
