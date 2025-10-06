@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
@@ -10,11 +11,14 @@ public class WhenDeletingDelayedNotifications
 
     private RecruitJobsOuterClient CreateSut(HttpMessageHandler handler)
     {
-        var httpClient = new HttpClient(handler)
+        var httpClient = new HttpClient(handler);
+        var config = new RecruitJobsOuterApiConfiguration
         {
-            BaseAddress = new Uri("http://localhost:8080")
+            BaseUrl = "http://localhost:8080",
+            Key = "1234567890"
         };
-        return new RecruitJobsOuterClient(httpClient, _serialiserOptions);
+
+        return new RecruitJobsOuterClient(httpClient, config, _serialiserOptions);
     }
 
     [Test, MoqAutoData]

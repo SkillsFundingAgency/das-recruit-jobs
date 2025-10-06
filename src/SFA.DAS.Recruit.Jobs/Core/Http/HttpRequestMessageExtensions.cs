@@ -6,4 +6,9 @@ public static class HttpRequestMessageExtensions
     {
         request.Headers.TryAddWithoutValidation("X-Version", version);
     }
+    
+    public static void AddApimKeyHeader(this HttpRequestMessage request, string version)
+    {
+        request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", version);
+    }
 }

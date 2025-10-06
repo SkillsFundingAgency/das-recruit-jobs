@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
+using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Core.Http.ClientBaseTests;
@@ -11,11 +13,14 @@ public class WhenGetting
     
     private TestClientBase CreateSut(HttpMessageHandler handler)
     {
-        var httpClient = new HttpClient(handler)
+        var httpClient = new HttpClient(handler);
+        var config = new RecruitJobsOuterApiConfiguration
         {
-            BaseAddress = new Uri("http://localhost:8080")
+            BaseUrl = "http://localhost:8080",
+            Key = "1234567890"
         };
-        return new TestClientBase(httpClient, _serialiserOptions);
+
+        return new TestClientBase(httpClient, config, _serialiserOptions);
     }
     
     [Test, MoqAutoData]

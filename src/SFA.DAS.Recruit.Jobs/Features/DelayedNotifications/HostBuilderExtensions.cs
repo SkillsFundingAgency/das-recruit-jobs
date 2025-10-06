@@ -4,6 +4,7 @@ using Azure.Storage.Queues;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
+using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
@@ -34,21 +35,18 @@ public static class HostBuilderExtensions
 
             // register and configure the http client to call apim
             services
-                .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>((serviceProvider, httpClient) =>
-                {
-                    var cfg = serviceProvider.GetService<RecruitJobsOuterApiConfiguration>()!;
-                    httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cfg.Key!);
-                    httpClient.BaseAddress = new Uri(cfg.BaseUrl!);
-                })
+                .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>()
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(HttpClientRetryPolicy());
         });
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
     {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 3);
         return HttpPolicyExtensions
             .HandleTransientHttpError()
             .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+            .WaitAndRetryAsync(delay);
     }
 }

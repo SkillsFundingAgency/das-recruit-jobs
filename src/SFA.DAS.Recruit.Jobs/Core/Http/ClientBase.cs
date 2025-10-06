@@ -1,15 +1,28 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Http;
 
-public abstract class ClientBase(HttpClient httpClient, JsonSerializerOptions jsonSerializationOptions)
+public abstract class ClientBase
 {
+    private readonly HttpClient _httpClient;
+    private readonly RecruitJobsOuterApiConfiguration _jobsOuterApiConfiguration;
+    private readonly JsonSerializerOptions _jsonSerializationOptions;
     private const string ApiVersionOne = "1.0";
+
+    protected ClientBase(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions)
+    {
+        _jsonSerializationOptions = jsonSerializationOptions;
+        _httpClient = httpClient;
+        _jobsOuterApiConfiguration = jobsOuterApiConfiguration;
+        _httpClient.BaseAddress = new Uri(jobsOuterApiConfiguration.BaseUrl!);
+    }
     
-    private static HttpRequestMessage CreateRequest(HttpMethod method, string url, string apiVersion = ApiVersionOne)
+    private HttpRequestMessage CreateRequest(HttpMethod method, string url, string apiVersion = ApiVersionOne)
     {
         var request = new HttpRequestMessage(method, url);
+        request.AddApimKeyHeader(_jobsOuterApiConfiguration.Key!);
         request.AddVersionHeader(apiVersion);
         return request;
     }
@@ -27,7 +40,7 @@ public abstract class ClientBase(HttpClient httpClient, JsonSerializerOptions js
             return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, default);
         }
         
-        var payload = JsonSerializer.Deserialize<T>(content, jsonSerializationOptions);
+        var payload = JsonSerializer.Deserialize<T>(content, _jsonSerializationOptions);
         return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, payload);
     }
     
@@ -37,7 +50,7 @@ public abstract class ClientBase(HttpClient httpClient, JsonSerializerOptions js
         CancellationToken cancellationToken = default)
     {
         var request = CreateRequest(HttpMethod.Get, url, apiVersion);
-        var response = await httpClient.SendAsync(request, cancellationToken);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
         return await ProcessResponse<T>(response);
     }
     
@@ -50,10 +63,10 @@ public abstract class ClientBase(HttpClient httpClient, JsonSerializerOptions js
         var request = CreateRequest(HttpMethod.Post, url, apiVersion);
         if (payload is not null)
         {
-            request.Content = JsonContent.Create(payload, null, jsonSerializationOptions);
+            request.Content = JsonContent.Create(payload, null, _jsonSerializationOptions);
         }
         
-        var response = await httpClient.SendAsync(request, cancellationToken);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
         return await ProcessResponse<T>(response);
     }
 }

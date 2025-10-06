@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 using SFA.DAS.Recruit.Jobs.OuterApi.Requests;
@@ -13,7 +14,7 @@ public interface IRecruitJobsOuterClient
     Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
 }
 
-public class RecruitJobsOuterClient(HttpClient httpClient, JsonSerializerOptions jsonSerializationOptions) : ClientBase(httpClient, jsonSerializationOptions), IRecruitJobsOuterClient  
+public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions) : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {
