@@ -17,6 +17,12 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
+        "nServiceBusConnectionString": {
+            "type": "securestring"
+        },
+        "nServiceBusLicense": {
+            "type": "securestring"
+        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -270,6 +276,14 @@
                                 {
                                     "name": "ConfigurationStorageConnectionString",
                                     "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "NServiceBusConnectionString",
+                                    "value": "[parameters('nServiceBusConnectionString')]"
+                                },
+                                {
+                                    "name": "NServiceBusLicense",
+                                    "value": "[parameters('nServiceBusLicense')]"
                                 },
                                 {
                                     "name": "ConfigNames",

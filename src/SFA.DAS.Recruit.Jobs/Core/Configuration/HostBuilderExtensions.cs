@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
@@ -21,11 +22,16 @@ using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
+// ReSharper disable SuspiciousTypeConversion.Global
+
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 [ExcludeFromCodeCoverage]
 public static class HostBuilderExtensions
 {
+    private const string EndpointName = "SFA.DAS.Recruit.Jobs";
+    private const string ErrorEndpointName = $"{EndpointName}-error";
+
     public static IHostBuilder ConfigureRecruitJobs(this IHostBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -102,6 +108,7 @@ public static class HostBuilderExtensions
                 };
                 services.AddSingleton(jsonSerializationOptions);    
             })
+            .ConfigureNServiceBus()
             .ConfigureMongoDb()
             .ConfigureSqlDb()
             .ConfigureApplicationReviewsMigration()
@@ -113,4 +120,44 @@ public static class HostBuilderExtensions
             .ConfigureVacancyMigration()
             .ConfigureDelayedNotificationsFeature();
     }
+
+    private static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
+        {
+            endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
+            
+            endpointConfiguration.AdvancedConfiguration.EnableInstallers();
+            endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
+            endpointConfiguration.AdvancedConfiguration.Conventions()
+                .DefiningCommandsAs(IsCommand)
+                .DefiningMessagesAs(IsMessage)
+                .DefiningEventsAs(IsEvent);
+
+            var value = config["NServiceBusLicense"];
+            if (!string.IsNullOrEmpty(value))
+            {
+                var decodedLicence = WebUtility.HtmlDecode(value);
+                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);    
+            }
+
+#if DEBUG
+            var transport = endpointConfiguration.AdvancedConfiguration.UseTransport<LearningTransport>();
+            transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)], @"src\.learningtransport"));
+#endif
+        });
+
+        return hostBuilder;
+    }
+
+    private static bool IsMessage(Type t) => t is IMessage || IsDasMessage(t, "Messages");
+
+    private static bool IsEvent(Type t) => t is IEvent || IsDasMessage(t, "Events");
+
+    private static bool IsCommand(Type t) => t is ICommand || IsDasMessage(t, "Commands");
+
+    private static bool IsDasMessage(Type t, string namespaceSuffix)
+        => t.Namespace != null &&
+           (t.Namespace.StartsWith("Esfa.", StringComparison.CurrentCultureIgnoreCase)) &&
+           t.Namespace.EndsWith(namespaceSuffix);
 }
