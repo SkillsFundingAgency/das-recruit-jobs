@@ -47,7 +47,7 @@ public class WhenSendingEmail
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
         var handler = new MockHttpMessageHandler([httpResponse]);
-        var expectedContent = JsonSerializer.Serialize(new SendEmailRequest(email.TemplateId, email.RecipientAddress, email.Tokens), _serialiserOptions);
+        var expectedContent = JsonSerializer.Serialize(email, _serialiserOptions);
         var sut = CreateSut(handler);
         
         // act
