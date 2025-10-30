@@ -34,7 +34,6 @@ public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiCo
 
     public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default)
     {
-        var request = new SendEmailRequest(email.TemplateId, email.RecipientAddress, email.Tokens);
-        return await PostAsync<NoResponse>("delayed-notifications/send", request, cancellationToken: cancellationToken);
+        return await PostAsync<NoResponse>("delayed-notifications/send", email, cancellationToken: cancellationToken);
     }
 }
