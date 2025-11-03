@@ -24,15 +24,7 @@ public class TransferVacanciesFromProviderQueueTrigger(
         try
         {
             var queueItem = JsonSerializer.Deserialize<QueueItem<TransferVacanciesFromProviderQueueMessage>>(message.Body, jsonSerializerOptions);
-            await handler.RunAsync(queueItem, cancellationToken);
-        }
-        catch (JsonException)
-        {
-            logger.LogError("[{TriggerName}] Error deserializing transfer vacancy from provider queue item message id: {MessageId}", TriggerName, message.MessageId);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "[{TriggerName}] Unhandled Exception occured whilst sending email", TriggerName);
+            await handler.RunAsync(queueItem!, cancellationToken);
         }
         finally
         {

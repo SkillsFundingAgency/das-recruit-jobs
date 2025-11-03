@@ -26,6 +26,14 @@ public static class HostBuilderExtensions
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new QueueClient<TransferVacanciesFromProviderQueueMessage>(queueClient, options);
             });
+
+            services.AddTransient<IQueueClient<TransferVacancyToLegalEntityQueueMessage>>(serviceProvider =>
+            {
+                var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
+                var queueClient = new QueueClient(cfg.QueueStorage!, StorageConstants.QueueNames.TransferVacancyToLegalEntityQueueName);
+                var options = serviceProvider.GetService<JsonSerializerOptions>()!;
+                return new QueueClient<TransferVacancyToLegalEntityQueueMessage>(queueClient, options);
+            });
         });
     }
 }
