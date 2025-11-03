@@ -9,6 +9,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
+using Polly.Retry;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
@@ -17,10 +21,12 @@ using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
+using SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -89,24 +95,7 @@ public static class HostBuilderExtensions
 
                 services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), context.Configuration));
                 services.AddOptions();
-
-                // Configure the DAS Encoding service
-                var dasEncodingConfig = new EncodingConfig { Encodings = [] };
-                context.Configuration.GetSection(nameof(dasEncodingConfig.Encodings)).Bind(dasEncodingConfig.Encodings);
-                services.AddSingleton(dasEncodingConfig);
-                services.AddSingleton<IEncodingService, EncodingService>();
-
-                // Configure core project dependencies
-                services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
-                services.Configure<RecruitJobsConfiguration>(context.Configuration);
-                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
-                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
-
-                var jsonSerializationOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                services.AddSingleton(jsonSerializationOptions);    
+                services.ConfigureDependencies(context);
             })
             .ConfigureNServiceBus()
             .ConfigureMongoDb()
@@ -118,7 +107,45 @@ public static class HostBuilderExtensions
             .ConfigureVacancyReviewMigration()
             .ConfigureUserMigration()
             .ConfigureVacancyMigration()
-            .ConfigureDelayedNotificationsFeature();
+            .ConfigureDelayedNotificationsFeature()
+            .ConfigureUpdatePermissionsHandlingFeature();
+    }
+    
+    private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
+    {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 3);
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .OrResult(msg => msg.StatusCode == HttpStatusCode.BadRequest)
+            .WaitAndRetryAsync(delay);
+    }
+
+    private static void ConfigureDependencies(this IServiceCollection services, HostBuilderContext context)
+    {
+        // Configure the DAS Encoding service
+        var dasEncodingConfig = new EncodingConfig { Encodings = [] };
+        context.Configuration.GetSection(nameof(dasEncodingConfig.Encodings)).Bind(dasEncodingConfig.Encodings);
+        services.AddSingleton(dasEncodingConfig);
+        services.AddSingleton<IEncodingService, EncodingService>();
+        
+        // Setup config classes
+        services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
+        services.Configure<RecruitJobsConfiguration>(context.Configuration);
+        services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
+        services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
+
+        // Configure core project dependencies
+        var jsonSerializationOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        services.AddSingleton(jsonSerializationOptions);
+        
+        services.AddTransient<IUpdatedPermissionsClient, UpdatedPermissionsClient>();
+        services
+            .AddHttpClient<IUpdatedPermissionsClient, UpdatedPermissionsClient>()
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            .AddPolicyHandler(HttpClientRetryPolicy());
     }
 
     private static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
