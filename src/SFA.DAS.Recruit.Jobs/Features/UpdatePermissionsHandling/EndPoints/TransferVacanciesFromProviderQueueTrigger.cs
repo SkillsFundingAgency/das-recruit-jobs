@@ -18,13 +18,17 @@ public class TransferVacanciesFromProviderQueueTrigger(
     private const string TriggerName = nameof(TransferVacanciesFromProviderQueueTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([QueueTrigger(StorageConstants.QueueNames.DelayedNotifications)] QueueMessage message, CancellationToken cancellationToken)
+    public async Task Run([QueueTrigger(StorageConstants.QueueNames.TransferVacanciesFromProviderQueueName)] QueueMessage message, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
             var queueItem = JsonSerializer.Deserialize<QueueItem<TransferVacanciesFromProviderQueueMessage>>(message.Body, jsonSerializerOptions);
-            await handler.RunAsync(queueItem!, cancellationToken);
+            if (queueItem is null)
+            {
+                throw new JsonException($"Failed to deserialise TransferVacanciesFromProviderQueueMessage '{message.MessageId}'");
+            }
+            await handler.RunAsync(queueItem.Payload, cancellationToken);
         }
         finally
         {

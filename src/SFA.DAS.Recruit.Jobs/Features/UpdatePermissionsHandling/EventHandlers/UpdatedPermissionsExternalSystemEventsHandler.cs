@@ -32,10 +32,6 @@ public class UpdatedPermissionsExternalSystemEventsHandler(
         logger.LogInformation("Transferring vacancies from Provider {Ukprn} to Employer {AccountId}", message.Ukprn, message.AccountId);
         var employerAccountId = encodingService.Encode(message.AccountId, EncodingType.AccountId);
         var accountLegalEntityPublicHashId = await updatePermissionsClient.VerifyAccountLegalEntityAsync(employerAccountId, message.AccountLegalEntityId, context.CancellationToken);
-        if (accountLegalEntityPublicHashId is null)
-        {
-            throw new Exception($"Could not find matching Account Legal Entity Id {message.AccountLegalEntityId} for Employer Account {message.AccountId}");
-        }
 
         await queueClient.SendMessageAsync(new TransferVacanciesFromProviderQueueMessage
         {

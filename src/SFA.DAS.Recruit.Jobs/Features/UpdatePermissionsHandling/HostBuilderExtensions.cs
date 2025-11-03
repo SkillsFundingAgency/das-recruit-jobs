@@ -17,8 +17,6 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
-            services.AddTransient<ITransferVacanciesFromProviderHandler, TransferVacanciesFromProviderHandler>();
-            
             services.AddTransient<IQueueClient<TransferVacanciesFromProviderQueueMessage>>(serviceProvider =>
             {
                 var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
@@ -26,6 +24,7 @@ public static class HostBuilderExtensions
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new QueueClient<TransferVacanciesFromProviderQueueMessage>(queueClient, options);
             });
+            services.AddTransient<ITransferVacanciesFromProviderHandler, TransferVacanciesFromProviderHandler>();
 
             services.AddTransient<IQueueClient<TransferVacancyToLegalEntityQueueMessage>>(serviceProvider =>
             {
@@ -34,6 +33,7 @@ public static class HostBuilderExtensions
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new QueueClient<TransferVacancyToLegalEntityQueueMessage>(queueClient, options);
             });
+            services.AddTransient<ITransferVacancyToLegalEntityHandler, TransferVacancyToLegalEntityHandler>();
         });
     }
 }
