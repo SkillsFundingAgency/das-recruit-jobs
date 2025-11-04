@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,11 +7,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
+using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
@@ -18,7 +21,7 @@ using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
-namespace SFA.DAS.Recruit.Jobs.Core.Extensions;
+namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 [ExcludeFromCodeCoverage]
 public static class HostBuilderExtensions
@@ -88,7 +91,16 @@ public static class HostBuilderExtensions
                 services.AddSingleton<IEncodingService, EncodingService>();
 
                 // Configure core project dependencies
-                // services.AddTransient<,>();
+                services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
+                services.Configure<RecruitJobsConfiguration>(context.Configuration);
+                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
+                services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
+
+                var jsonSerializationOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                services.AddSingleton(jsonSerializationOptions);    
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
@@ -98,6 +110,7 @@ public static class HostBuilderExtensions
             .ConfigureEmployerProfilesMigration()
             .ConfigureVacancyReviewMigration()
             .ConfigureUserMigration()
-            .ConfigureVacancyMigration();
+            .ConfigureVacancyMigration()
+            .ConfigureDelayedNotificationsFeature();
     }
 }

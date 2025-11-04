@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.Recruit.Jobs.Core.Extensions;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 var host = new HostBuilder()
     .ConfigureRecruitJobs()

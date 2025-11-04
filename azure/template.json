@@ -288,6 +288,10 @@
                                     "value": "[parameters('sharedStorageAccountConnectionString')]"
                                 },
                                 {
+                                    "name": "QueueStorage",
+                                    "value": "[parameters('sharedStorageAccountConnectionString')]"
+                                },
+                                {
                                     "name": "LoggingRedisConnectionString",
                                     "value": "[parameters('loggingRedisConnectionString')]"
                                 },

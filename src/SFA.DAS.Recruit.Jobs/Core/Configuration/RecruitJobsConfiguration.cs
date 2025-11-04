@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
+namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 [ExcludeFromCodeCoverage]
 public class RecruitJobsConfiguration
 {
-    public string ConnectionString { get; set; }
+    public string? QueueStorage { get; set; }
 }

@@ -15,7 +15,7 @@ public static class HostBuilderExtensions
             var connectionString = context.Configuration.GetConnectionString("SqlServer");
             if (!string.IsNullOrWhiteSpace(connectionString))
             {
-                services.Configure<RecruitJobsConfiguration>(options =>
+                services.Configure<SqlServerConfiguration>(options =>
                 {
                     options.ConnectionString = connectionString;
                 });    
