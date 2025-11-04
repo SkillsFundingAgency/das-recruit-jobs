@@ -9,7 +9,7 @@ public abstract class ClientBase
     private readonly HttpClient _httpClient;
     private readonly RecruitJobsOuterApiConfiguration _jobsOuterApiConfiguration;
     private readonly JsonSerializerOptions _jsonSerializationOptions;
-    private const string ApiVersionOne = "1.0";
+    private const string ApiVersionOne = "1";
 
     protected ClientBase(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions)
     {

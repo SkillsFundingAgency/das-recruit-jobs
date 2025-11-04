@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
-using SFA.DAS.Recruit.Jobs.OuterApi.Requests;
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi;
 
@@ -34,7 +33,6 @@ public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiCo
 
     public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default)
     {
-        var request = new SendEmailRequest(email.TemplateId, email.RecipientAddress, email.Tokens);
-        return await PostAsync<NoResponse>("delayed-notifications/send", request, cancellationToken: cancellationToken);
+        return await PostAsync<NoResponse>("delayed-notifications/send", email, cancellationToken: cancellationToken);
     }
 }
