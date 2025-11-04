@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
+using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
 
@@ -11,7 +12,7 @@ public interface IDelayedNotificationsEnqueueHandler
 
 public class DelayedNotificationsEnqueueHandler(
     ILogger<DelayedNotificationsEnqueueHandler> logger, 
-    IDelayedNotificationQueueClient queueClient,
+    IQueueClient<NotificationEmail> queueClient,
     IRecruitJobsOuterClient jobsOuterClient): IDelayedNotificationsEnqueueHandler
 {
     public async Task RunAsync(CancellationToken cancellationToken)

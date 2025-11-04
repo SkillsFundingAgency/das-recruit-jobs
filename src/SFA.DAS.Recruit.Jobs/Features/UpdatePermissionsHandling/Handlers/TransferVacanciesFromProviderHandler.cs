@@ -1,5 +1,5 @@
 ﻿using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
-using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Domain;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 using SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
@@ -15,10 +15,10 @@ internal class TransferVacanciesFromProviderHandler(
 {
     public async Task RunAsync(TransferVacanciesFromProviderQueueMessage message, CancellationToken cancellationToken)
     {
-        var vacancies = await updatePermissionsClient.GetProviderVacanciesToTransfer(message.Ukprn, message.EmployerAccountId, message.AccountLegalEntityPublicHashedId, cancellationToken);
-        var tasks = vacancies.Select(x => queueClient.SendMessageAsync(new TransferVacancyToLegalEntityQueueMessage()
+        var vacancies = await updatePermissionsClient.GetProviderVacanciesToTransfer(message.Ukprn, message.EmployerAccountId, message.AccountLegalEntityId, cancellationToken);
+        var tasks = vacancies.Select(x => queueClient.SendMessageAsync(new TransferVacancyToLegalEntityQueueMessage
         {
-            VacancyReference = x,
+            VacancyId = x,
             UserRef = message.UserRef,
             UserEmailAddress = message.UserEmailAddress,
             UserName = message.UserName,

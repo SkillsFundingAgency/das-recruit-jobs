@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
-using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 

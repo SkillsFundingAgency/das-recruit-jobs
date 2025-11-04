@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Domain;
+﻿using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 using SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
@@ -12,6 +12,6 @@ internal class TransferVacancyToLegalEntityHandler(IUpdatedPermissionsClient upd
 {
     public async Task RunAsync(TransferVacancyToLegalEntityQueueMessage message, CancellationToken cancellationToken)
     {
-        await updatePermissionsClient.TransferVacancyAsync(message.VacancyReference, message.UserRef, message.UserEmailAddress, message.UserName, message.TransferReason, cancellationToken);
+        await updatePermissionsClient.TransferVacancyAsync(message.VacancyId, message.UserRef, message.UserEmailAddress, message.UserName, message.TransferReason, cancellationToken);
     }
 }

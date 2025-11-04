@@ -6,6 +6,6 @@ public class ApiException(string message, ApiResponse? apiResponse): Exception(F
     {
         var statusCode = apiResponse?.StatusCode.ToString() ?? "unknown";
         var errorContent = apiResponse?.ErrorContent ?? "unknown";
-        return $"{message}. Remote API returned status '{statusCode}' with detail '{errorContent}'";
+        return $"{message}. The remote API returned '{statusCode}' with detail '{errorContent}'";
     }
 }

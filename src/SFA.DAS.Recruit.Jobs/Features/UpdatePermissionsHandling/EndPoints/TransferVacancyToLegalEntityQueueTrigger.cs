@@ -1,13 +1,15 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
-using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.EndPoints;
 
+[ExcludeFromCodeCoverage]
 public class TransferVacancyToLegalEntityQueueTrigger(
     ILogger<TransferVacancyToLegalEntityQueueTrigger> logger,
     ITransferVacancyToLegalEntityHandler handler,
