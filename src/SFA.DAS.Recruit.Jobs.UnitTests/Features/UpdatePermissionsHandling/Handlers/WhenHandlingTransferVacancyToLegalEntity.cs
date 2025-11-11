@@ -19,9 +19,6 @@ internal class WhenHandlingTransferVacancyToLegalEntity
         // assert
         updatePermissionsClient.Verify(x => x.TransferVacancyAsync(
             It.Is<Guid>(y => y == message.VacancyId),
-            It.Is<Guid>(y => y == message.UserRef),
-            It.Is<string>(y => y == message.UserEmailAddress),
-            It.Is<string>(y => y == message.UserName),
             It.Is<TransferReason>(y => y == message.TransferReason),
             CancellationToken.None
         ), Times.Once);

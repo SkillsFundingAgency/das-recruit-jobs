@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.EventHandlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 
@@ -34,6 +35,8 @@ public static class HostBuilderExtensions
                 return new QueueClient<TransferVacancyToLegalEntityQueueMessage>(queueClient, options);
             });
             services.AddTransient<ITransferVacancyToLegalEntityHandler, TransferVacancyToLegalEntityHandler>();
+
+            services.AddTransient<UpdatedPermissionsExternalSystemEventsHandler>();
         });
     }
 }

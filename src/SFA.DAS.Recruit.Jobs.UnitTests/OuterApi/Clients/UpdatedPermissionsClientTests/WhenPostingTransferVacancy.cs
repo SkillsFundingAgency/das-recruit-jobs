@@ -27,20 +27,17 @@ public class WhenPostingTransferVacancy
     [Test, MoqAutoData]
     public async Task Then_The_Legal_Entity_Public_Hash_Id_Should_Be_Returned(
         Guid vacancyId,
-        Guid userRef,
-        string userEmail,
-        string userName,
         TransferReason transferReason)
     {
         // arrange
-        var expectedContent = JsonSerializer.Serialize(new TransferVacancyRequest(userRef, userEmail, userName, transferReason), _serialiserOptions);
+        var expectedContent = JsonSerializer.Serialize(new TransferVacancyRequest(transferReason), _serialiserOptions);
         
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK);
         var handler = new MockHttpMessageHandler([httpResponse]);
         var sut = CreateSut(handler);
         
         // act
-        await sut.TransferVacancyAsync(vacancyId, userRef, userEmail, userName, transferReason, CancellationToken.None);
+        await sut.TransferVacancyAsync(vacancyId, transferReason, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
@@ -53,9 +50,6 @@ public class WhenPostingTransferVacancy
     [Test, MoqAutoData]
     public async Task Non_Successful_Responses_Are_Thrown_As_An_Exception(
         Guid vacancyId,
-        Guid userRef,
-        string userEmail,
-        string userName,
         TransferReason transferReason)
     {
         // arrange
@@ -67,7 +61,7 @@ public class WhenPostingTransferVacancy
         var sut = CreateSut(handler);
 
         // act
-        var action = async () => await sut.TransferVacancyAsync(vacancyId, userRef, userEmail, userName, transferReason, CancellationToken.None);
+        var action = async () => await sut.TransferVacancyAsync(vacancyId, transferReason, CancellationToken.None);
 
         // assert
         await action.Should().ThrowAsync<ApiException>();

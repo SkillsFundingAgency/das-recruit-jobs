@@ -17,7 +17,7 @@ internal class WhenHandlingTransferVacanciesFromProvider
     {
         // arrange
         updatePermissionsClient
-            .Setup(x => x.GetProviderVacanciesToTransfer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetProviderVacanciesToTransfer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(vacancyIds);
 
         List<TransferVacancyToLegalEntityQueueMessage> capturedMessages = [];
@@ -32,7 +32,6 @@ internal class WhenHandlingTransferVacanciesFromProvider
         // assert
         updatePermissionsClient.Verify(x => x.GetProviderVacanciesToTransfer(
             It.Is<long>(y => y == message.Ukprn),
-            It.Is<long>(y => y == message.EmployerAccountId),
             It.Is<long>(y => y == message.AccountLegalEntityId),
             CancellationToken.None
         ), Times.Once);
@@ -41,9 +40,6 @@ internal class WhenHandlingTransferVacanciesFromProvider
         capturedMessages.Should().AllSatisfy(x =>
         {
             vacancyIds.Should().Contain(x.VacancyId);
-            x.UserRef.Should().Be(message.UserRef);
-            x.UserName.Should().Be(message.UserName);
-            x.UserEmailAddress.Should().Be(message.UserEmailAddress);
             x.TransferReason.Should().Be(message.TransferReason);
         });
     }
@@ -57,7 +53,7 @@ internal class WhenHandlingTransferVacanciesFromProvider
     {
         // arrange
         updatePermissionsClient
-            .Setup(x => x.GetProviderVacanciesToTransfer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetProviderVacanciesToTransfer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         // act
@@ -66,7 +62,6 @@ internal class WhenHandlingTransferVacanciesFromProvider
         // assert
         updatePermissionsClient.Verify(x => x.GetProviderVacanciesToTransfer(
             It.Is<long>(y => y == message.Ukprn),
-            It.Is<long>(y => y == message.EmployerAccountId),
             It.Is<long>(y => y == message.AccountLegalEntityId),
             CancellationToken.None), Times.Once);
         

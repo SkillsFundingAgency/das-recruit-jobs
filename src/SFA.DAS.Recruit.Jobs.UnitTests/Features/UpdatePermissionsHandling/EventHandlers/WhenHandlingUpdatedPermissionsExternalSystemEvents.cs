@@ -45,28 +45,6 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
     }
     
     [Test, MoqAutoData]
-    public async Task Then_If_The_Legal_Identity_Is_Not_Associated_With_The_Employer_An_Exception_Is_Thrown(
-        IMessageHandlerContext context,
-        [Frozen] Mock<IUpdatedPermissionsClient> updatePermissionsClient,
-        [Frozen] Mock<IQueueClient<TransferVacanciesFromProviderQueueMessage>> queueClient,
-        [Greedy] UpdatedPermissionsExternalSystemEventsHandler sut)
-    {
-        // arrange
-        var message = new UpdatedPermissionsEvent(123, 234, 345, 456, 567, Guid.NewGuid(), string.Empty,
-            string.Empty, string.Empty, [], [Operation.Recruitment], DateTime.Now);
-
-        updatePermissionsClient
-            .Setup(x => x.VerifyEmployerLegalEntityAssociated(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-        
-        // act
-        var action = async () => await sut.Handle(message, context);
-
-        // assert
-        await action.Should().ThrowAsync<Exception>().WithMessage($"Could not find matching Account Legal Entity Id {message.AccountLegalEntityId} for Employer Account {message.AccountId}");
-    }
-    
-    [Test, MoqAutoData]
     public async Task Then_If_The_Permission_Is_Removed_Then_A_Queue_Message_Is_Sent(
         IMessageHandlerContext context,
         [Frozen] Mock<IUpdatedPermissionsClient> updatePermissionsClient,
@@ -83,10 +61,6 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
             .Callback<TransferVacanciesFromProviderQueueMessage>(x => capturedMessage = x)
             .Returns(Task.CompletedTask);
 
-        updatePermissionsClient
-            .Setup(x => x.VerifyEmployerLegalEntityAssociated(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        
         // act
         await sut.Handle(message, context);
 
@@ -94,11 +68,7 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>()), Times.Once);
         capturedMessage.Should().NotBeNull();
         capturedMessage.AccountLegalEntityId.Should().Be(234);
-        capturedMessage.EmployerAccountId.Should().Be(123);
         capturedMessage.Ukprn.Should().Be(567);
         capturedMessage.TransferReason.Should().Be(TransferReason.EmployerRevokedPermission);
-        capturedMessage.UserEmailAddress.Should().Be(message.UserEmailAddress);
-        capturedMessage.UserName.Should().Be($"{message.UserFirstName} {message.UserLastName}");
-        capturedMessage.UserRef.Should().Be(message.UserRef!.Value);
     }
 }

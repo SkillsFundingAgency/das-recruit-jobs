@@ -9,9 +9,8 @@ namespace SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 public interface IUpdatedPermissionsClient
 {
-    Task<bool> VerifyEmployerLegalEntityAssociated(long employerAccountId, long accountLegalEntityId, CancellationToken cancellationToken = default);
-    Task<List<Guid>> GetProviderVacanciesToTransfer(long ukprn, long employerAccountId, long accountLegalEntityId, CancellationToken cancellationToken = default);
-    Task TransferVacancyAsync(Guid vacancyId, Guid userRef, string userEmailAddress, string userName, TransferReason transferReason, CancellationToken cancellationToken);
+    Task<List<Guid>> GetProviderVacanciesToTransfer(long ukprn, long accountLegalEntityId, CancellationToken cancellationToken = default);
+    Task TransferVacancyAsync(Guid vacancyId, TransferReason transferReason, CancellationToken cancellationToken);
 }
 
 public class UpdatedPermissionsClient(
@@ -20,21 +19,8 @@ public class UpdatedPermissionsClient(
     JsonSerializerOptions jsonSerializationOptions)
     : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IUpdatedPermissionsClient
 {
-    public async Task<bool> VerifyEmployerLegalEntityAssociated(
-        long employerAccountId,
-        long accountLegalEntityId,
-        CancellationToken cancellationToken = default)
-    {
-        var url = $"updated-employer-permissions/employers/{employerAccountId}/legal-entities/{accountLegalEntityId}";
-        var response = await GetAsync<bool>(url, cancellationToken: cancellationToken);
-        return response.Success
-            ? response.Payload
-            : throw new ApiException("Failed to retrieve the account's legal entity", response);
-    }
-
     public async Task<List<Guid>> GetProviderVacanciesToTransfer(
         long ukprn,
-        long employerAccountId,
         long accountLegalEntityId,
         CancellationToken cancellationToken = default)
     {
@@ -42,7 +28,6 @@ public class UpdatedPermissionsClient(
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
         {
             { "ukprn", ukprn.ToString() },
-            { "employerAccountId", employerAccountId.ToString() },
             { "accountLegalEntityId", accountLegalEntityId.ToString() },
         });
         
@@ -54,14 +39,11 @@ public class UpdatedPermissionsClient(
 
     public async Task TransferVacancyAsync(
         Guid vacancyId,
-        Guid userRef,
-        string userEmailAddress,
-        string userName,
         TransferReason transferReason,
         CancellationToken cancellationToken)
     {
         var url = $"updated-employer-permissions/vacancies/{vacancyId}/transfer";
-        var payload = new TransferVacancyRequest(userRef, userEmailAddress, userName, transferReason);
+        var payload = new TransferVacancyRequest(transferReason);
         var response = await PostAsync<NoResponse>(url, payload, cancellationToken: cancellationToken);
         if (!response.Success)
         {

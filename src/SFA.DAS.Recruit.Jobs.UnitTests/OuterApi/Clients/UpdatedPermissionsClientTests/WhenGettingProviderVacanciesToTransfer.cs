@@ -26,7 +26,6 @@ public class WhenGettingProviderVacanciesToTransfer
     [Test, MoqAutoData]
     public async Task Then_The_Legal_Entity_Public_Hash_Id_Should_Be_Returned(
         long ukprn,
-        long employerAccountId,
         long accountLegalEntityId,
         List<Guid> vacancies)
     {
@@ -39,13 +38,13 @@ public class WhenGettingProviderVacanciesToTransfer
         var sut = CreateSut(handler);
         
         // act
-        var result = await sut.GetProviderVacanciesToTransfer(ukprn, employerAccountId, accountLegalEntityId, CancellationToken.None);
+        var result = await sut.GetProviderVacanciesToTransfer(ukprn, accountLegalEntityId, CancellationToken.None);
 
         // assert
         result.Should().BeEquivalentTo(vacancies);
         
         var request = handler.Requests.Single();
-        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/updated-employer-permissions/vacancies/transferable?ukprn={ukprn}&employerAccountId={employerAccountId}&accountLegalEntityId={accountLegalEntityId}"));
+        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/updated-employer-permissions/vacancies/transferable?ukprn={ukprn}&accountLegalEntityId={accountLegalEntityId}"));
         request.Method.Should().Be(HttpMethod.Get);
         request.Headers.GetValues("X-Version").Single().Should().Be("1.0");
     }
@@ -53,7 +52,6 @@ public class WhenGettingProviderVacanciesToTransfer
     [Test, MoqAutoData]
     public async Task Non_Successful_Responses_Are_Thrown_As_An_Exception(
         long ukprn,
-        long employerAccountId,
         long accountLegalEntityId)
     {
         // arrange
@@ -65,7 +63,7 @@ public class WhenGettingProviderVacanciesToTransfer
         var sut = CreateSut(handler);
 
         // act
-        var action = async () => await sut.GetProviderVacanciesToTransfer(ukprn, employerAccountId, accountLegalEntityId, CancellationToken.None);
+        var action = async () => await sut.GetProviderVacanciesToTransfer(ukprn, accountLegalEntityId, CancellationToken.None);
 
         // assert
         await action.Should().ThrowAsync<ApiException>();

@@ -12,6 +12,6 @@ internal class TransferVacancyToLegalEntityHandler(IUpdatedPermissionsClient upd
 {
     public async Task RunAsync(TransferVacancyToLegalEntityQueueMessage message, CancellationToken cancellationToken)
     {
-        await updatePermissionsClient.TransferVacancyAsync(message.VacancyId, message.UserRef, message.UserEmailAddress, message.UserName, message.TransferReason, cancellationToken);
+        await updatePermissionsClient.TransferVacancyAsync(message.VacancyId, message.TransferReason, cancellationToken);
     }
 }
