@@ -46,7 +46,7 @@ public class WhenGettingProviderVacanciesToTransfer
         var request = handler.Requests.Single();
         request.RequestUri.Should().Be(new Uri($"http://localhost:8080/updated-employer-permissions/vacancies/transferable?ukprn={ukprn}&accountLegalEntityId={accountLegalEntityId}"));
         request.Method.Should().Be(HttpMethod.Get);
-        request.Headers.GetValues("X-Version").Single().Should().Be("1.0");
+        request.Headers.GetValues("X-Version").Single().Should().Be("1");
     }
 
     [Test, MoqAutoData]
