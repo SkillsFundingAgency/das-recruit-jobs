@@ -1,19 +1,21 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+using System.Text.Json;
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi;
 
 public interface IRecruitJobsOuterClient
 {
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default);
+    Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchByUsersInactiveStatus(CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids);
     Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
 }
 
-public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions) : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
+public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions)
+    : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {
@@ -24,6 +26,11 @@ public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiCo
         });
         
         return await GetAsync<List<NotificationEmail>>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchByUsersInactiveStatus(CancellationToken cancellationToken = default)
+    {
+        return await GetAsync<List<NotificationEmail>>("delayed-notifications/users/inactive", cancellationToken: cancellationToken);
     }
 
     public async Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids)
