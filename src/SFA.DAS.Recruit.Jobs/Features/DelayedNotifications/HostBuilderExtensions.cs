@@ -32,6 +32,7 @@ public static class HostBuilderExtensions
             });
             services.AddTransient<IDelayedNotificationsEnqueueHandler, DelayedNotificationsEnqueueHandler>();
             services.AddTransient<IDelayedNotificationsDeliveryHandler, DelayedNotificationsDeliveryHandler>();
+            services.AddTransient<IDeleteNotificationsForInactiveUsersHandler, DeleteNotificationsForInactiveUsersHandler>();
 
             // register and configure the http client to call apim
             services
