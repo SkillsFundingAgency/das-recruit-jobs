@@ -8,8 +8,10 @@ namespace SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 [ExcludeFromCodeCoverage]
 public class BlockedOrganisationMigrationSqlRepository(RecruitJobsDataContext dataContext)
 {
-    public async Task UpsertBlockedOrgsBatchAsync(List<BlockedOrganisation> blockedOrganisations)
+    private static readonly BulkConfig Config = new() { UseTempDB = true };
+    
+    public async Task UpsertBlockedOrganisationsBatchAsync(List<BlockedOrganisation> blockedOrganisations)
     {
-        await dataContext.BulkInsertOrUpdateAsync(blockedOrganisations);
+        await dataContext.BulkInsertOrUpdateAsync(blockedOrganisations, Config);
     }
 }

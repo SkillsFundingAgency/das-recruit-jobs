@@ -52,7 +52,7 @@ public class BlockedOrganisationMigrationStrategy(
 
         if (mappedBlockedOrganisations is { Count: > 0 })
         {
-            await sqlRepository.UpsertBlockedOrgsBatchAsync(mappedBlockedOrganisations);
+            await sqlRepository.UpsertBlockedOrganisationsBatchAsync(mappedBlockedOrganisations);
             logger.LogInformation("Imported {count} BlockedOrganisations", mappedBlockedOrganisations.Count);
                 
             await mongoRepository.UpdateSuccessMigrationDateBatchAsync(mappedBlockedOrganisations.Select(x => x.Id).ToList());
