@@ -24,7 +24,6 @@ public class Vacancy
     public DateTime? CreatedDate {get; set;}                    //  datetime            NOT NULL default CURRENT_TIMESTAMP,
     public DateTime? LastUpdatedDate {get; set;}                //  datetime            NULL,
     public DateTime? SubmittedDate {get; set;}                  //  datetime            NULL,
-    public DateTime? ReviewDate {get; set;}                     //  datetime            NULL,
     public DateTime? ClosedDate {get; set;}                     //  datetime            NULL,
     public DateTime? DeletedDate {get; set;}                    //  datetime            NULL,
     public DateTime? LiveDate {get; set;}                       //  datetime            NULL,
