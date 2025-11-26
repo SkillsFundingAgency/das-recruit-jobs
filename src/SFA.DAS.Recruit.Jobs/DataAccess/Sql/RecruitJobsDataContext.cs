@@ -3,7 +3,6 @@ using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
@@ -81,5 +80,11 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         var userEmployerAccountBuilder = modelBuilder.Entity<UserEmployerAccount>();
         userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
         userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
+        
+        // BlockedOrganisation
+        modelBuilder.Entity<BlockedOrganisation>().ToTable("BlockedOrganisation");
+        modelBuilder.Entity<BlockedOrganisation>().HasKey("Id");
+        modelBuilder.Entity<BlockedOrganisation>().Property(x => x.BlockedStatus).HasConversion(v => v.ToString(), v => Enum.Parse<BlockedStatus>(v));
+        modelBuilder.Entity<BlockedOrganisation>().Property(x => x.OrganisationType).HasConversion(v => v.ToString(), v => Enum.Parse<OrganisationType>(v));
     }
 }
