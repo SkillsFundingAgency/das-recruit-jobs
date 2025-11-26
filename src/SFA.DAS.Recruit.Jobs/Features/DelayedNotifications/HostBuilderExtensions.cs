@@ -9,9 +9,9 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
-using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 
@@ -23,12 +23,12 @@ public static class HostBuilderExtensions
         return builder.ConfigureServices((_, services) =>
         {
             services.AddTransient<IRecruitJobsOuterClient, RecruitJobsOuterClient>();
-            services.AddTransient<IDelayedNotificationQueueClient>(serviceProvider =>
+            services.AddTransient<IQueueClient<NotificationEmail>>(serviceProvider =>
             {
                 var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
                 var queueClient = new QueueClient(cfg.QueueStorage!, StorageConstants.QueueNames.DelayedNotifications);
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
-                return new DelayedNotificationQueueClient(queueClient, options);
+                return new QueueClient<NotificationEmail>(queueClient, options);
             });
             services.AddTransient<IDelayedNotificationsEnqueueHandler, DelayedNotificationsEnqueueHandler>();
             services.AddTransient<IDelayedNotificationsDeliveryHandler, DelayedNotificationsDeliveryHandler>();

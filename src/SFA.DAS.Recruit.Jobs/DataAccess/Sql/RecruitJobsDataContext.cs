@@ -3,7 +3,6 @@ using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;

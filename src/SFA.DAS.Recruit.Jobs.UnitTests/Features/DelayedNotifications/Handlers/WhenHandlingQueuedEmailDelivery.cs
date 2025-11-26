@@ -1,7 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using Moq;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
-using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
+﻿using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
@@ -15,11 +12,8 @@ public class WhenHandlingQueuedEmailDelivery
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsDeliveryHandler sut)
     {
-        // arrange
-        var queueItem = new QueueItem<NotificationEmail> { Payload = email };
-
         // act
-        await sut.RunAsync(queueItem, CancellationToken.None);
+        await sut.RunAsync(email, CancellationToken.None);
 
         // assert
         jobsOuterClient.Verify(x => x.SendEmailAsync(ItIs.EquivalentTo(email), It.IsAny<CancellationToken>()), Times.Once);
