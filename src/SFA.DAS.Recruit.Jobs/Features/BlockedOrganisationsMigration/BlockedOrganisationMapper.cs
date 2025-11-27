@@ -33,7 +33,7 @@ public class BlockedOrganisationMapper(ILogger<BlockedOrganisationMapper> logger
                 DataAccess.MongoDb.Domain.OrganisationType.Provider => OrganisationType.Provider,
             },
             OrganisationId = blockedOrganisation.OrganisationId,
-            Reason = blockedOrganisation.Reason,
+            Reason = blockedOrganisation.Reason ?? "Unknown",
             UpdatedByUserId = updatedByUserId.Value,
             UpdatedDate = blockedOrganisation.UpdatedDate,
         };
