@@ -1,40 +1,32 @@
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
+using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SqlBlockedOrganisation = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.BlockedOrganisation;
 using MongoBlockedOrganisation = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.BlockedOrganisation;
 
 namespace SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 
 [ExcludeFromCodeCoverage]
-public class BlockedOrganisationMapper(ILogger<BlockedOrganisationMapper> logger, UserLocator userLocator)
+public class BlockedOrganisationMapper
 {
-    public async Task<SqlBlockedOrganisation> MapFromAsync(MongoBlockedOrganisation blockedOrganisation)
+    public SqlBlockedOrganisation MapFrom(MongoBlockedOrganisation blockedOrganisation)
     {
-        var updatedByUserId = await userLocator.LocateMongoUserAsync(blockedOrganisation.UpdatedByUser);
-        if (updatedByUserId is null)
-        {
-            logger.LogWarning("Failed to find user who updated the blocked organisation for record '{BlockedOrganisationId}'", blockedOrganisation.Id);
-            return SqlBlockedOrganisation.None;
-        }
-        
         return new SqlBlockedOrganisation
         {
             Id = blockedOrganisation.Id,
             BlockedStatus = blockedOrganisation.BlockedStatus switch
             {
-                DataAccess.MongoDb.Domain.BlockedStatus.Blocked => BlockedStatus.Blocked,
-                DataAccess.MongoDb.Domain.BlockedStatus.Unblocked => BlockedStatus.Unblocked,
+                BlockedStatus.Blocked => DataAccess.Sql.Domain.BlockedStatus.Blocked,
+                BlockedStatus.Unblocked => DataAccess.Sql.Domain.BlockedStatus.Unblocked,
             },
             OrganisationType = blockedOrganisation.OrganisationType switch
             {
-                DataAccess.MongoDb.Domain.OrganisationType.Employer => OrganisationType.Employer,
-                DataAccess.MongoDb.Domain.OrganisationType.Provider => OrganisationType.Provider,
+                OrganisationType.Employer => DataAccess.Sql.Domain.OrganisationType.Employer,
+                OrganisationType.Provider => DataAccess.Sql.Domain.OrganisationType.Provider,
             },
             OrganisationId = blockedOrganisation.OrganisationId,
             Reason = blockedOrganisation.Reason ?? "Unknown",
-            UpdatedByUserId = updatedByUserId.Value,
+            UpdatedByUserId = blockedOrganisation.UpdatedByUser?.Name ?? "Unknown",
+            UpdatedByUserEmail = blockedOrganisation.UpdatedByUser?.Email ?? "Unknown",
             UpdatedDate = blockedOrganisation.UpdatedDate,
         };
     }

@@ -28,20 +28,6 @@ public class BlockedOrganisationMigrationMongoRepository(
         );
     }
 
-    public async Task<List<BlockedOrganisation>> FetchBatchByIdsAsync(List<Guid> ids)
-    {
-        var collection = GetCollection<BlockedOrganisation>(MongoDbCollectionNames.BlockedOrganisations);
-        var filterDefinition = Builders<BlockedOrganisation>.Filter.In(x => x.Id, ids);
-
-        return await RetryPolicy.ExecuteAsync(
-            _ => collection
-                .Find(filterDefinition, new FindOptions{ MaxTime = TimeSpan.FromMinutes(1) })
-                .Project<BlockedOrganisation>(GetProjection<BlockedOrganisation>())
-                .ToListAsync(),
-            new Context(nameof(FetchBatchAsync))
-        );
-    }
-
     public async Task UpdateSuccessMigrationDateBatchAsync(List<Guid> ids)
     {
         var filterDef = Builders<BlockedOrganisation>.Filter.In(x => x.Id, ids);
@@ -52,19 +38,6 @@ public class BlockedOrganisationMigrationMongoRepository(
         await RetryPolicy.ExecuteAsync(
             _ => collection.UpdateManyAsync(filterDef, updateDef),
             new Context(nameof(UpdateSuccessMigrationDateBatchAsync))
-        );
-    }
-    
-    public async Task UpdateFailedMigrationDateBatchAsync(List<Guid> ids)
-    {
-        var filterDef = Builders<BlockedOrganisation>.Filter.In(x => x.Id, ids);
-        var updateDef = Builders<BlockedOrganisation>.Update
-            .Set(x => x.MigrationDate, DateTime.UtcNow)
-            .Set(x => x.MigrationFailed, true);
-        var collection = GetCollection<BlockedOrganisation>(MongoDbCollectionNames.BlockedOrganisations);
-        await RetryPolicy.ExecuteAsync(
-            _ => collection.UpdateManyAsync(filterDef, updateDef),
-            new Context(nameof(UpdateFailedMigrationDateBatchAsync))
         );
     }
 }

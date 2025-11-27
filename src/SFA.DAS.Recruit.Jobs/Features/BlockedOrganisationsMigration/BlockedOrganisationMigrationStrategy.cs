@@ -29,27 +29,9 @@ public class BlockedOrganisationMigrationStrategy(
 
     private async Task ProcessBatchAsync(List<MongoBlockedOrganisation> blockedOrganisations)
     {
-        List<MongoBlockedOrganisation> excluded = [];
         List<SqlBlockedOrganisation> mappedBlockedOrganisations = [];
-        foreach (var blockedOrganisation in blockedOrganisations)
-        {
-            var item = await mapper.MapFromAsync(blockedOrganisation);
-            if (item == SqlBlockedOrganisation.None)
-            {
-                excluded.Add(blockedOrganisation);
-            }
-            else
-            {
-                mappedBlockedOrganisations.Add(item);
-            }
-        }
+        mappedBlockedOrganisations.AddRange(blockedOrganisations.Select(mapper.MapFrom));
         
-        if (excluded is { Count: > 0 })
-        {
-            await mongoRepository.UpdateFailedMigrationDateBatchAsync(excluded.Select(x => x.Id).ToList());
-            logger.LogInformation("Failed to migrate {FailedCount} BlockedOrganisations", excluded.Count);
-        }
-
         if (mappedBlockedOrganisations is { Count: > 0 })
         {
             await sqlRepository.UpsertBlockedOrganisationsBatchAsync(mappedBlockedOrganisations);
