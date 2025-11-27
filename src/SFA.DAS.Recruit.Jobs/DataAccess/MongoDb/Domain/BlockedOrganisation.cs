@@ -8,7 +8,7 @@ public class BlockedOrganisation
     public BlockedStatus BlockedStatus { get; set; }
     public VacancyUser UpdatedByUser { get; set; }
     public DateTime UpdatedDate { get; set; }
-    public string Reason { get; set; }
+    public string? Reason { get; set; }
     
     public DateTime? MigrationDate { get; set; }
     public bool? MigrationFailed { get; set; }
