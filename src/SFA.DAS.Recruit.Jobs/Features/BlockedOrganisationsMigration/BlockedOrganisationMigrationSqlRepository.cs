@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
@@ -12,6 +13,12 @@ public class BlockedOrganisationMigrationSqlRepository(RecruitJobsDataContext da
     
     public async Task UpsertBlockedOrganisationsBatchAsync(List<BlockedOrganisation> blockedOrganisations)
     {
-        await dataContext.BulkInsertOrUpdateAsync(blockedOrganisations, Config);
+        var strategy = dataContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await dataContext.Database.BeginTransactionAsync();
+            await dataContext.BulkInsertOrUpdateAsync(blockedOrganisations, Config);
+            await transaction.CommitAsync();
+        });
     }
 }
