@@ -11,12 +11,12 @@ public class VacancyAnalyticsMigrationHttpTrigger(ILogger<VacancyAnalyticsMigrat
     private const string TriggerName = nameof(VacancyAnalyticsMigrationHttpTrigger);
 
     [Function(TriggerName)]
-    public async Task Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData requestData)
+    public async Task Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData requestData, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            await vacancyAnalyticsMigrationStrategy.RunAsync();
+            await vacancyAnalyticsMigrationStrategy.RunAsync(cancellationToken);
         }
         catch (Exception e)
         {

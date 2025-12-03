@@ -10,25 +10,34 @@ public class VacancyAnalyticsMigrationStrategy(ILogger<VacancyAnalyticsMigration
     private const int BatchSize = 200;
     private const int MaxRuntimeInSeconds = 270; // 4m 30s
 
-    public async Task RunAsync()
+    public async Task RunAsync(CancellationToken cancellationToken)
     {
         var startTime = DateTime.UtcNow;
-        var mongoAllVacancyAnalyticsSummariesAsync = await mongoRepository.GetAllVacancyAnalyticsSummariesAsync(BatchSize, startTime);
+        var mongoAllVacancyAnalyticsSummariesAsync = await mongoRepository.GetAllVacancyAnalyticsSummariesAsync(BatchSize, startTime, cancellationToken);
         while (mongoAllVacancyAnalyticsSummariesAsync is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
-            await ProcessBatchAsync(mongoAllVacancyAnalyticsSummariesAsync);
-            mongoAllVacancyAnalyticsSummariesAsync = await mongoRepository.GetAllVacancyAnalyticsSummariesAsync(BatchSize, startTime);
+            await ProcessBatchAsync(mongoAllVacancyAnalyticsSummariesAsync, cancellationToken);
+            mongoAllVacancyAnalyticsSummariesAsync = await mongoRepository.GetAllVacancyAnalyticsSummariesAsync(BatchSize, startTime, cancellationToken);
         }
     }
 
-    private async Task ProcessBatchAsync(List<VacancyAnalyticsSummaryV2> vacancyAnalyticsSummary)
+    private async Task ProcessBatchAsync(List<VacancyAnalyticsSummaryV2> vacancyAnalyticsSummary, CancellationToken cancellationToken)
     {
         var mappedVacancyAnalytics = MapVacancyAnalyticsFrom(vacancyAnalyticsSummary);
-
-        if (mappedVacancyAnalytics is { Count: > 0 })
+        
+        try
         {
-            await sqlRepository.UpsertVacancyAnalyticsBatchAsync(mappedVacancyAnalytics.ToList());
-            logger.LogInformation("Imported {count} VacancyAnalytics", mappedVacancyAnalytics.Count);
+            if (mappedVacancyAnalytics is { Count: > 0 })
+            {
+                await sqlRepository.UpsertVacancyAnalyticsBatchAsync(mappedVacancyAnalytics.ToList(), cancellationToken);
+                await mongoRepository.UpdateSuccessMigrationDateBatchAsync(vacancyAnalyticsSummary.Select(x => x.Id).ToList());
+                logger.LogInformation("Imported {count} VacancyAnalytics", mappedVacancyAnalytics.Count);
+            }
+        }
+        catch (Exception e)
+        {
+            await mongoRepository.UpdateFailedMigrationDateBatchAsync(vacancyAnalyticsSummary.Select(x => x.Id).ToList());
+            logger.LogError(e, "Failed to migrate {count} VacancyAnalytics", mappedVacancyAnalytics.Count);
         }
     }
 
