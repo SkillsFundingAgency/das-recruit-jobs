@@ -14,13 +14,13 @@ public class VacancyMigrationMongoRepository(
     IOptions<MongoDbConnectionDetails> config, IMongoClient mongoClient)
     : MongoDbCollectionBase(loggerFactory, MongoDbNames.RecruitDb, config, mongoClient)
 {
-    public async Task<List<Vacancy>> FetchBatchAsync(int batchSize, DateTime remigrateIfBeforeDate)
+    public async Task<List<Vacancy>> FetchBatchAsync(int batchSize, DateTime reMigrateIfAfterDate)
     {
         var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => (x.MigrationDate == null || x.MigrationDate < remigrateIfBeforeDate) && x.VacancyType != VacancyType.Traineeship && x.Status == VacancyStatus.Closed, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
+                .Find(x => (x.MigrationDate == null || x.MigrationDate >= reMigrateIfAfterDate) && x.VacancyType != VacancyType.Traineeship && x.Status == VacancyStatus.Closed, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
                 .Limit(batchSize)
                 .Project<Vacancy>(GetProjection<Vacancy>())
                 .ToListAsync(),
