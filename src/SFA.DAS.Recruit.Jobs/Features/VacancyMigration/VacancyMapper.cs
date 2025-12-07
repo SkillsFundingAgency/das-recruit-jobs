@@ -49,6 +49,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         }
 
         var locations = string.Empty;
+        
         AvailableWhere? locationOption = null;
         if (vacancy.EmployerLocation is not null)
         {
@@ -59,6 +60,9 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         {
             locations = MigrationUtils.SerializeOrNull(vacancy.EmployerLocations);
             locationOption = Enum.Parse<AvailableWhere>(vacancy.EmployerLocationOption!.Value.ToString());
+        } else if (vacancy.EmployerLocationInformation is { Length: > 0 })
+        {
+            locationOption = AvailableWhere.AcrossEngland;
         }
 
         return new SqlVacancy
