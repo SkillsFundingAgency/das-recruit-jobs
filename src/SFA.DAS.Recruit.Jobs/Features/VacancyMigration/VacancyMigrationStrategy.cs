@@ -24,7 +24,7 @@ public class VacancyMigrationStrategy(
     public async Task RunAsync()
     {
         var startTime = DateTime.UtcNow;
-        var remigrateIfAfter = new DateTime(2025, 09, 01); // set to a date after a migration to trigger reimport
+        var remigrateIfAfter = new DateTime(2022, 09, 01); // set to a date after a migration to trigger reimport
         var mongoVacancies = await mongoRepository.FetchBatchAsync(BatchSize, remigrateIfAfter);
         while (mongoVacancies is { Count: > 0 } && DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {

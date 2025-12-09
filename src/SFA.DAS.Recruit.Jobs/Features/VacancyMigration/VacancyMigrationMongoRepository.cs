@@ -17,10 +17,11 @@ public class VacancyMigrationMongoRepository(
     public async Task<List<Vacancy>> FetchBatchAsync(int batchSize, DateTime reMigrateIfAfterDate)
     {
         var collection = GetCollection<Vacancy>(MongoDbCollectionNames.Vacancies);
+        var dateTo = new DateTime(2025, 12, 9);
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => (x.MigrationDate >= reMigrateIfAfterDate) && x.VacancyType != VacancyType.Traineeship && x.Status == VacancyStatus.Closed, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
+                .Find(x => (x.MigrationDate >= reMigrateIfAfterDate && x.MigrationDate <= dateTo) && x.VacancyType != VacancyType.Traineeship && x.Status == VacancyStatus.Closed, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
                 .Limit(batchSize)
                 .Project<Vacancy>(GetProjection<Vacancy>())
                 .ToListAsync(),
