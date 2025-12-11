@@ -49,6 +49,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         }
 
         var locations = string.Empty;
+        
         AvailableWhere? locationOption = null;
         if (vacancy.EmployerLocation is not null)
         {
@@ -59,6 +60,9 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
         {
             locations = MigrationUtils.SerializeOrNull(vacancy.EmployerLocations);
             locationOption = Enum.Parse<AvailableWhere>(vacancy.EmployerLocationOption!.Value.ToString());
+        } else if (vacancy.EmployerLocationInformation is { Length: > 0 })
+        {
+            locationOption = AvailableWhere.AcrossEngland;
         }
 
         return new SqlVacancy
@@ -77,7 +81,6 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             CreatedDate = vacancy.CreatedDate,
             LastUpdatedDate = vacancy.LastUpdatedDate,
             SubmittedDate = vacancy.SubmittedDate,
-            ReviewDate = vacancy.ReviewDate,
             ClosedDate = vacancy.ClosedDate,
             DeletedDate = vacancy.DeletedDate,
             LiveDate = vacancy.LiveDate,
@@ -85,7 +88,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             ClosingDate = vacancy.ClosingDate,
             ReviewCount = vacancy.ReviewCount,
             ApplicationUrl = vacancy.ApplicationUrl,
-            ApplicationMethod = MigrationUtils.ParseEnumIfNotNull<ApplicationMethod>(vacancy.ApplicationMethod?.ToString()),
+            ApplicationMethod = MigrationUtils.ParseEnumIfNotNull<ApplicationMethod>(vacancy.ApplicationMethod),
             ApplicationInstructions = vacancy.ApplicationInstructions,
             ShortDescription = vacancy.ShortDescription,
             Description = vacancy.Description,
