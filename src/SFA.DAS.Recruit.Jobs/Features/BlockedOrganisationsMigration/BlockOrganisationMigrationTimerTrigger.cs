@@ -2,22 +2,20 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace SFA.DAS.Recruit.Jobs.Features.ApplicationReviewsMigration;
+namespace SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 
 [ExcludeFromCodeCoverage]
-public class ApplicationReviewsMigrationTimerTrigger(
-    ILogger<ApplicationReviewsMigrationTimerTrigger> logger,
-    ApplicationReviewMigrationStrategy applicationReviewMigrationStrategy)
+public class BlockOrganisationMigrationTimerTrigger(ILogger<BlockOrganisationMigrationTimerTrigger> logger, BlockedOrganisationMigrationStrategy migrationStrategy)
 {
-    private const string TriggerName = nameof(ApplicationReviewsMigrationTimerTrigger);
+    private const string TriggerName = nameof(BlockOrganisationMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("0/15 * * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("*/5 23-23 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            await applicationReviewMigrationStrategy.RunAsync();
+            await migrationStrategy.RunAsync();
         }
         catch (Exception e)
         {
