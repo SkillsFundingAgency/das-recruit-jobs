@@ -21,7 +21,7 @@ public class VacancyMigrationMongoRepository(
         
         return await RetryPolicy.ExecuteAsync(
             _ => collection
-                .Find(x => (x.MigrationDate <= dateTo) 
+                .Find(x => (x.MigrationDate <= dateTo || x.MigrationDate == null) 
                            && x.VacancyType != VacancyType.Traineeship 
                            && (x.ApprenticeshipType == ApprenticeshipTypes.Standard || x.ApprenticeshipType == ApprenticeshipTypes.Foundation)
                            && x.Status == VacancyStatus.Closed, new FindOptions{ MaxTime = TimeSpan.FromMinutes(5), BatchSize = batchSize })
