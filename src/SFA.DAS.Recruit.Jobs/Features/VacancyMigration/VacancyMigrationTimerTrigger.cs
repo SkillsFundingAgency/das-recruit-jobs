@@ -10,7 +10,7 @@ public class VacancyMigrationTimerTrigger(ILogger<VacancyMigrationTimerTrigger> 
     private const string TriggerName = nameof(VacancyMigrationTimerTrigger);
     
     [Function(TriggerName)] // disable until the Users have properly migrated
-    public async Task Run([TimerTrigger("*/5 23-3 * * *")] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("*/10 * * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
