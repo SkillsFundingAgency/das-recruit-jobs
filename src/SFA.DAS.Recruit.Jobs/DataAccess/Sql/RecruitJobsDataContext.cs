@@ -87,5 +87,11 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         var vacancyAnalyticsBuilder = modelBuilder.Entity<VacancyAnalytics>();
         vacancyAnalyticsBuilder.ToTable("VacancyAnalytics");
         vacancyAnalyticsBuilder.HasKey(x => x.VacancyReference);
+        
+        // BlockedOrganisation
+        modelBuilder.Entity<BlockedOrganisation>().ToTable("BlockedOrganisation");
+        modelBuilder.Entity<BlockedOrganisation>().HasKey("Id");
+        modelBuilder.Entity<BlockedOrganisation>().Property(x => x.BlockedStatus).HasConversion(v => v.ToString(), v => Enum.Parse<BlockedStatus>(v));
+        modelBuilder.Entity<BlockedOrganisation>().Property(x => x.OrganisationType).HasConversion(v => v.ToString(), v => Enum.Parse<OrganisationType>(v));
     }
 }
