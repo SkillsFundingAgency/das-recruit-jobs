@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Polly;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
@@ -21,8 +22,16 @@ IOptions<MongoDbConnectionDetails> config)
         Logger.LogInformation("Fetching ALL VacancyAnalyticsSummaryV2 documents…");
 
         var pipeline = new EmptyPipelineDefinition<VacancyAnalyticsSummaryV2>()
-            .Match(x => x.MigrationFailed != true && (x.MigrationDate == null || x.MigrationDate < x.LastUpdated))
-            .Match(x => x.ViewType == "VacancyAnalyticsSummaryV2" && x.LastUpdated < cutOffDateTime && x.VacancyReference > 0)
+            .Match(x =>
+                x.MigrationFailed != true &&
+                (x.MigrationDate == null || x.MigrationDate < x.LastUpdated))
+            .Match(Builders<VacancyAnalyticsSummaryV2>.Filter.And(
+                Builders<VacancyAnalyticsSummaryV2>.Filter.Eq(x => x.ViewType, "VacancyAnalyticsSummaryV2"),
+                Builders<VacancyAnalyticsSummaryV2>.Filter.Lt(x => x.LastUpdated, cutOffDateTime),
+                Builders<VacancyAnalyticsSummaryV2>.Filter.Regex(
+                    x => x.VacancyReference,
+                    new BsonRegularExpression("^[0-9]+$")
+                )))
             .Limit(batchSize);
 
         var result = await RetryPolicy.ExecuteAsync(
