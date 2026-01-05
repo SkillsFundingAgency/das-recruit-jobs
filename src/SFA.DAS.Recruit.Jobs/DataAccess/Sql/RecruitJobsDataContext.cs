@@ -1,9 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
@@ -21,6 +21,8 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
     public DbSet<Vacancy> Vacancy { get; set; }
     public DbSet<User> User { get; set; }
     public DbSet<UserEmployerAccount> UserEmployerAccount { get; set; }
+    public DbSet<VacancyAnalytics> VacancyAnalytics { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -80,6 +82,11 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         var userEmployerAccountBuilder = modelBuilder.Entity<UserEmployerAccount>();
         userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
         userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
+
+        // VacancyAnalytics
+        var vacancyAnalyticsBuilder = modelBuilder.Entity<VacancyAnalytics>();
+        vacancyAnalyticsBuilder.ToTable("VacancyAnalytics");
+        vacancyAnalyticsBuilder.HasKey(x => x.VacancyReference);
         
         // BlockedOrganisation
         modelBuilder.Entity<BlockedOrganisation>().ToTable("BlockedOrganisation");
