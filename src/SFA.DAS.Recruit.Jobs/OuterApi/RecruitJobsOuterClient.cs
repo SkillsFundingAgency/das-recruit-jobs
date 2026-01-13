@@ -11,10 +11,14 @@ public interface IRecruitJobsOuterClient
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default);
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchByUsersInactiveStatus(CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids);
+    Task<ApiResponse<VacanciesToClose>> GetVacanciesToCloseAsync(DateTime closingDate, CancellationToken cancellationToken = default);
     Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
 }
 
-public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions)
+public class RecruitJobsOuterClient(
+    HttpClient httpClient,
+    RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration,
+    JsonSerializerOptions jsonSerializationOptions)
     : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
@@ -36,6 +40,17 @@ public class RecruitJobsOuterClient(HttpClient httpClient, RecruitJobsOuterApiCo
     public async Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids)
     {
         return await PostAsync<NoResponse>("delayed-notifications/delete", ids);
+    }
+
+    public async Task<ApiResponse<VacanciesToClose>> GetVacanciesToCloseAsync(DateTime closingDate, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/getVacanciesToClose";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", closingDate.ToString("s") },
+        });
+
+        return await GetAsync<VacanciesToClose>(url, cancellationToken: cancellationToken);
     }
 
     public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default)

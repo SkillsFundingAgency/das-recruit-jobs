@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -18,9 +16,13 @@ using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
 using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
+using SFA.DAS.Recruit.Jobs.NServiceBus;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -101,7 +103,8 @@ public static class HostBuilderExtensions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
-                services.AddSingleton(jsonSerializationOptions);    
+                services.AddSingleton(jsonSerializationOptions);
+                services.AddDasNServiceBus(context.Configuration);
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
@@ -113,6 +116,7 @@ public static class HostBuilderExtensions
             .ConfigureVacancyMigration()
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
-            .ConfigureVacancyAnalyticsMigration();
+            .ConfigureVacancyAnalyticsMigration()
+            .ConfigureVacanciesToCloseFeature();
     }
 }
