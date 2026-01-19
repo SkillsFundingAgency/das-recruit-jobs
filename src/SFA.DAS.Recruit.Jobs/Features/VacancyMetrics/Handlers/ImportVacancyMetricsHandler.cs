@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
 using SFA.DAS.Recruit.Jobs.OuterApi;
-using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Metrics;
+using static SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Metrics.VacancyMetricResponse;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMetrics.Handlers;
 
@@ -12,86 +10,115 @@ public interface IImportVacancyMetricsHandler
 }
 
 public class ImportVacancyMetricsHandler(ILogger<ImportVacancyMetricsHandler> logger,
-    VacancyAnalyticsSqlRepository vacancyAnalyticsSqlRepository,
     IRecruitJobsOuterClient recruitJobsOuterClient) : IImportVacancyMetricsHandler
 {
+    private const int MaxDegreeOfParallelism = 10; // tune based on API limits
+
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        var canContinue = true;
-        while (!cancellationToken.IsCancellationRequested && canContinue)
+        await UpsertVacancyMetrics(cancellationToken);
+    }
+
+    private async Task UpsertVacancyMetrics(CancellationToken cancellationToken)
+    {
+        try
         {
-            canContinue = await UpsertVacancyMetrics(cancellationToken);
+            var endDate = DateTime.UtcNow;
+            var startDate = endDate.AddHours(-1);
+
+            var response = await recruitJobsOuterClient
+                .GetVacancyMetricsByDateAsync(startDate, endDate, cancellationToken);
+
+            var vacancyMetrics = response.Payload?.VacancyMetrics;
+
+            if (!response.Success || vacancyMetrics is not { Count: > 0 })
+            {
+                logger.LogInformation("No records found from outer api while fetching vacancy metrics by date. StartDate:{startDate} and EndDate:{endDate}", startDate, endDate);
+                return;
+            }
+
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = MaxDegreeOfParallelism,
+                CancellationToken = cancellationToken
+            };
+
+            await Parallel.ForEachAsync(vacancyMetrics, parallelOptions,
+                async (vacancyMetric, ct) =>
+                {
+                    var existingResponse =
+                        await recruitJobsOuterClient.GetOneVacancyAnalyticsAsync(
+                            vacancyMetric.VacancyRef,
+                            ct);
+
+                    var analyticsToUpsert = new List<Core.Models.VacancyAnalytics>();
+
+                    if (existingResponse is { Success: true, Payload: not null })
+                    {
+                        // Copy existing analytics first
+                        analyticsToUpsert.AddRange(existingResponse.Payload.Analytics);
+
+                        var index = analyticsToUpsert.FindIndex(x => x.AnalyticsDate == startDate);
+
+                        if (index >= 0)
+                        {
+                            // Replace existing analytic for the same date
+                            analyticsToUpsert[index] = Merge(analyticsToUpsert[index], vacancyMetric, startDate);
+                        }
+                        else
+                        {
+                            // Append new analytic
+                            analyticsToUpsert.Add(CreateNew(vacancyMetric, startDate));
+                        }
+                    }
+                    else
+                    {
+                        analyticsToUpsert.Add(CreateNew(vacancyMetric, startDate));
+                    }
+
+                    await recruitJobsOuterClient.PutOneVacancyAnalyticsAsync(vacancyMetric.VacancyRef,
+                        analyticsToUpsert,
+                        ct);
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                });
+
+            logger.LogInformation(
+                "Upserted {Count} vacancy metrics records",
+                vacancyMetrics.Count);
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogInformation("Import vacancy metrics operation was cancelled.");
         }
     }
 
-    private async Task<bool> UpsertVacancyMetrics(CancellationToken cancellationToken)
-    {
-        var endDate = DateTime.UtcNow;
-        var startDate = endDate.AddHours(-1);
-
-        var response = await recruitJobsOuterClient
-            .GetVacancyMetricsByDateAsync(startDate, endDate, cancellationToken);
-
-        if (!response.Success || response.Payload?.VacancyMetrics is not { Count: > 0 })
+    private static Core.Models.VacancyAnalytics CreateNew(
+        VacancyMetric vacancyMetric,
+        DateTime analyticsDate) =>
+        new()
         {
-            logger.LogInformation("No records found from outer api while fetching vacancy metrics by date. StartDate:{startDate} and EndDate:{endDate}", startDate, endDate);
-            return false;
-        }
+            AnalyticsDate = analyticsDate,
+            ApplicationStartedCount = vacancyMetric.ApplicationStartedCount,
+            ApplicationSubmittedCount = vacancyMetric.ApplicationSubmittedCount,
+            SearchResultsCount = vacancyMetric.SearchResultsCount,
+            ViewsCount = vacancyMetric.ViewsCount
+        };
 
-        var vacancyMetricsEntity = new List<VacancyAnalytics>(response.Payload.VacancyMetrics.Count);
-
-        foreach (var vacancyMetric in response.Payload.VacancyMetrics)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var existingMetrics =
-                await vacancyAnalyticsSqlRepository
-                    .FindVacancyAnalyticsByVacancyReference(vacancyMetric.VacancyRef);
-
-            var aggregatedAnalytics = AggregateAnalytics(
-                startDate,
-                existingMetrics?.AnalyticsData,
-                vacancyMetric);
-
-            vacancyMetricsEntity.Add(MapVacancyAnalyticsFrom(vacancyMetric.VacancyRef, aggregatedAnalytics));
-        }
-
-        logger.LogInformation("Upserting {count} vacancy metrics information", vacancyMetricsEntity.Count);
-        await vacancyAnalyticsSqlRepository
-            .UpsertVacancyAnalyticsBatchAsync(vacancyMetricsEntity, cancellationToken);
-
-        return true;
-    }
-
-    private static Core.Models.VacancyAnalytics AggregateAnalytics(
-        DateTime analyticsDate,
-        Core.Models.VacancyAnalytics? existing,
-        VacancyMetricResponse.VacancyMetric vacancyMetric)
-    {
-        return new Core.Models.VacancyAnalytics
+    private static Core.Models.VacancyAnalytics Merge(
+        Core.Models.VacancyAnalytics existing,
+        VacancyMetric incoming,
+        DateTime analyticsDate) =>
+        new()
         {
             AnalyticsDate = analyticsDate,
             ApplicationStartedCount =
-                (existing?.ApplicationStartedCount ?? 0) + vacancyMetric.ApplicationStartedCount,
-
-            ViewsCount =
-                (existing?.ViewsCount ?? 0) + vacancyMetric.ViewsCount,
-
+                existing.ApplicationStartedCount + incoming.ApplicationStartedCount,
             ApplicationSubmittedCount =
-                (existing?.ApplicationSubmittedCount ?? 0) + vacancyMetric.ApplicationSubmittedCount,
-
+                existing.ApplicationSubmittedCount + incoming.ApplicationSubmittedCount,
             SearchResultsCount =
-                (existing?.SearchResultsCount ?? 0) + vacancyMetric.SearchResultsCount
+                existing.SearchResultsCount + incoming.SearchResultsCount,
+            ViewsCount =
+                existing.ViewsCount + incoming.ViewsCount
         };
-    }
-
-    private static VacancyAnalytics MapVacancyAnalyticsFrom(long vacancyReference, Core.Models.VacancyAnalytics vacancyAnalytics)
-    {
-        return new VacancyAnalytics
-        {
-            VacancyReference = vacancyReference,
-            UpdatedDate = DateTime.UtcNow,
-            Analytics = vacancyAnalytics.ToJson()
-        };
-    }
 }
