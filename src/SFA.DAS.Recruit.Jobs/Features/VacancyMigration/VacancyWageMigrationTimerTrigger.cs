@@ -12,7 +12,7 @@ public class VacancyWageMigrationTimerTrigger(
     private const string TriggerName = nameof(VacancyWageMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("*/5 23-3 * * *", RunOnStartup = true)] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("*/5 23-3 * * *")] TimerInfo timerInfo)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
