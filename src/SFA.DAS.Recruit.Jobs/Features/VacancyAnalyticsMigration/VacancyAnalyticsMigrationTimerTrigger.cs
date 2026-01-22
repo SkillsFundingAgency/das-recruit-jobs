@@ -12,7 +12,7 @@ public class VacancyAnalyticsMigrationTimerTrigger(
     private const string TriggerName = nameof(VacancyAnalyticsMigrationTimerTrigger);
     
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger("0 0 0 * * ?")] TimerInfo timerInfo, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try

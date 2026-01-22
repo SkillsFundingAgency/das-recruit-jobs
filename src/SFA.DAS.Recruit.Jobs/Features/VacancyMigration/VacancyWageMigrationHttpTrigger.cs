@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 
 [ExcludeFromCodeCoverage]
-public class VacancyMigrationHttpTrigger(
-    ILogger<VacancyMigrationHttpTrigger> logger,
-    VacancyMigrationStrategy vacancyMigrationStrategy)
+public class VacancyWageMigrationHttpTrigger(
+    ILogger<VacancyWageMigrationHttpTrigger> logger,
+    VacancyWageMigrationStrategy vacancyWageMigrationStrategy)
 {
-    private const string TriggerName = nameof(VacancyMigrationHttpTrigger);
+    private const string TriggerName = nameof(VacancyWageMigrationHttpTrigger);
     
     [Function(TriggerName)]
     public async Task Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData requestData)
@@ -22,7 +22,7 @@ public class VacancyMigrationHttpTrigger(
             var request = await JsonSerializer.DeserializeAsync<MigrateVacanciesHttpRequest>(requestData.Body);
             if (request?.VacancyIds is { Count: > 0 })
             {
-                await vacancyMigrationStrategy.RunAsync(request.VacancyIds);
+                await vacancyWageMigrationStrategy.RunAsync(request.VacancyIds);
             }
         }
         catch (Exception e)
