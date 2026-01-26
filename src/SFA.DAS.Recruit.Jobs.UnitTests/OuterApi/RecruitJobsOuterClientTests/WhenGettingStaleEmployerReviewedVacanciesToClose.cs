@@ -6,12 +6,12 @@ using System.Text.Json;
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 
 [TestFixture]
-internal class WhenGettingExpiredVacancies
+internal class WhenGettingStaleEmployerReviewedVacanciesToClose
 {
     [Test, MoqAutoData]
     public async Task Then_The_Request_Is_Correct(
-        DateTime closingDate,
-        VacanciesToClose response)
+        DateTime pointInTime,
+        StaleVacancies response)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -22,19 +22,19 @@ internal class WhenGettingExpiredVacancies
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        await sut.GetVacanciesToCloseAsync(closingDate, CancellationToken.None);
+        await sut.GetEmployerReviewedVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
         request.RequestUri.Should().NotBeNull();
-        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/vacancies/stale/live?pointInTime={UrlEncoder.Default.Encode(closingDate.ToString("s"))}"));
+        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/vacancies/stale/employer-reviewed?pointInTime={UrlEncoder.Default.Encode(pointInTime.ToString("s"))}"));
         request.Method.Should().Be(HttpMethod.Get);
         request.Headers.GetValues("X-Version").Single().Should().Be("1");
     }
 
     [Test, MoqAutoData]
-    public async Task Then_The_Vacancies_Are_Returned_Correctly(DateTime closingDate,
-        VacanciesToClose response)
+    public async Task Then_The_Vacancies_Are_Returned_Correctly(DateTime pointInTime,
+        StaleVacancies response)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
@@ -45,7 +45,7 @@ internal class WhenGettingExpiredVacancies
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        var results = await sut.GetVacanciesToCloseAsync(closingDate, CancellationToken.None);
+        var results = await sut.GetEmployerReviewedVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         results.Success.Should().BeTrue();
