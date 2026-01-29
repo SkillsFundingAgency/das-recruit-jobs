@@ -19,6 +19,7 @@ using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
+using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 
@@ -113,6 +114,7 @@ public static class HostBuilderExtensions
             .ConfigureVacancyMigration()
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
-            .ConfigureVacancyAnalyticsMigration();
+            .ConfigureVacancyAnalyticsMigration()
+            .ConfigureVacancyMetrics();
     }
 }
