@@ -1,9 +1,9 @@
-﻿using AutoFixture.NUnit3;
+﻿using System.Net;
+using AutoFixture.NUnit3;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
-using System.Net;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.DeleteStaleVacancies.Handlers;
@@ -13,9 +13,9 @@ internal class WhenHandlingDeletingStaleVacancies
 {
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Delete_Vacancies_For_StaleVacancies_WhenResponseIsValid(
-        Jobs.OuterApi.Common.StaleVacancies draftStaleVacanciesResponse,
-        Jobs.OuterApi.Common.StaleVacancies referredStaleVacanciesResponse,
-        Jobs.OuterApi.Common.StaleVacancies rejectedStaleVacanciesResponse,
+        StaleVacancies draftStaleVacanciesResponse,
+        StaleVacancies referredStaleVacanciesResponse,
+        StaleVacancies rejectedStaleVacanciesResponse,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DeleteStaleVacanciesHandler sut)
     {
@@ -34,16 +34,16 @@ internal class WhenHandlingDeletingStaleVacancies
         }
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent, null));
+            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -59,9 +59,9 @@ internal class WhenHandlingDeletingStaleVacancies
 
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Never_Delete_Vacancies_For_StaleVacancies_WhenResponseIsInValid(
-        Jobs.OuterApi.Common.StaleVacancies draftStaleVacanciesResponse,
-        Jobs.OuterApi.Common.StaleVacancies referredStaleVacanciesResponse,
-        Jobs.OuterApi.Common.StaleVacancies rejectedStaleVacanciesResponse,
+        StaleVacancies draftStaleVacanciesResponse,
+        StaleVacancies referredStaleVacanciesResponse,
+        StaleVacancies rejectedStaleVacanciesResponse,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DeleteStaleVacanciesHandler sut)
     {
@@ -80,16 +80,16 @@ internal class WhenHandlingDeletingStaleVacancies
         }
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse, null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent, null));
+            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -108,13 +108,13 @@ internal class WhenHandlingDeletingStaleVacancies
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies(), null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies(), null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies(), null));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
