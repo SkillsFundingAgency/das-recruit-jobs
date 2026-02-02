@@ -69,4 +69,20 @@ public abstract class ClientBase
         var response = await _httpClient.SendAsync(request, cancellationToken);
         return await ProcessResponse<T>(response);
     }
+
+    protected async Task<ApiResponse<T>> PutAsync<T>(
+        string url,
+        object? payload = null,
+        string apiVersion = ApiVersionOne,
+        CancellationToken cancellationToken = default)
+    {
+        var request = CreateRequest(HttpMethod.Put, url, apiVersion);
+        if (payload is not null)
+        {
+            request.Content = JsonContent.Create(payload, null, _jsonSerializationOptions);
+        }
+
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+        return await ProcessResponse<T>(response);
+    }
 }
