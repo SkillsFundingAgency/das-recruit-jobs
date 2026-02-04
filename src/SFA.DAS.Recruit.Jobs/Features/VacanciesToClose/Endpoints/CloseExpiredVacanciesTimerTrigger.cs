@@ -6,8 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Endpoints;
 
 [ExcludeFromCodeCoverage]
-public class CloseExpiredVacanciesTimerTrigger(
-    ILogger<CloseExpiredVacanciesTimerTrigger> logger,
+public class CloseExpiredVacanciesTimerTrigger(ILogger<CloseExpiredVacanciesTimerTrigger> logger,
     ICloseExpiredVacanciesHandler handler)
 {
     private const string TriggerName = nameof(CloseExpiredVacanciesTimerTrigger);
@@ -16,7 +15,9 @@ public class CloseExpiredVacanciesTimerTrigger(
 
     // Timer set to run at 00:00 AM every day
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger(DailySchedule)] TimerInfo _, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger(DailySchedule)] TimerInfo _,
+        FunctionContext context,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Timer trigger fired at {NowUtc}", TriggerName, DateTime.UtcNow);
 
@@ -25,7 +26,7 @@ public class CloseExpiredVacanciesTimerTrigger(
 
         try
         {
-            await handler.RunAsync(linkedCts.Token);
+            await handler.RunAsync(context, linkedCts.Token);
             logger.LogInformation("[{TriggerName}] Successfully completed execution", TriggerName);
         }
         catch (OperationCanceledException)
