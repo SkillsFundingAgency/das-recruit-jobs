@@ -21,11 +21,9 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
+using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using NServiceBus;
-using NServiceBus.AzureFunctions.Worker;
-using SFA.DAS.Recruit.Jobs.NServiceBus;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
