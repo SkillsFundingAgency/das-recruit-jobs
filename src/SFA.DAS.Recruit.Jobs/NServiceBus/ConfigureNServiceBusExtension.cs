@@ -12,8 +12,11 @@ public static class ConfigureNServiceBusExtension
 
     public static void ConfigureNServiceBus(this IHostBuilder hostBuilder, IConfiguration configuration)
     {
-        var connectionString = configuration["DasSharedNServiceBusConfiguration:NServiceBusConnectionString"];
-        var license = configuration["DasSharedNServiceBusConfiguration:NServiceBusLicense"];
+        var connectionString = configuration["NServiceBusConnectionString"];
+        var license = configuration["NServiceBusLicense"];
+
+        ArgumentNullException.ThrowIfNull(connectionString);
+        ArgumentNullException.ThrowIfNull(license);
 
         hostBuilder.UseNServiceBus(
             endpointName: EndpointName,
@@ -41,8 +44,7 @@ public static class ConfigureNServiceBusExtension
                 }
 
 #if DEBUG
-                var transport = endpointConfiguration.AdvancedConfiguration
-                    .UseTransport<LearningTransport>();
+                var transport = endpointConfiguration.AdvancedConfiguration?.UseTransport<LearningTransport>();
 
                 transport.StorageDirectory(
                     Path.Combine(
