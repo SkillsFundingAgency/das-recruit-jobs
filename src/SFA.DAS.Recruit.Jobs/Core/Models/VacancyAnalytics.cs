@@ -7,9 +7,4 @@ public record VacancyAnalytics
     public long SearchResultsCount { get; init; } = 0;
     public long ApplicationStartedCount { get; init; } = 0;
     public long ApplicationSubmittedCount { get; init; } = 0;
-
-    public string ToJson()
-    {
-        return System.Text.Json.JsonSerializer.Serialize(this);
-    }
 }

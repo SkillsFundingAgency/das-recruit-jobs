@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
 using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics.Handlers;
 
@@ -13,7 +12,6 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
-            services.AddTransient<VacancyAnalyticsSqlRepository>();
             services.AddTransient<IImportVacancyMetricsHandler, ImportVacancyMetricsHandler>();
         });
     }
