@@ -41,6 +41,12 @@
         "subnetObject": {
             "type": "object"
         },
+        "nServiceBusConnectionString": {
+            "type": "securestring"
+        },
+        "SharedServiceBusFqdn": {
+            "type": "string"
+        },
         "subnetServiceEndpointList": {
             "type": "array"
         },
@@ -272,6 +278,14 @@
                                     "value": "[parameters('configurationStorageConnectionString')]"
                                 },
                                 {
+                                    "name": "NServiceBusConnectionString",
+                                    "value": "[parameters('nServiceBusConnectionString')]"
+                                },
+                                {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFqdn')]"
+                                },
+                                {
                                     "name": "ConfigNames",
                                     "value": "[variables('configNames')]"
                                 },
@@ -436,3 +450,4 @@
         }
     }
 }
+
