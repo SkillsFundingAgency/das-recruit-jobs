@@ -16,7 +16,6 @@ public static class ConfigureNServiceBusExtension
         var license = configuration["NServiceBusLicense"];
 
         ArgumentNullException.ThrowIfNull(connectionString);
-        ArgumentNullException.ThrowIfNull(license);
 
         hostBuilder.UseNServiceBus(
             endpointName: EndpointName,
