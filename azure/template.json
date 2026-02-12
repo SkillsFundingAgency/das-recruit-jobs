@@ -43,7 +43,7 @@
         },
         "serviceBusConnectionString": {
             "type": "securestring"
-        }
+        },
         "nServiceBusLicense": {
             "type": "securestring"
         },
@@ -450,6 +450,7 @@
         }
     }
 }
+
 
 
 
