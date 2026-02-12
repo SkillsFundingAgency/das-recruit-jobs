@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
+﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Domain.Events;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 
@@ -7,13 +7,13 @@ namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
 
 public interface ICloseExpiredVacanciesHandler
 {
-    Task RunAsync(CancellationToken cancellationToken);
+    Task RunAsync(FunctionContext context, CancellationToken cancellationToken);
 }
 public class CloseExpiredVacanciesHandler(ILogger<CloseExpiredVacanciesHandler> logger,
-    IMessageSession messaging,
+    IFunctionEndpoint endpoint,
     IRecruitJobsOuterClient jobsOuterClient) : ICloseExpiredVacanciesHandler
 {
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task RunAsync(FunctionContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Starting deletion of delayed notifications for inactive users.");
 
@@ -35,11 +35,13 @@ public class CloseExpiredVacanciesHandler(ILogger<CloseExpiredVacanciesHandler> 
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await messaging.Publish(new VacancyClosedEvent
+                var @event = new VacancyClosedEvent
                 {
                     VacancyId = vacancy.Id,
                     VacancyReference = vacancy.VacancyReference
-                });
+                };
+
+                await endpoint.Publish(@event, context, cancellationToken);
 
                 logger.LogInformation("Successfully closed vacancy with Id : {Id}", vacancy.Id);
             }

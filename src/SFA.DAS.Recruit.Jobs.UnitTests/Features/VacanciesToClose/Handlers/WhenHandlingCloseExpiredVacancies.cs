@@ -1,5 +1,5 @@
 ﻿using AutoFixture.NUnit3;
-using NServiceBus;
+using Microsoft.Azure.Functions.Worker;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Domain.Events;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
@@ -15,7 +15,8 @@ internal class WhenHandlingCloseExpiredVacancies
     public async Task RunAsync_Should_Publish_Event_For_ExpiredVacancies_WhenResponseIsValid(
         Jobs.OuterApi.Common.VacanciesToClose response,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
-        [Frozen] Mock<IMessageSession> messageSession,
+        [Frozen] Mock<IFunctionEndpoint> functionEndpoint,
+        [Frozen] Mock<FunctionContext> context,
         [Greedy] CloseExpiredVacanciesHandler sut)
     {
         // Arrange
@@ -24,20 +25,21 @@ internal class WhenHandlingCloseExpiredVacancies
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, response, null));
 
         // Act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(context.Object, CancellationToken.None);
 
         // Assert
-        messageSession.Verify(
-            x => x.Publish(
-                It.IsAny<VacancyClosedEvent>(),
-                It.IsAny<PublishOptions>()),
+        functionEndpoint.Verify(
+            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<FunctionContext>(),
+                It.IsAny<CancellationToken>()),
             Times.Exactly(response.Data.Count()));
     }
 
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Return_When_GetResponseIsNull(
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
-        [Frozen] Mock<IMessageSession> messageSession,
+        [Frozen] Mock<IFunctionEndpoint> functionEndpoint,
+        [Frozen] Mock<FunctionContext> context,
         [Greedy] CloseExpiredVacanciesHandler sut)
     {
         // Arrange
@@ -46,19 +48,20 @@ internal class WhenHandlingCloseExpiredVacancies
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, new Jobs.OuterApi.Common.VacanciesToClose()));
 
         // Act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(context.Object, CancellationToken.None);
 
         // Assert
-        messageSession.Verify(
-            x => x.Publish(
-                It.IsAny<VacancyClosedEvent>(),
-                It.IsAny<PublishOptions>()), Times.Never);
+        functionEndpoint.Verify(
+            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<FunctionContext>(),
+                It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Return_When_GetResponseFails(
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
-        [Frozen] Mock<IMessageSession> messageSession,
+        [Frozen] Mock<IFunctionEndpoint> functionEndpoint,
+        [Frozen] Mock<FunctionContext> context,
         [Greedy] CloseExpiredVacanciesHandler sut)
     {
         // Arrange
@@ -67,19 +70,20 @@ internal class WhenHandlingCloseExpiredVacancies
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(false, HttpStatusCode.InternalServerError, new Jobs.OuterApi.Common.VacanciesToClose(), "Internal error"));
 
         // Act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(context.Object, CancellationToken.None);
 
         // Assert
-        messageSession.Verify(
-            x => x.Publish(
-                It.IsAny<VacancyClosedEvent>(),
-                It.IsAny<PublishOptions>()), Times.Never);
+        functionEndpoint.Verify(
+            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<FunctionContext>(),
+                It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Return_When_NoVacanciesFound(
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
-        [Frozen] Mock<IMessageSession> messageSession,
+        [Frozen] Mock<IFunctionEndpoint> functionEndpoint,
+        [Frozen] Mock<FunctionContext> context,
         [Greedy] CloseExpiredVacanciesHandler sut)
     {
         // Arrange
@@ -88,12 +92,12 @@ internal class WhenHandlingCloseExpiredVacancies
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, new(), null));
 
         // Act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(context.Object, CancellationToken.None);
 
         // Assert
-        messageSession.Verify(
-            x => x.Publish(
-                It.IsAny<VacancyClosedEvent>(),
-                It.IsAny<PublishOptions>()), Times.Never);
+        functionEndpoint.Verify(
+            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<FunctionContext>(),
+                It.IsAny<CancellationToken>()), Times.Never);
     }
 }

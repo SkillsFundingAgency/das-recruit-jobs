@@ -64,6 +64,9 @@ public static class HostBuilderExtensions
 #endif
                     });
                 }
+
+                var fullConfiguration = appBuilder.Build();
+                builder.ConfigureNServiceBus(fullConfiguration);
             })
             .ConfigureServices((context, services) =>
             {
@@ -106,7 +109,6 @@ public static class HostBuilderExtensions
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
                 services.AddSingleton(jsonSerializationOptions);
-                services.AddDasNServiceBus(context.Configuration);
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
