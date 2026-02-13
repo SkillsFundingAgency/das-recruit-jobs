@@ -24,6 +24,7 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -121,6 +122,7 @@ public static class HostBuilderExtensions
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacanciesToCloseFeature()
             .ConfigureVacancyAnalyticsMigration()
+            .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics();
     }
 }

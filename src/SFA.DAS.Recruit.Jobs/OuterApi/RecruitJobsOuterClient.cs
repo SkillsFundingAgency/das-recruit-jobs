@@ -15,6 +15,13 @@ public interface IRecruitJobsOuterClient
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchByUsersInactiveStatus(CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids);
     Task<ApiResponse<VacanciesToClose>> GetVacanciesToCloseAsync(DateTime closingDate, CancellationToken cancellationToken = default);
+    Task<ApiResponse<StaleVacancies>> GetDraftVacanciesToCloseAsync(DateTime pointInTime,
+        CancellationToken cancellationToken = default);
+    Task<ApiResponse<StaleVacancies>> GetEmployerReviewedVacanciesToClose(DateTime pointInTime,
+        CancellationToken cancellationToken = default);
+    Task<ApiResponse<StaleVacancies>> GetRejectedEmployerVacanciesToClose(DateTime pointInTime,
+        CancellationToken cancellationToken = default);
+    Task<ApiResponse> DeleteVacancyAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
     Task<ApiResponse<VacancyMetricResponse>> GetVacancyMetricsByDateAsync(DateTime startDate, DateTime endDate,
         CancellationToken cancellationToken = default);
@@ -51,13 +58,51 @@ public class RecruitJobsOuterClient(
 
     public async Task<ApiResponse<VacanciesToClose>> GetVacanciesToCloseAsync(DateTime closingDate, CancellationToken cancellationToken = default)
     {
-        const string baseUrl = "vacancies/getVacanciesToClose";
+        const string baseUrl = "vacancies/stale/live";
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
         {
             { "pointInTime", closingDate.ToString("s") },
         });
 
         return await GetAsync<VacanciesToClose>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse<StaleVacancies>> GetDraftVacanciesToCloseAsync(DateTime pointInTime, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/stale/draft";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", pointInTime.ToString("s") },
+        });
+
+        return await GetAsync<StaleVacancies>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse<StaleVacancies>> GetEmployerReviewedVacanciesToClose(DateTime pointInTime, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/stale/employer-reviewed";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", pointInTime.ToString("s") },
+        });
+
+        return await GetAsync<StaleVacancies>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse<StaleVacancies>> GetRejectedEmployerVacanciesToClose(DateTime pointInTime, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/stale/rejected";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", pointInTime.ToString("s") },
+        });
+
+        return await GetAsync<StaleVacancies>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse> DeleteVacancyAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await PostAsync<NoResponse>("vacancies/delete", id, cancellationToken: cancellationToken);
     }
 
     public async Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default)
