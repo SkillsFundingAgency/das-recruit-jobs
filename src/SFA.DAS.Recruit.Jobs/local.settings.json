@@ -9,7 +9,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "Subscription": "sfa.das.recruit.jobs",
     "Version": "2.0",
-    "NServiceBusConnectionString": "UseDevelopmentStorage=true;",
+    "ServiceBusConnectionString": "UseDevelopmentStorage=true;",
     "NServiceBusLicense": "AAEAAAD/////AQAAAAAAAAAAAA=="
   },
   "Host": {
