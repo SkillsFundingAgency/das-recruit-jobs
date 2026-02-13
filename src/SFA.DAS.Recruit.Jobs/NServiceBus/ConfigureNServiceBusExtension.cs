@@ -12,11 +12,10 @@ public static class ConfigureNServiceBusExtension
 
     public static void ConfigureNServiceBus(this IHostBuilder hostBuilder, IConfiguration configuration)
     {
-        var connectionString = configuration["NServiceBusConnectionString"];
+        var connectionString = configuration["ServiceBusConnectionString"];
         var license = configuration["NServiceBusLicense"];
 
         ArgumentNullException.ThrowIfNull(connectionString);
-        ArgumentNullException.ThrowIfNull(license);
 
         hostBuilder.UseNServiceBus(
             endpointName: EndpointName,
