@@ -1,18 +1,20 @@
 {
-    "IsEncrypted": false,
-    "Values": {
-        "AzureFunctionsJobHost:Logging:LogLevel:Host": "Information",
-        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-        "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
-        "ConfigNames": "SFA.DAS.Recruit.Jobs_2.0,SFA.DAS.Encoding_1.0",
-        "EnvironmentName": "LOCAL",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "Subscription": "sfa.das.recruit.jobs",
-        "Version": "2.0"
-    },
-    "Host": {
-        "LocalHttpPort": 7003,
-        "CORS": "*",
-        "CORSCredentials": false
-    }
+  "IsEncrypted": false,
+  "Values": {
+    "AzureFunctionsJobHost:Logging:LogLevel:Host": "Information",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
+    "ConfigNames": "SFA.DAS.Recruit.Jobs_2.0,SFA.DAS.Encoding_1.0",
+    "EnvironmentName": "LOCAL",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "Subscription": "sfa.das.recruit.jobs",
+    "Version": "2.0",
+    "ServiceBusConnectionString": "UseDevelopmentStorage=true;",
+    "NServiceBusLicense": "AAEAAAD/////AQAAAAAAAAAAAA=="
+  },
+  "Host": {
+    "LocalHttpPort": 7003,
+    "CORS": "*",
+    "CORSCredentials": false
+  }
 }
