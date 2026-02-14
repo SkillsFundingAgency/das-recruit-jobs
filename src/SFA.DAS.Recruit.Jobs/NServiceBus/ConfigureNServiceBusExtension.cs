@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Net;
-using SFA.DAS.Recruit.Jobs.Domain.Events;
+using Esfa.Recruit.Vacancies.Client.Domain.Events;
 
 namespace SFA.DAS.Recruit.Jobs.NServiceBus;
 
 public static class ConfigureNServiceBusExtension
 {
-    private const string EndpointName = "SFA.DAS.FindApprenticeship.Jobs";
-    private const string ErrorEndpointName = $"{EndpointName}-error";
+    private const string EndpointName = "SFA.DAS.Recruit.Vacancies.Jobs";
+    private const string ErrorEndpointName = "sfa.das.findapprenticeship.jobs-error";
 
     public static void ConfigureNServiceBus(this IHostBuilder hostBuilder, IConfiguration configuration)
     {
@@ -26,14 +26,8 @@ public static class ConfigureNServiceBusExtension
                 endpointConfiguration.AdvancedConfiguration.SendOnly();
                 endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
                 endpointConfiguration.AdvancedConfiguration.Conventions()
-                    .DefiningCommandsAs(IsCommand)
-                    .DefiningMessagesAs(IsMessage)
-                    .DefiningEventsAs(IsEvent);
-                endpointConfiguration.AdvancedConfiguration.Conventions()
-                    .DefiningEventsAs(t =>
-                        t == typeof(VacancyClosedEvent) ||
-                        (t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.Recruit.Jobs.Domain.Events"))
-                    );
+                    .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands")
+                                             || t == typeof(VacancyClosedEvent));
 
                 // License
                 if (!string.IsNullOrWhiteSpace(license))

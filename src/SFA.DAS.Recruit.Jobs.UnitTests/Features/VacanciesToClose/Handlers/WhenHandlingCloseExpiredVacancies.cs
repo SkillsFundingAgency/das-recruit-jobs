@@ -1,10 +1,10 @@
 ﻿using AutoFixture.NUnit3;
 using Microsoft.Azure.Functions.Worker;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.Domain.Events;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using System.Net;
+using Esfa.Recruit.Vacancies.Client.Domain.Events;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToClose.Handlers;
 
@@ -29,7 +29,8 @@ internal class WhenHandlingCloseExpiredVacancies
 
         // Assert
         functionEndpoint.Verify(
-            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+            x => x.Send(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<SendOptions>(),
                 It.IsAny<FunctionContext>(),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(response.Data.Count()));
@@ -52,7 +53,8 @@ internal class WhenHandlingCloseExpiredVacancies
 
         // Assert
         functionEndpoint.Verify(
-            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+            x => x.Send(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<SendOptions>(),
                 It.IsAny<FunctionContext>(),
                 It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -74,7 +76,8 @@ internal class WhenHandlingCloseExpiredVacancies
 
         // Assert
         functionEndpoint.Verify(
-            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+            x => x.Send(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<SendOptions>(),
                 It.IsAny<FunctionContext>(),
                 It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -96,7 +99,8 @@ internal class WhenHandlingCloseExpiredVacancies
 
         // Assert
         functionEndpoint.Verify(
-            x => x.Publish(It.IsAny<VacancyClosedEvent>(),
+            x => x.Send(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<SendOptions>(),
                 It.IsAny<FunctionContext>(),
                 It.IsAny<CancellationToken>()), Times.Never);
     }
