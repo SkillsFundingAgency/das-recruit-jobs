@@ -5,6 +5,7 @@ using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using System.Net;
 using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToClose.Handlers;
 
@@ -24,6 +25,10 @@ internal class WhenHandlingCloseExpiredVacancies
             .Setup(x => x.GetVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, response, null));
 
+        jobsOuterClient
+            .Setup(x => x.PostVacancyToClose(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<ClosureReason>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<NoResponse>(true, HttpStatusCode.NoContent, null, null));
+
         // Act
         await sut.RunAsync(context.Object, CancellationToken.None);
 
@@ -34,6 +39,35 @@ internal class WhenHandlingCloseExpiredVacancies
                 It.IsAny<FunctionContext>(),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(response.Data.Count()));
+    }
+
+    [Test, MoqAutoData]
+    public async Task RunAsync_Should_Never_Publish_Event_For_ExpiredVacancies_WhenResponseIsInValid(
+        Jobs.OuterApi.Common.VacanciesToClose response,
+        [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
+        [Frozen] Mock<IFunctionEndpoint> functionEndpoint,
+        [Frozen] Mock<FunctionContext> context,
+        [Greedy] CloseExpiredVacanciesHandler sut)
+    {
+        // Arrange
+        jobsOuterClient
+            .Setup(x => x.GetVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, response, null));
+
+        jobsOuterClient
+            .Setup(x => x.PostVacancyToClose(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<ClosureReason>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<NoResponse>(false, HttpStatusCode.NoContent, null, null));
+
+        // Act
+        await sut.RunAsync(context.Object, CancellationToken.None);
+
+        // Assert
+        functionEndpoint.Verify(
+            x => x.Send(It.IsAny<VacancyClosedEvent>(),
+                It.IsAny<SendOptions>(),
+                It.IsAny<FunctionContext>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Test, MoqAutoData]
