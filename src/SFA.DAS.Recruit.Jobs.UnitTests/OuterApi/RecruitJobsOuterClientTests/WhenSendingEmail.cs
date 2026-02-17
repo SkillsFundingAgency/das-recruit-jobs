@@ -1,34 +1,18 @@
-﻿using System.Net;
+﻿using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+using System.Net;
 using System.Text.Json;
-using SFA.DAS.Recruit.Jobs.Core.Configuration;
-using SFA.DAS.Recruit.Jobs.OuterApi;
-using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 
 public class WhenSendingEmail
 {
-    private readonly JsonSerializerOptions _serialiserOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    private RecruitJobsOuterClient CreateSut(HttpMessageHandler handler)
-    {
-        var httpClient = new HttpClient(handler);
-        var config = new RecruitJobsOuterApiConfiguration
-        {
-            BaseUrl = "http://localhost:8080",
-            Key = "1234567890"
-        };
-
-        return new RecruitJobsOuterClient(httpClient, config, _serialiserOptions);
-    }
-
     [Test, MoqAutoData]
     public async Task Then_The_Request_Is_Correct(NotificationEmail email)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
         var handler = new MockHttpMessageHandler([httpResponse]);
-        var sut = CreateSut(handler);
+        var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
         
         // act
         await sut.SendEmailAsync(email, CancellationToken.None);
@@ -46,8 +30,8 @@ public class WhenSendingEmail
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.NoContent);
         var handler = new MockHttpMessageHandler([httpResponse]);
-        var expectedContent = JsonSerializer.Serialize(email, _serialiserOptions);
-        var sut = CreateSut(handler);
+        var expectedContent = JsonSerializer.Serialize(email, RecruitJobsOuterClientTestExtensions.SerializerOptions);
+        var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
         
         // act
         await sut.SendEmailAsync(email, CancellationToken.None);
