@@ -12,6 +12,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
+using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
@@ -115,6 +116,7 @@ public static class HostBuilderExtensions
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacancyAnalyticsMigration()
-            .ConfigureVacancyMetrics();
+            .ConfigureVacancyMetrics()
+            .ConfigureAiVacancyReviewingFeature();
     }
 }
