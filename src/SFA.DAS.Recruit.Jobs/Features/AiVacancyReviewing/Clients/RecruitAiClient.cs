@@ -1,12 +1,14 @@
 ﻿using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;
 
 public interface IRecruitAiOuterClient
 {
-    Task<ApiResponse> SubmitVacancyForAiReviewAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken);
+    Task<ApiResponse> ReviewVacancyAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken);
+    Task<ApiResponse> CreateVacancyReviewAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -15,8 +17,13 @@ public interface IRecruitAiOuterClient
 public class RecruitAiOuterClient(HttpClient httpClient, RecruitJobsOuterApiConfiguration config, JsonSerializerOptions jsonSerializationOptions)
     : ClientBase<RecruitJobsOuterApiConfiguration>(httpClient, config, jsonSerializationOptions), IRecruitAiOuterClient
 {
-    public async Task<ApiResponse> SubmitVacancyForAiReviewAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken)
+    public async Task<ApiResponse> ReviewVacancyAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken)
     {
-        return await PostAsync<NoResponse>($"ai/vacancy/{vacancyId}/review", new { vacancyReviewId }, cancellationToken: cancellationToken);
+        return await PostAsync<NoResponse>($"vacancies/{vacancyId}/ai-reviews/{vacancyReviewId}/review", cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse> CreateVacancyReviewAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken)
+    {
+        return await PostAsync<NoResponse>($"vacancies/{vacancyId}/ai-reviews/{vacancyReviewId}", new { Status = AiReviewStatus.Pending }, cancellationToken: cancellationToken);
     }
 }
