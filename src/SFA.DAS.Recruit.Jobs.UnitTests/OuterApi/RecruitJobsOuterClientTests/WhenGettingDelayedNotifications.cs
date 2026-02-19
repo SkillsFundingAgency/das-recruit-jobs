@@ -1,38 +1,22 @@
-﻿using System.Net;
+﻿using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using SFA.DAS.Recruit.Jobs.Core.Configuration;
-using SFA.DAS.Recruit.Jobs.OuterApi;
-using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 
 public class WhenGettingDelayedNotifications
 {
-    private readonly JsonSerializerOptions _serialiserOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    private RecruitJobsOuterClient CreateSut(HttpMessageHandler handler)
-    {
-        var httpClient = new HttpClient(handler);
-        var config = new RecruitJobsOuterApiConfiguration
-        {
-            BaseUrl = "http://localhost:8080",
-            Key = "1234567890"
-        };
-
-        return new RecruitJobsOuterClient(httpClient, config, _serialiserOptions);
-    }
-
     [Test, MoqAutoData]
     public async Task Then_The_Request_Is_Correct(DateTime dateTime, List<NotificationEmail> emails)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(JsonSerializer.Serialize(emails, _serialiserOptions))
+            Content = new StringContent(JsonSerializer.Serialize(emails, RecruitJobsOuterClientTestExtensions.SerializerOptions))
         };
         var handler = new MockHttpMessageHandler([httpResponse]);
-        var sut = CreateSut(handler);
+        var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
         
         // act
         await sut.GetDelayedNotificationsBatchBeforeDateAsync(dateTime, CancellationToken.None);
@@ -50,10 +34,10 @@ public class WhenGettingDelayedNotifications
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(JsonSerializer.Serialize(emails, _serialiserOptions))
+            Content = new StringContent(JsonSerializer.Serialize(emails, RecruitJobsOuterClientTestExtensions.SerializerOptions))
         };
         var handler = new MockHttpMessageHandler([httpResponse]);
-        var sut = CreateSut(handler);
+        var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
         
         // act
         var results = await sut.GetDelayedNotificationsBatchBeforeDateAsync(dateTime, CancellationToken.None);
