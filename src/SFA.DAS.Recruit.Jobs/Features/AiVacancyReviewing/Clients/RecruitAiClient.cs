@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;
 
@@ -19,11 +18,11 @@ public class RecruitAiOuterClient(HttpClient httpClient, RecruitJobsOuterApiConf
 {
     public async Task<ApiResponse> ReviewVacancyAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken)
     {
-        return await PostAsync<NoResponse>($"vacancies/{vacancyId}/ai-reviews/{vacancyReviewId}/review", cancellationToken: cancellationToken);
+        return await PostAsync<NoResponse>($"ai/vacancies/{vacancyId}/review", vacancyReviewId, cancellationToken: cancellationToken);
     }
 
     public async Task<ApiResponse> CreateVacancyReviewAsync(Guid vacancyId, Guid vacancyReviewId, CancellationToken cancellationToken)
     {
-        return await PostAsync<NoResponse>($"vacancies/{vacancyId}/ai-reviews/{vacancyReviewId}", new { Status = AiReviewStatus.Pending }, cancellationToken: cancellationToken);
+        return await PostAsync<NoResponse>($"ai/vacancies/{vacancyId}/review/{vacancyReviewId}", cancellationToken: cancellationToken);
     }
 }
