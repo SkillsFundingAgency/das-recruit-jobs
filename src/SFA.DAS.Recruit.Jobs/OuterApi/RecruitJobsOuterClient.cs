@@ -23,6 +23,8 @@ public interface IRecruitJobsOuterClient
         CancellationToken cancellationToken = default);
     Task<ApiResponse<StaleVacancies>> GetRejectedEmployerVacanciesToClose(DateTime pointInTime,
         CancellationToken cancellationToken = default);
+    Task<ApiResponse<StaleVacancies>> GetRejectedQaVacanciesToClose(DateTime pointInTime,
+        CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteVacancyAsync(Guid id, CancellationToken cancellationToken = default);
     Task<ApiResponse> SendEmailAsync(NotificationEmail email, CancellationToken cancellationToken = default);
     Task<ApiResponse<VacancyMetricResponse>> GetVacancyMetricsByDateAsync(DateTime startDate, DateTime endDate,
@@ -83,7 +85,7 @@ public class RecruitJobsOuterClient(
 
     public async Task<ApiResponse<StaleVacancies>> GetEmployerReviewedVacanciesToClose(DateTime pointInTime, CancellationToken cancellationToken = default)
     {
-        const string baseUrl = "vacancies/stale/employer-reviewed";
+        const string baseUrl = "vacancies/stale/employer/reviewed";
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
         {
             { "pointInTime", pointInTime.ToString("s") },
@@ -94,7 +96,17 @@ public class RecruitJobsOuterClient(
 
     public async Task<ApiResponse<StaleVacancies>> GetRejectedEmployerVacanciesToClose(DateTime pointInTime, CancellationToken cancellationToken = default)
     {
-        const string baseUrl = "vacancies/stale/rejected";
+        const string baseUrl = "vacancies/stale/employer/rejected";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", pointInTime.ToString("s") },
+        });
+
+        return await GetAsync<StaleVacancies>(url, cancellationToken: cancellationToken);
+    }
+    public async Task<ApiResponse<StaleVacancies>> GetRejectedQaVacanciesToClose(DateTime pointInTime, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/stale/qa/rejected";
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
         {
             { "pointInTime", pointInTime.ToString("s") },

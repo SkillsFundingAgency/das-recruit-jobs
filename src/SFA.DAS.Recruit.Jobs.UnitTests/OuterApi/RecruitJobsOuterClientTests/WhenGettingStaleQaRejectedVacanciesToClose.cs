@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 
 [TestFixture]
-internal class WhenGettingStaleRejectedVacanciesToClose
+internal class WhenGettingStaleQaRejectedVacanciesToClose
 {
     [Test, MoqAutoData]
     public async Task Then_The_Request_Is_Correct(
@@ -22,12 +22,12 @@ internal class WhenGettingStaleRejectedVacanciesToClose
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        await sut.GetRejectedEmployerVacanciesToClose(pointInTime, CancellationToken.None);
+        await sut.GetRejectedQaVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
         request.RequestUri.Should().NotBeNull();
-        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/vacancies/stale/rejected?pointInTime={UrlEncoder.Default.Encode(pointInTime.ToString("s"))}"));
+        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/vacancies/stale/qa/rejected?pointInTime={UrlEncoder.Default.Encode(pointInTime.ToString("s"))}"));
         request.Method.Should().Be(HttpMethod.Get);
         request.Headers.GetValues("X-Version").Single().Should().Be("1");
     }
@@ -45,7 +45,7 @@ internal class WhenGettingStaleRejectedVacanciesToClose
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        var results = await sut.GetRejectedEmployerVacanciesToClose(pointInTime, CancellationToken.None);
+        var results = await sut.GetRejectedQaVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         results.Success.Should().BeTrue();
