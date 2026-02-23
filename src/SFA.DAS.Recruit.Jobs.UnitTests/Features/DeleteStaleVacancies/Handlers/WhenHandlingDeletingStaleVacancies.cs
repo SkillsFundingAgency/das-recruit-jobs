@@ -15,7 +15,8 @@ internal class WhenHandlingDeletingStaleVacancies
     public async Task RunAsync_Should_Delete_Vacancies_For_StaleVacancies_WhenResponseIsValid(
         StaleVacancies draftStaleVacanciesResponse,
         StaleVacancies referredStaleVacanciesResponse,
-        StaleVacancies rejectedStaleVacanciesResponse,
+        StaleVacancies employerRejectedStaleVacanciesResponse,
+        StaleVacancies qaRejectedStaleVacanciesResponse,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DeleteStaleVacanciesHandler sut)
     {
@@ -26,11 +27,15 @@ internal class WhenHandlingDeletingStaleVacancies
         }
         foreach (var staleVacancyToClose in referredStaleVacanciesResponse.Data)
         {
-            staleVacancyToClose.Status = VacancyStatus.Referred;
+            staleVacancyToClose.Status = VacancyStatus.Review;
         }
-        foreach (var staleVacancyToClose in rejectedStaleVacanciesResponse.Data)
+        foreach (var staleVacancyToClose in employerRejectedStaleVacanciesResponse.Data)
         {
             staleVacancyToClose.Status = VacancyStatus.Rejected;
+        }
+        foreach (var staleVacancyToClose in qaRejectedStaleVacanciesResponse.Data)
+        {
+            staleVacancyToClose.Status = VacancyStatus.Referred;
         }
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
@@ -40,7 +45,10 @@ internal class WhenHandlingDeletingStaleVacancies
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
+        jobsOuterClient
+            .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
@@ -51,7 +59,8 @@ internal class WhenHandlingDeletingStaleVacancies
         // Assert
         var totalVacancies = (draftStaleVacanciesResponse.Data?.Count() ?? 0)
             + (referredStaleVacanciesResponse.Data?.Count() ?? 0)
-            + (rejectedStaleVacanciesResponse.Data?.Count() ?? 0);
+            + (employerRejectedStaleVacanciesResponse.Data?.Count() ?? 0)
+            + (qaRejectedStaleVacanciesResponse.Data?.Count() ?? 0);
         jobsOuterClient.Verify(
             x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Exactly(totalVacancies));
@@ -61,7 +70,8 @@ internal class WhenHandlingDeletingStaleVacancies
     public async Task RunAsync_Should_Never_Delete_Vacancies_For_StaleVacancies_WhenResponseIsInValid(
         StaleVacancies draftStaleVacanciesResponse,
         StaleVacancies referredStaleVacanciesResponse,
-        StaleVacancies rejectedStaleVacanciesResponse,
+        StaleVacancies employerRejectedStaleVacanciesResponse,
+        StaleVacancies qaRejectedStaleVacanciesResponse,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DeleteStaleVacanciesHandler sut)
     {
@@ -74,7 +84,11 @@ internal class WhenHandlingDeletingStaleVacancies
         {
             staleVacancyToClose.Status = VacancyStatus.Live;
         }
-        foreach (var staleVacancyToClose in rejectedStaleVacanciesResponse.Data)
+        foreach (var staleVacancyToClose in employerRejectedStaleVacanciesResponse.Data)
+        {
+            staleVacancyToClose.Status = VacancyStatus.Live;
+        }
+        foreach (var staleVacancyToClose in qaRejectedStaleVacanciesResponse.Data)
         {
             staleVacancyToClose.Status = VacancyStatus.Live;
         }
@@ -86,7 +100,11 @@ internal class WhenHandlingDeletingStaleVacancies
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
+        jobsOuterClient
+            .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
+
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
@@ -114,6 +132,9 @@ internal class WhenHandlingDeletingStaleVacancies
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
+        jobsOuterClient
+            .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
 
         // Act
