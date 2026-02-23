@@ -31,16 +31,16 @@ public class DeleteStaleVacanciesHandler(ILogger<DeleteStaleVacanciesHandler> lo
         var fetchTasks = await Task.WhenAll(
             jobsOuterClient.GetDraftVacanciesToCloseAsync(draftStaleByDate, cancellationToken),
             jobsOuterClient.GetEmployerReviewedVacanciesToClose(referredStaleByDate, cancellationToken),
-            jobsOuterClient.GetRejectedEmployerVacanciesToClose(rejectedStaleByDate, cancellationToken),
-            jobsOuterClient.GetRejectedQaVacanciesToClose(rejectedStaleByDate, cancellationToken)
+            jobsOuterClient.GetEmployerRejectedVacanciesToClose(rejectedStaleByDate, cancellationToken),
+            jobsOuterClient.GetQaRejectedVacanciesToClose(rejectedStaleByDate, cancellationToken)
         );
 
         var totalStaleVacancies = new HashSet<Guid>();
 
         AddStaleVacancies(fetchTasks[0], VacancyStatus.Draft, draftStaleByDate, totalStaleVacancies);
-        AddStaleVacancies(fetchTasks[1], VacancyStatus.Referred, referredStaleByDate, totalStaleVacancies);
+        AddStaleVacancies(fetchTasks[1], VacancyStatus.Review, referredStaleByDate, totalStaleVacancies);
         AddStaleVacancies(fetchTasks[2], VacancyStatus.Rejected, rejectedStaleByDate, totalStaleVacancies);
-        AddStaleVacancies(fetchTasks[3], VacancyStatus.Rejected, rejectedStaleByDate, totalStaleVacancies);
+        AddStaleVacancies(fetchTasks[3], VacancyStatus.Referred, rejectedStaleByDate, totalStaleVacancies);
 
         if (totalStaleVacancies.Count == 0)
         {

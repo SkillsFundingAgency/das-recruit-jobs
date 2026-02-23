@@ -22,7 +22,7 @@ internal class WhenGettingStaleEmployerRejectedVacanciesToClose
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        await sut.GetRejectedEmployerVacanciesToClose(pointInTime, CancellationToken.None);
+        await sut.GetEmployerRejectedVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
@@ -45,7 +45,7 @@ internal class WhenGettingStaleEmployerRejectedVacanciesToClose
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        var results = await sut.GetRejectedEmployerVacanciesToClose(pointInTime, CancellationToken.None);
+        var results = await sut.GetEmployerRejectedVacanciesToClose(pointInTime, CancellationToken.None);
 
         // assert
         results.Success.Should().BeTrue();

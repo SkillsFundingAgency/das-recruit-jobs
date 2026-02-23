@@ -39,7 +39,7 @@ internal class WhenHandlingDeletingStaleVacancies
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
-            .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -85,7 +85,7 @@ internal class WhenHandlingDeletingStaleVacancies
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
-            .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, rejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -113,7 +113,7 @@ internal class WhenHandlingDeletingStaleVacancies
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
-            .Setup(x => x.GetRejectedEmployerVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
 
         // Act
