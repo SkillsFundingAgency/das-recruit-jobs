@@ -324,6 +324,10 @@
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
+                                },
+                                {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFqdn')]"
                                 }
                             ]
                         }
