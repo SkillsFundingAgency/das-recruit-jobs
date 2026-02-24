@@ -1,14 +1,11 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Net;
-using System.Security.Cryptography;
 
 namespace SFA.DAS.Recruit.Jobs.NServiceBus;
 
 public static class ConfigureNServiceBusExtension
 {
-    private const string EndpointName = "SFA.DAS.Recruit.Vacancies.Jobs";
-    private const string ErrorEndpointName = "sfa.das.findapprenticeship.jobs-error";
+    private const string ErrorEndpointName = "SFA.DAS.Recruit.Jobs-error";
 
     public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
     {
