@@ -278,7 +278,7 @@
                                     "value": "[parameters('configurationStorageConnectionString')]"
                                 },
                                 {
-                                    "name": "ServiceBusConnectionString",
+                                    "name": "NServiceBusConnectionString",
                                     "value": "[parameters('serviceBusConnectionString')]"
                                 },
                                 {
