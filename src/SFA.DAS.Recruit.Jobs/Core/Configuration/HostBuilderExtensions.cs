@@ -17,13 +17,12 @@ using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
-using SFA.DAS.Recruit.Jobs.Features.VacancyAnalyticsMigration;
-using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -120,7 +119,6 @@ public static class HostBuilderExtensions
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacanciesToCloseFeature()
-            .ConfigureVacancyAnalyticsMigration()
             .ConfigureVacancyMetrics();
     }
 }

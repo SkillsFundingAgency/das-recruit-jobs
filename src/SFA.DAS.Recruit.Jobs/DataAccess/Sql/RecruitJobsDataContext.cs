@@ -21,7 +21,6 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
     public DbSet<Vacancy> Vacancy { get; set; }
     public DbSet<User> User { get; set; }
     public DbSet<UserEmployerAccount> UserEmployerAccount { get; set; }
-    public DbSet<VacancyAnalytics> VacancyAnalytics { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -83,11 +82,6 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
         userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
 
-        // VacancyAnalytics
-        var vacancyAnalyticsBuilder = modelBuilder.Entity<VacancyAnalytics>();
-        vacancyAnalyticsBuilder.ToTable("VacancyAnalytics");
-        vacancyAnalyticsBuilder.HasKey(x => x.VacancyReference);
-        
         // BlockedOrganisation
         modelBuilder.Entity<BlockedOrganisation>().ToTable("BlockedOrganisation");
         modelBuilder.Entity<BlockedOrganisation>().HasKey("Id");
