@@ -1,7 +1,4 @@
-﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 
@@ -9,13 +6,12 @@ namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
 
 public interface ICloseExpiredVacanciesHandler
 {
-    Task RunAsync(FunctionContext context, CancellationToken cancellationToken);
+    Task RunAsync(CancellationToken cancellationToken);
 }
 public class CloseExpiredVacanciesHandler(ILogger<CloseExpiredVacanciesHandler> logger,
-    IFunctionEndpoint endpoint,
     IRecruitJobsOuterClient jobsOuterClient) : ICloseExpiredVacanciesHandler
 {
-    public async Task RunAsync(FunctionContext context, CancellationToken cancellationToken)
+    public async Task RunAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Initialising the process of closing expired vacancies.");
 
@@ -40,14 +36,6 @@ public class CloseExpiredVacanciesHandler(ILogger<CloseExpiredVacanciesHandler> 
                 var closureResponse = await jobsOuterClient.PostVacancyToClose(vacancy.Id, vacancy.VacancyReference, ClosureReason.Auto, cancellationToken);
                 if (closureResponse.Success)
                 {
-                    var command = new VacancyClosedEvent
-                    {
-                        VacancyId = vacancy.Id,
-                        VacancyReference = vacancy.VacancyReference
-                    };
-                    var options = new SendOptions();
-                    options.SetDestination(StorageConstants.QueueNames.FindApprenticeshipJobsQueue);
-                    await endpoint.Send(command, options, context, cancellationToken);
                     logger.LogInformation("Successfully closed vacancy with Id : {Id}", vacancy.Id);
                 }
                 else

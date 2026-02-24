@@ -20,7 +20,7 @@ public class CloseExpiredVacanciesHttpTrigger(ILogger<CloseExpiredVacanciesHttpT
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         try
         {
-            await handler.RunAsync(context, token);
+            await handler.RunAsync(token);
         }
         catch (Exception e)
         {

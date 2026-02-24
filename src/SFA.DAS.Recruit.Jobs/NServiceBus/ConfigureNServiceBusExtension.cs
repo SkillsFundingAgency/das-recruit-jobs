@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Net;
-using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using System.Security.Cryptography;
 
 namespace SFA.DAS.Recruit.Jobs.NServiceBus;
 
@@ -10,41 +10,36 @@ public static class ConfigureNServiceBusExtension
     private const string EndpointName = "SFA.DAS.Recruit.Vacancies.Jobs";
     private const string ErrorEndpointName = "sfa.das.findapprenticeship.jobs-error";
 
-    public static void ConfigureNServiceBus(this IHostBuilder hostBuilder, IConfiguration configuration)
+    public static IHostBuilder ConfigureNServiceBus(this IHostBuilder hostBuilder)
     {
-        var connectionString = configuration["ServiceBusConnectionString"];
-        var license = configuration["NServiceBusLicense"];
+        hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
+        {
+            //endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
+            
+            endpointConfiguration.AdvancedConfiguration.EnableInstallers();
+            endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
+            endpointConfiguration.AdvancedConfiguration.Conventions()
+                .DefiningCommandsAs(IsCommand)
+                .DefiningMessagesAs(IsMessage)
+                .DefiningEventsAs(IsEvent);
 
-        ArgumentNullException.ThrowIfNull(connectionString);
-
-        hostBuilder.UseNServiceBus(
-            endpointName: EndpointName,
-            connectionString: connectionString,
-            (_, endpointConfiguration) =>
+            var value = config["NServiceBusLicense"];
+            if (!string.IsNullOrEmpty(value))
             {
-                // Send-only endpoint
-                endpointConfiguration.AdvancedConfiguration.SendOnly();
-                endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
-                endpointConfiguration.AdvancedConfiguration.Conventions()
-                    .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands")
-                                             || t == typeof(VacancyClosedEvent));
-
-                // License
-                if (!string.IsNullOrWhiteSpace(license))
-                {
-                    endpointConfiguration.AdvancedConfiguration.License(
-                        WebUtility.HtmlDecode(license));
-                }
+                var decodedLicence = WebUtility.HtmlDecode(value);
+                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);    
+            }
+            
 
 #if DEBUG
-                var transport = endpointConfiguration.AdvancedConfiguration?.UseTransport<LearningTransport>();
+            var transport = endpointConfiguration.AdvancedConfiguration.UseTransport<LearningTransport>();
+            transport.StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")),
+                @"src\.learningtransport"));
 
-                transport.StorageDirectory(
-                    Path.Combine(
-                        Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.CurrentCultureIgnoreCase)],
-                        @"src\.learningtransport"));
 #endif
-            });
+        });
+
+        return hostBuilder;
     }
 
 
@@ -56,4 +51,5 @@ public static class ConfigureNServiceBusExtension
         => t.Namespace != null &&
            t.Namespace.StartsWith("Esfa.", StringComparison.CurrentCultureIgnoreCase) &&
            t.Namespace.EndsWith(namespaceSuffix);
+    
 }

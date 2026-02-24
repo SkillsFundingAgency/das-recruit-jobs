@@ -63,10 +63,8 @@ public static class HostBuilderExtensions
 #endif
                     });
                 }
-
-                var fullConfiguration = appBuilder.Build();
-                builder.ConfigureNServiceBus(fullConfiguration);
             })
+            .ConfigureNServiceBus()
             .ConfigureServices((context, services) =>
             {
                 // Setup application insights
@@ -120,7 +118,7 @@ public static class HostBuilderExtensions
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacanciesToCloseFeature()
-            .ConfigureVacancyAnalyticsMigration()
+            //.ConfigureVacancyAnalyticsMigration()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature();
     }
