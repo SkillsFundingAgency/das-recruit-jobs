@@ -41,9 +41,9 @@ public static class ConfigureNServiceBusExtension
     }
 
 
-    private static bool IsMessage(Type t) => IsDasMessage(t, "Messages");
-    private static bool IsEvent(Type t) => IsDasMessage(t, "Events");
-    private static bool IsCommand(Type t) => IsDasMessage(t, "Commands");
+    private static bool IsMessage(Type t) => t is IMessage || IsDasMessage(t, "Messages");
+    private static bool IsEvent(Type t) => t is IEvent || IsDasMessage(t, "Events");
+    private static bool IsCommand(Type t) => t is ICommand || IsDasMessage(t, "Commands");
 
     private static bool IsDasMessage(Type t, string namespaceSuffix)
         => t.Namespace != null &&
