@@ -120,7 +120,6 @@ public static class HostBuilderExtensions
             .ConfigureDelayedNotificationsFeature()
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacanciesToCloseFeature()
-            .ConfigureVacancyAnalyticsMigration()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics();
     }
