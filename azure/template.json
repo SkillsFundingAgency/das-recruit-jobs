@@ -41,11 +41,14 @@
         "subnetObject": {
             "type": "object"
         },
-        "serviceBusConnectionString": {
-            "type": "securestring"
+        "sharedServiceBusEndpoint": {
+            "type": "string"
         },
         "nServiceBusLicense": {
             "type": "securestring"
+        },
+         "sharedServiceBusName": {
+            "type": "string"
         },
         "subnetServiceEndpointList": {
             "type": "array"
@@ -282,7 +285,7 @@
                                 },
                                 {
                                     "name": "NServiceBusConnectionString",
-                                    "value": "[parameters('serviceBusConnectionString')]"
+                                    "value": "[parameters('sharedServiceBusEndpoint')]"
                                 },
                                 {
                                     "name": "NServiceBusLicense",
@@ -441,6 +444,30 @@
                     },
                     "scopedResourceId": {
                         "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.AppInsightsResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2020-06-01",
+            "name": "[concat(variables('functionAppName'), '-role-assignment-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignments/role-assignment-service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
+                    },
+                    "assignmentType": {
+                        "value": "ServiceBusOwner"
+                    },
+                    "resourceName": {
+                        "value": "[parameters('sharedServiceBusName')]"
                     }
                 }
             }
