@@ -38,7 +38,7 @@ public class RecruitJobsOuterClient(
     HttpClient httpClient,
     RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration,
     JsonSerializerOptions jsonSerializationOptions)
-    : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
+    : ClientBase<RecruitJobsOuterApiConfiguration>(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {

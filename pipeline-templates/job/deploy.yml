@@ -53,7 +53,6 @@ jobs:
             TableName: Configuration
             Version: '2.0'
             ConfigurationSecrets:
-              NServiceBusLicense: $(NServiceBusLicense)
               RecruitCosmosConnectionString: $(RecruitCosmosConnectionString)
               RecruitJobsApimSubscriptionKey: $(RecruitJobsApimSubscriptionKey)
         - template: azure-pipelines-templates/deploy/step/function-deploy.yml@das-platform-building-blocks

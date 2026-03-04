@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -10,6 +10,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
+using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
@@ -63,10 +64,8 @@ public static class HostBuilderExtensions
 #endif
                     });
                 }
-
-                var fullConfiguration = appBuilder.Build();
-                builder.ConfigureNServiceBus(fullConfiguration);
             })
+            .ConfigureNServiceBus()
             .ConfigureServices((context, services) =>
             {
                 // Setup application insights
@@ -121,6 +120,7 @@ public static class HostBuilderExtensions
             .ConfigureBlockedOrganisationsMigration()
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
-            .ConfigureVacancyMetrics();
+            .ConfigureVacancyMetrics()
+            .ConfigureAiVacancyReviewingFeature();
     }
 }

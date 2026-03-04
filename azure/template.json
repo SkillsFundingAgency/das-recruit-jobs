@@ -41,11 +41,14 @@
         "subnetObject": {
             "type": "object"
         },
-        "serviceBusConnectionString": {
-            "type": "securestring"
+        "sharedServiceBusEndpoint": {
+            "type": "string"
         },
         "nServiceBusLicense": {
             "type": "securestring"
+        },
+         "sharedServiceBusName": {
+            "type": "string"
         },
         "subnetServiceEndpointList": {
             "type": "array"
@@ -103,6 +106,9 @@
         "vnetRouteAllEnabled": {
             "type": "bool",
             "defaultValue": false
+        },
+        "SharedServiceBusFqdn": {
+            "type": "string"
         }
     },
     "variables": {
@@ -278,8 +284,8 @@
                                     "value": "[parameters('configurationStorageConnectionString')]"
                                 },
                                 {
-                                    "name": "ServiceBusConnectionString",
-                                    "value": "[parameters('serviceBusConnectionString')]"
+                                    "name": "NServiceBusConnectionString",
+                                    "value": "[parameters('sharedServiceBusEndpoint')]"
                                 },
                                 {
                                     "name": "NServiceBusLicense",
@@ -324,6 +330,10 @@
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
+                                },
+                                {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFqdn')]"
                                 }
                             ]
                         }
@@ -343,7 +353,7 @@
         },
         {
             "apiVersion": "2021-04-01",
-            "name": "[concat(variables('functionAppName'), '-', parameters('utcValue'))]",
+            "name": "[concat(variables('functionAppName'), '-apim-subscription-', parameters('utcValue'))]",
             "resourceGroup": "[parameters('sharedApimResourceGroup')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -434,6 +444,30 @@
                     },
                     "scopedResourceId": {
                         "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.AppInsightsResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2020-06-01",
+            "name": "[concat(variables('functionAppName'), '-role-assignment-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignments/role-assignment-service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
+                    },
+                    "assignmentType": {
+                        "value": "ServiceBusOwner"
+                    },
+                    "resourceName": {
+                        "value": "[parameters('sharedServiceBusName')]"
                     }
                 }
             }

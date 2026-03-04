@@ -26,7 +26,7 @@ public class CloseExpiredVacanciesTimerTrigger(ILogger<CloseExpiredVacanciesTime
 
         try
         {
-            await handler.RunAsync(context, linkedCts.Token);
+            await handler.RunAsync(linkedCts.Token);
             logger.LogInformation("[{TriggerName}] Successfully completed execution", TriggerName);
         }
         catch (OperationCanceledException)

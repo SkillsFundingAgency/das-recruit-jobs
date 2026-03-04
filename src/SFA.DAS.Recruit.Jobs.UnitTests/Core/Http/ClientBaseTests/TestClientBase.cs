@@ -4,7 +4,7 @@ using SFA.DAS.Recruit.Jobs.Core.Http;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Core.Http.ClientBaseTests;
 
-public class TestClientBase(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions) : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions)
+public class TestClientBase(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions) : ClientBase<RecruitJobsOuterApiConfiguration>(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions)
 {
     public async Task<ApiResponse<T>> Get<T>(string url)
     {

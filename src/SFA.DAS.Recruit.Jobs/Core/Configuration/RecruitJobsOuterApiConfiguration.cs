@@ -3,7 +3,7 @@
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 [ExcludeFromCodeCoverage]
-public class RecruitJobsOuterApiConfiguration
+public class RecruitJobsOuterApiConfiguration: IClientConfig
 {
     public string? BaseUrl { get; set; }
     public string? Key { get; set; }
