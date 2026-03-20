@@ -16,6 +16,7 @@ public static class HostBuilderExtensions
             services.AddTransient<VacancyMigrationMongoRepository>();
             services.AddTransient<VacancyMigrationSqlRepository>();
             services.AddTransient<VacancyMigrationStrategy>();
+            services.AddTransient<VacancyWageMigrationStrategy>();
         });
     }
 }

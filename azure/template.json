@@ -17,12 +17,6 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
-        "nServiceBusConnectionString": {
-            "type": "securestring"
-        },
-        "nServiceBusLicense": {
-            "type": "securestring"
-        },
         "loggingRedisConnectionString": {
             "type": "securestring"
         },
@@ -47,6 +41,15 @@
         "subnetObject": {
             "type": "object"
         },
+        "sharedServiceBusEndpoint": {
+            "type": "string"
+        },
+        "nServiceBusLicense": {
+            "type": "securestring"
+        },
+         "sharedServiceBusName": {
+            "type": "string"
+        },
         "subnetServiceEndpointList": {
             "type": "array"
         },
@@ -68,9 +71,6 @@
             "type": "string"
         },
         "sharedApimResourceGroup": {
-            "type": "string"
-        },
-        "sharedServiceBusName": {
             "type": "string"
         },
         "logAnalyticsSubscriptionId": {
@@ -106,6 +106,9 @@
         "vnetRouteAllEnabled": {
             "type": "bool",
             "defaultValue": false
+        },
+        "SharedServiceBusFqdn": {
+            "type": "string"
         }
     },
     "variables": {
@@ -184,30 +187,6 @@
                     },
                     "subnetResourceIdList": {
                         "value": "[createArray(reference(concat(parameters('subnetObject').name, '-', parameters('utcValue'))).outputs.SubnetResourceId.value)]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2020-06-01",
-            "name": "[concat(variables('functionAppName'), '-role-assignment-', parameters('utcValue'))]",
-            "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignments/role-assignment-service-bus.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "principalId": {
-                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
-                    },
-                    "assignmentType": {
-                        "value": "ServiceBusOwner"
-                    },
-                    "resourceName": {
-                        "value": "[parameters('sharedServiceBusName')]"
                     }
                 }
             }
@@ -306,7 +285,7 @@
                                 },
                                 {
                                     "name": "NServiceBusConnectionString",
-                                    "value": "[parameters('nServiceBusConnectionString')]"
+                                    "value": "[parameters('sharedServiceBusEndpoint')]"
                                 },
                                 {
                                     "name": "NServiceBusLicense",
@@ -351,6 +330,10 @@
                                 {
                                     "name": "WEBSITE_RUN_FROM_PACKAGE",
                                     "value": "1"
+                                },
+                                {
+                                    "name": "AzureWebJobsServiceBus__fullyQualifiedNamespace",
+                                    "value": "[parameters('SharedServiceBusFqdn')]"
                                 }
                             ]
                         }
@@ -464,6 +447,30 @@
                     }
                 }
             }
+        },
+        {
+            "apiVersion": "2020-06-01",
+            "name": "[concat(variables('functionAppName'), '-role-assignment-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'role-assignments/role-assignment-service-bus.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(concat(variables('functionAppName'), '-', parameters('utcValue'))).outputs.managedServiceIdentityId.value]"
+                    },
+                    "assignmentType": {
+                        "value": "ServiceBusOwner"
+                    },
+                    "resourceName": {
+                        "value": "[parameters('sharedServiceBusName')]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
@@ -477,3 +484,7 @@
         }
     }
 }
+
+
+
+

@@ -1,14 +1,13 @@
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SqlUser = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.User;
+using System.Diagnostics.CodeAnalysis;
 using MongoUser = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.User;
+using SqlUser = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.User;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UserMigration;
 
 [ExcludeFromCodeCoverage]
-public class UserMapper(ILogger<UserMapper> logger, IEncodingService encodingService)
+public class UserMapper(IEncodingService encodingService)
 {
     public SqlUser MapFrom(MongoUser user)
     {

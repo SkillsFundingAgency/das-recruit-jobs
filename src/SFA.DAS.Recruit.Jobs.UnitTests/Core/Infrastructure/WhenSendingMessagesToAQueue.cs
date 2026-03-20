@@ -11,7 +11,7 @@ public class ResponseMock<T> : Response<T>
     public override Response GetRawResponse()
     {
         // we don't care about this for testing
-        throw new NotImplementedException();
+        return null!;
     }
 }
 

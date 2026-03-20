@@ -4,25 +4,17 @@ using SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Http;
 
-public abstract class ClientBase
+public abstract class ClientBase<TClientConfig>(HttpClient httpClient, TClientConfig config, JsonSerializerOptions jsonSerializationOptions)
+    where TClientConfig : IClientConfig
 {
-    private readonly HttpClient _httpClient;
-    private readonly RecruitJobsOuterApiConfiguration _jobsOuterApiConfiguration;
-    private readonly JsonSerializerOptions _jsonSerializationOptions;
+    private readonly Uri _baseUrl = new (config.BaseUrl!);
     private const string ApiVersionOne = "1";
 
-    protected ClientBase(HttpClient httpClient, RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration, JsonSerializerOptions jsonSerializationOptions)
-    {
-        _jsonSerializationOptions = jsonSerializationOptions;
-        _httpClient = httpClient;
-        _jobsOuterApiConfiguration = jobsOuterApiConfiguration;
-        _httpClient.BaseAddress = new Uri(jobsOuterApiConfiguration.BaseUrl!);
-    }
-    
     private HttpRequestMessage CreateRequest(HttpMethod method, string url, string apiVersion = ApiVersionOne)
     {
+        httpClient.BaseAddress = _baseUrl;
         var request = new HttpRequestMessage(method, url);
-        request.AddApimKeyHeader(_jobsOuterApiConfiguration.Key!);
+        request.AddApimKeyHeader(config.Key!);
         request.AddVersionHeader(apiVersion);
         return request;
     }
@@ -40,7 +32,7 @@ public abstract class ClientBase
             return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, default);
         }
         
-        var payload = JsonSerializer.Deserialize<T>(content, _jsonSerializationOptions);
+        var payload = JsonSerializer.Deserialize<T>(content, jsonSerializationOptions);
         return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, payload);
     }
     
@@ -50,7 +42,7 @@ public abstract class ClientBase
         CancellationToken cancellationToken = default)
     {
         var request = CreateRequest(HttpMethod.Get, url, apiVersion);
-        var response = await _httpClient.SendAsync(request, cancellationToken);
+        var response = await httpClient.SendAsync(request, cancellationToken);
         return await ProcessResponse<T>(response);
     }
     
@@ -63,10 +55,26 @@ public abstract class ClientBase
         var request = CreateRequest(HttpMethod.Post, url, apiVersion);
         if (payload is not null)
         {
-            request.Content = JsonContent.Create(payload, null, _jsonSerializationOptions);
+            request.Content = JsonContent.Create(payload, null, jsonSerializationOptions);
         }
         
-        var response = await _httpClient.SendAsync(request, cancellationToken);
+        var response = await httpClient.SendAsync(request, cancellationToken);
+        return await ProcessResponse<T>(response);
+    }
+
+    protected async Task<ApiResponse<T>> PutAsync<T>(
+        string url,
+        object? payload = null,
+        string apiVersion = ApiVersionOne,
+        CancellationToken cancellationToken = default)
+    {
+        var request = CreateRequest(HttpMethod.Put, url, apiVersion);
+        if (payload is not null)
+        {
+            request.Content = JsonContent.Create(payload, null, jsonSerializationOptions);
+        }
+
+        var response = await httpClient.SendAsync(request, cancellationToken);
         return await ProcessResponse<T>(response);
     }
 }

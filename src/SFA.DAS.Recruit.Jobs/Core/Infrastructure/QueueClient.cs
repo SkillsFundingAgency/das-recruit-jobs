@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Azure.Storage.Queues;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Infrastructure;

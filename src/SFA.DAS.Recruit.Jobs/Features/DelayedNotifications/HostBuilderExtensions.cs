@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using Azure.Storage.Queues;
+﻿using Azure.Storage.Queues;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
@@ -12,6 +10,8 @@ using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 
@@ -32,6 +32,7 @@ public static class HostBuilderExtensions
             });
             services.AddTransient<IDelayedNotificationsEnqueueHandler, DelayedNotificationsEnqueueHandler>();
             services.AddTransient<IDelayedNotificationsDeliveryHandler, DelayedNotificationsDeliveryHandler>();
+            services.AddTransient<IDeleteNotificationsForInactiveUsersHandler, DeleteNotificationsForInactiveUsersHandler>();
 
             // register and configure the http client to call apim
             services
