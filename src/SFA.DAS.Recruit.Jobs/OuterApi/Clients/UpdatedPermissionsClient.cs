@@ -17,7 +17,7 @@ public class UpdatedPermissionsClient(
     HttpClient httpClient,
     RecruitJobsOuterApiConfiguration jobsOuterApiConfiguration,
     JsonSerializerOptions jsonSerializationOptions)
-    : ClientBase(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IUpdatedPermissionsClient
+    : ClientBase<RecruitJobsOuterApiConfiguration>(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IUpdatedPermissionsClient
 {
     public async Task<List<Guid>> GetProviderVacanciesToTransfer(
         long ukprn,
