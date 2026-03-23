@@ -24,13 +24,11 @@ public class UpdatedPermissionsClient(
         long accountLegalEntityId,
         CancellationToken cancellationToken = default)
     {
-        const string baseUrl = "updated-employer-permissions/vacancies/transferable";
-        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
-        {
-            { "ukprn", ukprn.ToString() },
-            { "accountLegalEntityId", accountLegalEntityId.ToString() },
-        });
-        
+        var url = "updated-employer-permissions/vacancies/transferable".WithQueryParams(
+            ("ukprn", $"{ukprn}"),
+            ("accountLegalEntityId", $"{accountLegalEntityId}")
+        );
+
         var response = await GetAsync<List<Guid>>(url, cancellationToken: cancellationToken);
         return response.Success
             ? response.Payload ?? []
