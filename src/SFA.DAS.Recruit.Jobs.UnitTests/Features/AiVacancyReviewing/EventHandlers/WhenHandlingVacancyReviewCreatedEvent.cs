@@ -6,6 +6,7 @@ using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.EventHandlers;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.AiVacancyReviewing.EventHandlers;
 
@@ -19,9 +20,9 @@ public class WhenHandlingVacancyReviewCreatedEvent
         [Greedy] OnVacancyReviewCreatedEventHandler sut)
     {
         // arrange
-        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid());
+        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, true);
         client
-            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
+            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken))
             .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
 
         AiVacancyReviewMessage? capturedMessage = null;
@@ -34,11 +35,53 @@ public class WhenHandlingVacancyReviewCreatedEvent
         await sut.Handle(ev, context.Object);
 
         // assert
-        client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken), Times.Once);
+        client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
         capturedMessage.Should().NotBeNull();
         capturedMessage.VacancyId.Should().Be(ev.VacancyId);
         capturedMessage.VacancyReviewId.Should().Be(ev.VacancyReviewId);
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_If_The_Vacancy_Is_A_Resubmission_The_Ai_Review_Record_Is_Created_And_The_Ai_Review_Is_Skipped(
+        Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IRecruitAiOuterClient> client,
+        [Frozen] Mock<IQueueClient<AiVacancyReviewMessage>> queueClient,
+        [Greedy] OnVacancyReviewCreatedEventHandler sut)
+    {
+        // arrange
+        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), true, true);
+        client
+            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken))
+            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+
+        // act
+        await sut.Handle(ev, context.Object);
+
+        // assert
+        client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Never);
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_If_The_Vacancy_Failed_Auto_Qa_Checks_The_Ai_Review_Record_Is_Created_And_The_Ai_Review_Is_Skipped(
+        Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IRecruitAiOuterClient> client,
+        [Frozen] Mock<IQueueClient<AiVacancyReviewMessage>> queueClient,
+        [Greedy] OnVacancyReviewCreatedEventHandler sut)
+    {
+        // arrange
+        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, false);
+        client
+            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken))
+            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+
+        // act
+        await sut.Handle(ev, context.Object);
+
+        // assert
+        client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -49,9 +92,9 @@ public class WhenHandlingVacancyReviewCreatedEvent
         [Greedy] OnVacancyReviewCreatedEventHandler sut)
     {
         // arrange
-        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid());
+        var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, true);
         client
-            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
+            .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken))
             .ReturnsAsync(new ApiResponse(false, HttpStatusCode.BadRequest));
 
         // act

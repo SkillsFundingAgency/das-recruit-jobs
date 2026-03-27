@@ -2,6 +2,8 @@
 using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;
+using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.AiVacancyReviewing.Clients;
 
@@ -48,12 +50,13 @@ public class WhenCallingAiOuterFunctions
         var sut = CreateSut(handler);
 
         // act
-        await sut.CreateVacancyReviewAsync(vacancyId, vacancyReviewId, CancellationToken.None);
+        await sut.CreateVacancyReviewAsync(vacancyId, vacancyReviewId, AiReviewStatus.Pending, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
         request.RequestUri.Should().Be(new Uri($"http://localhost:8080/ai/vacancies/{vacancyId}/review/{vacancyReviewId}"));
         request.Method.Should().Be(HttpMethod.Post);
+        request.Content!.ReadAsStringAsync().Result.Should().Be(JsonSerializer.Serialize(new CreateVacancyReviewData(AiReviewStatus.Pending), _serialiserOptions));
     }
 
     [Test, MoqAutoData]
