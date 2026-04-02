@@ -28,11 +28,11 @@ internal class WhenHandingImportVacancyAnalytics
         
         jobsOuterClient
             .Setup(x => x.GetVacancyMetricsByDateAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(true, HttpStatusCode.OK, metricResponse, null));
+            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(HttpStatusCode.OK, metricResponse, null));
 
         jobsOuterClient
             .Setup(x => x.GetOneVacancyAnalyticsAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<GetOneVacancyAnalyticsResponse>(true, HttpStatusCode.OK, vacancyAnalyticsResponse, null));
+            .ReturnsAsync(new ApiResponse<GetOneVacancyAnalyticsResponse>(HttpStatusCode.OK, vacancyAnalyticsResponse, null));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -48,7 +48,7 @@ internal class WhenHandingImportVacancyAnalytics
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetVacancyMetricsByDateAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(true, HttpStatusCode.OK, new VacancyMetricResponse(), null));
+            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(HttpStatusCode.OK, new VacancyMetricResponse(), null));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -64,7 +64,7 @@ internal class WhenHandingImportVacancyAnalytics
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetVacancyMetricsByDateAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(true, HttpStatusCode.InternalServerError, new VacancyMetricResponse(), "Internal error"));
+            .ReturnsAsync(new ApiResponse<VacancyMetricResponse>(HttpStatusCode.InternalServerError, new VacancyMetricResponse(), "Internal error"));
 
         // Act
         await sut.RunAsync(CancellationToken.None);

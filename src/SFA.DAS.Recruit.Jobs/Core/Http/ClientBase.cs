@@ -24,16 +24,16 @@ public abstract class ClientBase<TClientConfig>(HttpClient httpClient, TClientCo
         var content = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode)
         {
-            return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, default, content);
+            return new ApiResponse<T>(response.StatusCode, default, content);
         }
 
         if (typeof(T) == typeof(NoResponse))
         {
-            return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, default);
+            return new ApiResponse<T>(response.StatusCode, default);
         }
         
         var payload = JsonSerializer.Deserialize<T>(content, jsonSerializationOptions);
-        return new ApiResponse<T>(response.IsSuccessStatusCode, response.StatusCode, payload);
+        return new ApiResponse<T>(response.StatusCode, payload);
     }
     
     protected async Task<ApiResponse<T>> GetAsync<T>(

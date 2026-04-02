@@ -5,7 +5,7 @@ namespace SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 
 public interface IQueueClient<in T>
 {
-    Task SendMessageAsync(T item);
+    Task SendMessageAsync(T item, CancellationToken cancellationToken = default);
 }
 
 public class QueueClient<T> : IQueueClient<T>
@@ -20,10 +20,10 @@ public class QueueClient<T> : IQueueClient<T>
         _queueClient.CreateIfNotExists();
     }
     
-    public async Task SendMessageAsync(T item)
+    public async Task SendMessageAsync(T item, CancellationToken cancellationToken = default)
     {
         var queueItem = new QueueItem<T> { Payload = item, };
         var message = JsonSerializer.Serialize(queueItem, _jsonSerializerOptions);
-        await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)));
+        await _queueClient.SendMessageAsync(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message)), cancellationToken);
     }
 }

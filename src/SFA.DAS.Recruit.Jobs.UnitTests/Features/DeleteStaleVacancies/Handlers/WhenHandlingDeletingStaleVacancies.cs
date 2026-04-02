@@ -39,19 +39,19 @@ internal class WhenHandlingDeletingStaleVacancies
         }
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, draftStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -94,20 +94,20 @@ internal class WhenHandlingDeletingStaleVacancies
         }
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, draftStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, draftStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, referredStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, referredStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, employerRejectedStaleVacanciesResponse));
         jobsOuterClient
             .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, qaRejectedStaleVacanciesResponse));
 
 
         jobsOuterClient.Setup(x => x.DeleteVacancyAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -126,16 +126,16 @@ internal class WhenHandlingDeletingStaleVacancies
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDraftVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetEmployerReviewedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetEmployerRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, new StaleVacancies()));
         jobsOuterClient
             .Setup(x => x.GetQaRejectedVacanciesToClose(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<StaleVacancies>(true, HttpStatusCode.OK, new StaleVacancies()));
+            .ReturnsAsync(new ApiResponse<StaleVacancies>(HttpStatusCode.OK, new StaleVacancies()));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
