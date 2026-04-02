@@ -21,11 +21,6 @@ public class OnVacancyReviewCreatedEventHandler(IRecruitAiOuterClient recruitAiO
             throw new ApiException($"Failed to create the initial ai vacancy review record. Id='{message.VacancyId}', ReviewId='{message.VacancyReviewId}'", response);
         }
 
-        if (reviewStatus is AiReviewStatus.Skipped)
-        {
-            return;
-        }
-
         // Queue the message to perform the ai review
         await queueClient.SendMessageAsync(new AiVacancyReviewMessage
         {

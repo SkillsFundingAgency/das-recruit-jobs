@@ -43,7 +43,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
     }
     
     [Test, MoqAutoData]
-    public async Task Then_If_The_Vacancy_Is_A_Resubmission_The_Ai_Review_Record_Is_Created_And_The_Ai_Review_Is_Skipped(
+    public async Task Then_If_The_Vacancy_Is_A_Resubmission_The_Ai_Review_Record_Is_Created_And_The_Message_Queued(
         Mock<IMessageHandlerContext> context,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Frozen] Mock<IQueueClient<AiVacancyReviewMessage>> queueClient,
@@ -60,11 +60,11 @@ public class WhenHandlingVacancyReviewCreatedEvent
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
     }
     
     [Test, MoqAutoData]
-    public async Task Then_If_The_Vacancy_Failed_Auto_Qa_Checks_The_Ai_Review_Record_Is_Created_And_The_Ai_Review_Is_Skipped(
+    public async Task Then_If_The_Vacancy_Failed_Auto_Qa_Checks_The_Ai_Review_Record_Is_Created_And_The_Message_Queued(
         Mock<IMessageHandlerContext> context,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Frozen] Mock<IQueueClient<AiVacancyReviewMessage>> queueClient,
@@ -81,7 +81,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
     }
     
     [Test, MoqAutoData]
