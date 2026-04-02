@@ -118,6 +118,9 @@ public static class HostBuilderExtensions
                 services
                     .AddHttpClient<IJobsOuterClient, JobsOuterClient>()
                     .AddPolicyHandler(HttpClientRetryPolicy());
+
+                services.AddScoped<INotificationService, NotificationService>();
+                services.AddScoped<IVacancyService, VacancyService>();
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
