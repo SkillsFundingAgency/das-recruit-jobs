@@ -1,3 +1,3 @@
 ﻿namespace SFA.DAS.Recruit.Jobs.Core.Http;
 
-public record NoResponse;
+public sealed record NoResponse;
