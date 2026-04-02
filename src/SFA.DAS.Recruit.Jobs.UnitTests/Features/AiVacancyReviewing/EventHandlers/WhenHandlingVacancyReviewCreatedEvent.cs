@@ -27,7 +27,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
         AiVacancyReviewMessage? capturedMessage = null;
         queueClient
             .Setup(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()))
-            .Callback<AiVacancyReviewMessage>(x => capturedMessage = x)
+            .Callback<AiVacancyReviewMessage, CancellationToken>((x, _) => capturedMessage = x)
             .Returns(Task.CompletedTask);
 
         // act
