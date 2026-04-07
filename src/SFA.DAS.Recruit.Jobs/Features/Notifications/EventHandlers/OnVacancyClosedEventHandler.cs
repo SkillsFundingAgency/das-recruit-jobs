@@ -6,7 +6,7 @@ using SFA.DAS.Recruit.Jobs.Services;
 using ClosureReason = SFA.DAS.Recruit.Jobs.Domain.ClosureReason;
 using VacancyStatus = SFA.DAS.Recruit.Jobs.Domain.VacancyStatus;
 
-namespace SFA.DAS.Recruit.Jobs.Features.Email.EventHandlers;
+namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 
 public class OnVacancyClosedEventHandler(
     ILogger<OnVacancyClosedEventHandler> logger,
