@@ -28,6 +28,7 @@ using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
+using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
@@ -135,7 +136,8 @@ public static class HostBuilderExtensions
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
-            .ConfigureAiVacancyReviewingFeature();
+            .ConfigureAiVacancyReviewingFeature()
+            .ConfigureNotificationsFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
