@@ -8,14 +8,14 @@ namespace SFA.DAS.Recruit.Jobs.Services;
 
 public interface IVacancyService
 {
-    Task<Vacancy?> GetByIdAsync(Guid id);
+    Task<Vacancy?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
 public class VacancyService(IJobsOuterClient jobsOuterClient): IVacancyService
 {
-    public async Task<Vacancy?> GetByIdAsync(Guid id)
+    public async Task<Vacancy?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await jobsOuterClient.GetAsync<DataResponse<Vacancy?>>(new GetVacancyByIdRequest(id));
+        var response = await jobsOuterClient.GetAsync<DataResponse<Vacancy?>>(new GetVacancyByIdRequest(id), cancellationToken);
         if (response.NotFound())
         {
             return null;

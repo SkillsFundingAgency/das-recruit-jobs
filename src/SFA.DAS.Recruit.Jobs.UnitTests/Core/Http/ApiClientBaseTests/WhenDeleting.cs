@@ -1,0 +1,81 @@
+﻿using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
+using SFA.DAS.Recruit.Jobs.Core.Http;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
+
+namespace SFA.DAS.Recruit.Jobs.UnitTests.Core.Http.ApiClientBaseTests;
+
+public class WhenDeleting
+{
+    private readonly JsonSerializerOptions _serialiserOptions = new();
+    
+    private TestApiClientBase CreateSut(HttpMessageHandler handler)
+    {
+        var httpClient = new HttpClient(handler);
+        var config = new RecruitJobsOuterApiConfiguration
+        {
+            BaseUrl = "http://localhost:8080",
+            Key = "1234567890"
+        };
+
+        return new TestApiClientBase(httpClient, config, _serialiserOptions);
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Request_Is_Made_Correctly()
+    {
+        // arrange
+        var handler = new MockHttpMessageHandler([new HttpResponseMessage(HttpStatusCode.NoContent)]);
+        var sut = CreateSut(handler);
+        
+        // act
+        await sut.DeleteAsync<NoResponse>(new GenericDeleteRequest("/api/foo"));
+
+        // assert
+        var request = handler.Requests.Single();
+        request.RequestUri.Should().Be(new Uri("http://localhost:8080/api/foo"));
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.Headers.GetValues("X-Version").Single().Should().Be("1.0");
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Response_Is_Processed_Correctly(NotificationEmail email)
+    {
+        // arrange
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = JsonContent.Create(email, typeof(NotificationEmail), null, _serialiserOptions)
+        };
+        var handler = new MockHttpMessageHandler([response]);
+        var sut = CreateSut(handler);
+        
+        // act
+        var result = await sut.DeleteAsync<NotificationEmail>(new GenericDeleteRequest("http://localhost:8080/api/foo"));
+
+        // assert
+        result.StatusCode.Should().Be(response.StatusCode);
+        result.Payload.Should().BeEquivalentTo(email);
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Error_Content_Is_Returned_Correctly(NotificationEmail email)
+    {
+        // arrange
+        var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("foo")
+        };
+        var handler = new MockHttpMessageHandler([response]);
+        var sut = CreateSut(handler);
+        
+        // act
+        var result = await sut.DeleteAsync<NotificationEmail>(new GenericDeleteRequest("/api/foo"));
+
+        // assert
+        result.StatusCode.Should().Be(response.StatusCode);
+        result.Payload.Should().Be(null);
+        result.ErrorContent.Should().Be("foo");
+    }
+}

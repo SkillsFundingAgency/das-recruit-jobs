@@ -21,6 +21,6 @@ public class OnVacancyReviewCreatedEventHandler(IRecruitAiOuterClient recruitAiO
         {
             VacancyId = message.VacancyId,
             VacancyReviewId = message.VacancyReviewId,
-        });
+        }, context.CancellationToken);
     }
 }

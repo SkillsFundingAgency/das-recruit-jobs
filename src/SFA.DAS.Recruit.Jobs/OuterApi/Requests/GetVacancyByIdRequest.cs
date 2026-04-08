@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi.Requests;
 
-public readonly struct GetVacancyByIdRequest(Guid id) : IGetRequest
+public class GetVacancyByIdRequest(Guid id) : IGetRequest
 {
     public string Url => $"vacancies/{id}";
 }
