@@ -36,7 +36,7 @@ public class WhenPosting
         var request = handler.Requests.Single();
         request.RequestUri.Should().Be(new Uri("http://localhost:8080/api/foo"));
         request.Method.Should().Be(HttpMethod.Post);
-        request.Headers.GetValues("X-Version").Single().Should().Be("1.0");
+        request.Headers.GetValues("X-Version").Single().Should().Be("1");
     }
     
     [Test, MoqAutoData]

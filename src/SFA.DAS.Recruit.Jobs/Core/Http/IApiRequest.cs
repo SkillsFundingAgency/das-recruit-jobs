@@ -3,7 +3,7 @@
 public interface IApiRequest
 {
     string Url { get; }
-    string Version => "1.0";
+    string Version => "1";
 }
 
 public interface IDataApiRequest: IApiRequest
