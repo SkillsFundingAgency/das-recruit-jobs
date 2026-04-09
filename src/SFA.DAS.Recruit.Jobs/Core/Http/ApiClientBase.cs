@@ -5,16 +5,25 @@ using SFA.DAS.Recruit.Jobs.Core.Configuration;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Http;
 
-public abstract class ApiClientBase<TClientConfig>(HttpClient httpClient, TClientConfig config, JsonSerializerOptions jsonSerializationOptions): IApiClient
+public abstract class ApiClientBase<TClientConfig>: IApiClient
     where TClientConfig : IClientConfig
 {
-    protected readonly Uri BaseUrl = new (config.BaseUrl!);
+    private readonly HttpClient _httpClient;
+    private readonly TClientConfig _config;
+    private readonly JsonSerializerOptions _jsonSerializationOptions;
+
+    protected ApiClientBase(HttpClient httpClient, TClientConfig config, JsonSerializerOptions jsonSerializationOptions)
+    {
+        _httpClient = httpClient;
+        _config = config;
+        _jsonSerializationOptions = jsonSerializationOptions;
+        httpClient.BaseAddress = new Uri(config.BaseUrl!);
+    }
 
     protected virtual HttpRequestMessage CreateRequest(HttpMethod method, string url, string apiVersion)
     {
-        httpClient.BaseAddress = BaseUrl;
         var request = new HttpRequestMessage(method, url);
-        request.AddApimKeyHeader(config.Key!);
+        request.AddApimKeyHeader(_config.Key!);
         request.AddVersionHeader(apiVersion);
         return request;
     }
@@ -34,7 +43,7 @@ public abstract class ApiClientBase<TClientConfig>(HttpClient httpClient, TClien
         }
 
         content = await response.Content.ReadAsStringAsync();
-        var payload = JsonSerializer.Deserialize<TResponse>(content, jsonSerializationOptions);
+        var payload = JsonSerializer.Deserialize<TResponse>(content, _jsonSerializationOptions);
         return new ApiResponse<TResponse>(response.StatusCode, payload);
     }
     
@@ -43,10 +52,10 @@ public abstract class ApiClientBase<TClientConfig>(HttpClient httpClient, TClien
         var apiRequest = CreateRequest(method, url, version);
         if (data is not null)
         {
-            apiRequest.Content = JsonContent.Create(data, null, jsonSerializationOptions);
+            apiRequest.Content = JsonContent.Create(data, null, _jsonSerializationOptions);
         }
         
-        var response = await httpClient.SendAsync(apiRequest, cancellationToken);
+        var response = await _httpClient.SendAsync(apiRequest, cancellationToken);
         return await ProcessResponse<TResponse>(response);
     }
 
