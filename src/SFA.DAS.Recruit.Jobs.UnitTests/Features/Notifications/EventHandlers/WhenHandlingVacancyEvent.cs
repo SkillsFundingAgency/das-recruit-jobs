@@ -1,6 +1,7 @@
 ﻿using AutoFixture.NUnit3;
 using Esfa.Recruit.Vacancies.Client.Domain.Events;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 using SFA.DAS.Recruit.Jobs.Services;
@@ -20,14 +21,14 @@ public class WhenHandlingVacancyEvent
     {
         // arrange
         notificationService
-            .Setup(x => x.CreateVacancyNotificationsAsync(id, context.CancellationToken))
+            .Setup(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Approved, context.CancellationToken))
             .ReturnsAsync(notifications);
 
         // act
         await sut.Handle(new VacancyApprovedEvent { VacancyId = id }, context);
 
         // assert
-        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, context.CancellationToken), Times.Once);
+        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Approved, context.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
     }
     
@@ -42,14 +43,14 @@ public class WhenHandlingVacancyEvent
     {
         // arrange
         notificationService
-            .Setup(x => x.CreateVacancyNotificationsAsync(id, context.CancellationToken))
+            .Setup(x => x.CreateVacancyNotificationsAsync(id, null, context.CancellationToken))
             .ReturnsAsync(notifications);
 
         // act
         await sut.Handle(new VacancyReferredEvent { VacancyId = id }, context);
 
         // assert
-        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, context.CancellationToken), Times.Once);
+        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, null, context.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
     }
     
@@ -71,7 +72,7 @@ public class WhenHandlingVacancyEvent
         await sut.Handle(new VacancyClosedEvent { VacancyId = id }, context);
 
         // assert
-        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, context.CancellationToken), Times.Once);
+        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, null, context.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
     }
 }
