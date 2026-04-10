@@ -14,7 +14,6 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
     
     public DbSet<ApplicationReview> ApplicationReview { get; set; }
     public DbSet<LegacyApplication> LegacyApplication { get; set; }
-    public DbSet<ProhibitedContent> ProhibitedContent { get; set; }
     public DbSet<EmployerProfile> EmployerProfile { get; set; }
     public DbSet<EmployerProfileAddress> EmployerProfileAddress { get; set; }
     public DbSet<VacancyReview> VacancyReview { get; set; }
@@ -40,10 +39,6 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
     {
         // ApplicationReview
         modelBuilder.Entity<ApplicationReview>().Property(e => e.Status).HasConversion(v => v.ToString(), v => (ApplicationReviewStatus)Enum.Parse(typeof(ApplicationReviewStatus), v));
-
-        // ProhibitedContent
-        modelBuilder.Entity<ProhibitedContent>().HasKey(x => new { x.ContentType, x.Content });
-        modelBuilder.Entity<ProhibitedContent>().Property(e => e.ContentType).HasConversion<int>();
 
         // EmployerProfile
         modelBuilder.Entity<EmployerProfile>().Property(x => x.AccountLegalEntityId).HasColumnType("bigint").ValueGeneratedNever();
