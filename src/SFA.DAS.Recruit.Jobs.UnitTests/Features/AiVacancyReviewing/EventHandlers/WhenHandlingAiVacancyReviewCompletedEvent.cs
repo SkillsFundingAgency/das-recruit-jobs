@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using AutoFixture.NUnit3;
+using Microsoft.FeatureManagement;
 using SFA.DAS.RAA.Vacancy.AI.Api.Core.Events;
+using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.EventHandlers;
@@ -8,15 +11,20 @@ using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.AiVacancyReviewing.EventHandlers;
 
+[SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly")]
 public class WhenHandlingAiVacancyReviewCompletedEvent
 {
     [Test, MoqAutoData]
-    public async Task Then_The_Handler_Auto_Approves_The_Vacancy(
+    public async Task Then_The_Handler_Auto_Approves_The_Vacancy_When_The_Feature_Is_Enabled(
         Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IVariantFeatureManager> featureManager,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Greedy] OnAiVacancyReviewCompletedEventHandler sut)
     {
         // arrange
+        featureManager
+            .Setup(x => x.IsEnabledAsync(FeatureFlags.AiReviews, It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(true));
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
         client
             .Setup(x => x.AutoApproveVacancyAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
@@ -30,12 +38,40 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
     }
     
     [Test, MoqAutoData]
-    public async Task Then_The_Handler_Captures_Approve_Failures(
+    public async Task Then_The_Handler_Refers_The_Vacancy_For_Manual_Review_When_The_Feature_Is_Disabled(
         Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IVariantFeatureManager> featureManager,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Greedy] OnAiVacancyReviewCompletedEventHandler sut)
     {
         // arrange
+        featureManager
+            .Setup(x => x.IsEnabledAsync(FeatureFlags.AiReviews, It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(false));
+        var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
+        client
+            .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
+            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+
+        // act
+        await sut.Handle(ev, context.Object);
+
+        // assert
+        client.Verify(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken), Times.Once);
+        client.Verify(x => x.AutoApproveVacancyAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Handler_Captures_Approve_Failures(
+        Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IVariantFeatureManager> featureManager,
+        [Frozen] Mock<IRecruitAiOuterClient> client,
+        [Greedy] OnAiVacancyReviewCompletedEventHandler sut)
+    {
+        // arrange
+        featureManager
+            .Setup(x => x.IsEnabledAsync(FeatureFlags.AiReviews, It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(true));
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
         client
             .Setup(x => x.AutoApproveVacancyAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
@@ -57,10 +93,14 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         AiReviewStatus status,
         bool flaggedForReview,
         Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IVariantFeatureManager> featureManager,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Greedy] OnAiVacancyReviewCompletedEventHandler sut)
     {
         // arrange
+        featureManager
+            .Setup(x => x.IsEnabledAsync(FeatureFlags.AiReviews, It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(true));
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), status, flaggedForReview);
         client
             .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
@@ -76,10 +116,14 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
     [Test, MoqAutoData]
     public async Task Then_The_Handler_Captures_Refer_Failures(
         Mock<IMessageHandlerContext> context,
+        [Frozen] Mock<IVariantFeatureManager> featureManager,
         [Frozen] Mock<IRecruitAiOuterClient> client,
         [Greedy] OnAiVacancyReviewCompletedEventHandler sut)
     {
         // arrange
+        featureManager
+            .Setup(x => x.IsEnabledAsync(FeatureFlags.AiReviews, It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult(true));
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Failed, true);
         client
             .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))

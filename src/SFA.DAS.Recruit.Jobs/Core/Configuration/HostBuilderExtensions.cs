@@ -23,6 +23,7 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Microsoft.FeatureManagement;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
@@ -108,6 +109,7 @@ public static class HostBuilderExtensions
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
                 services.AddSingleton(jsonSerializationOptions);
+                services.AddFeatureManagement(context.Configuration.GetSection("Features"));
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
