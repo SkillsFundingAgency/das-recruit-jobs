@@ -11,8 +11,7 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
     IHandleMessages<VacancyReferredEvent>,
-    IHandleMessages<VacancyReviewCreatedEvent>
-
+    IHandleMessages<VacancySubmittedEvent>
 {
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
@@ -38,7 +37,7 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 
-    public async Task Handle(VacancyReviewCreatedEvent message, IMessageHandlerContext context)
+    public async Task Handle(VacancySubmittedEvent message, IMessageHandlerContext context)
     {
         await SendNotifications(message.VacancyId, VacancyStatus.Submitted, cancellationToken: context.CancellationToken);
     }

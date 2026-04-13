@@ -78,7 +78,7 @@ public class WhenHandlingVacancyEvent
     }
     
     [Test, MoqAutoData]
-    public async Task Then_The_Vacancy_Review_Created_Event_Is_Handled(
+    public async Task Then_The_Vacancy_Submitted_Event_Is_Handled(
         Guid id,
         IMessageHandlerContext context,
         List<NotificationEmail> notifications,
@@ -92,7 +92,7 @@ public class WhenHandlingVacancyEvent
             .ReturnsAsync(notifications);
 
         // act
-        await sut.Handle(new VacancyReviewCreatedEvent(id, Guid.Empty), context);
+        await sut.Handle(new VacancySubmittedEvent(id), context);
 
         // assert
         notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Submitted, context.CancellationToken), Times.Once);
