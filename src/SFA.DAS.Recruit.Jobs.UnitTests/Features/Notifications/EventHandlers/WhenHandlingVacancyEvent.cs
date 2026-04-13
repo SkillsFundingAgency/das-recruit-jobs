@@ -1,5 +1,6 @@
 ﻿using AutoFixture.NUnit3;
 using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using SFA.DAS.Recruit.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
@@ -73,6 +74,28 @@ public class WhenHandlingVacancyEvent
 
         // assert
         notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, null, context.CancellationToken), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
+    }
+    
+    [Test, MoqAutoData]
+    public async Task Then_The_Vacancy_Review_Created_Event_Is_Handled(
+        Guid id,
+        IMessageHandlerContext context,
+        List<NotificationEmail> notifications,
+        [Frozen] Mock<INotificationService> notificationService,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
+        [Greedy] OnVacancyEventHandler sut)
+    {
+        // arrange
+        notificationService
+            .Setup(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Submitted, context.CancellationToken))
+            .ReturnsAsync(notifications);
+
+        // act
+        await sut.Handle(new VacancyReviewCreatedEvent(id, Guid.Empty), context);
+
+        // assert
+        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Submitted, context.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using SFA.DAS.Recruit.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -9,7 +10,9 @@ namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 public class OnVacancyEventHandler(INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
-    IHandleMessages<VacancyReferredEvent>
+    IHandleMessages<VacancyReferredEvent>,
+    IHandleMessages<VacancyReviewCreatedEvent>
+
 {
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
@@ -33,5 +36,10 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
     public async Task Handle(VacancyReferredEvent message, IMessageHandlerContext context)
     {
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
+    }
+
+    public async Task Handle(VacancyReviewCreatedEvent message, IMessageHandlerContext context)
+    {
+        await SendNotifications(message.VacancyId, VacancyStatus.Submitted, cancellationToken: context.CancellationToken);
     }
 }
