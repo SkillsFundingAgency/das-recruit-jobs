@@ -21,6 +21,7 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
     public DbSet<Vacancy> Vacancy { get; set; }
     public DbSet<User> User { get; set; }
     public DbSet<UserEmployerAccount> UserEmployerAccount { get; set; }
+    public DbSet<Report> Report { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -81,6 +82,11 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         var userEmployerAccountBuilder = modelBuilder.Entity<UserEmployerAccount>();
         userEmployerAccountBuilder.ToTable("UserEmployerAccount").HasOne(x => x.User).WithMany(x => x.EmployerAccounts).HasForeignKey(x => x.UserId);
         userEmployerAccountBuilder.HasKey(x => new { x.UserId, x.EmployerAccountId });
+
+        // Report
+        modelBuilder.Entity<Report>().HasKey(x => x.Id);
+        modelBuilder.Entity<Report>().Property(e => e.Type).HasConversion(v => v.ToString(), v => Enum.Parse<ReportType>(v));
+        modelBuilder.Entity<Report>().Property(e => e.OwnerType).HasConversion(v => v.ToString(), v => Enum.Parse<ReportOwnerType>(v));
 
         // BlockedOrganisation
         modelBuilder.Entity<BlockedOrganisation>().ToTable("BlockedOrganisation");
