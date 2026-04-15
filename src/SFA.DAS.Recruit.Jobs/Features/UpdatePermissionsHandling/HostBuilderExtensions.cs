@@ -8,6 +8,7 @@ using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.EventHandlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
+using SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 
@@ -25,6 +26,8 @@ public static class HostBuilderExtensions
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new QueueClient<TransferVacanciesFromProviderQueueMessage>(queueClient, options);
             });
+            
+            services.AddTransient<IUpdatedPermissionsClient, UpdatedPermissionsClient>();
             services.AddTransient<ITransferVacanciesFromProviderHandler, TransferVacanciesFromProviderHandler>();
 
             services.AddTransient<IQueueClient<TransferVacancyToLegalEntityQueueMessage>>(serviceProvider =>
@@ -35,7 +38,6 @@ public static class HostBuilderExtensions
                 return new QueueClient<TransferVacancyToLegalEntityQueueMessage>(queueClient, options);
             });
             services.AddTransient<ITransferVacancyToLegalEntityHandler, TransferVacancyToLegalEntityHandler>();
-
             services.AddTransient<UpdatedPermissionsExternalSystemEventsHandler>();
         });
     }
