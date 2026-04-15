@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -34,7 +35,7 @@ public class WhenGettingDelayedNotifications
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(JsonSerializer.Serialize(emails, RecruitJobsOuterClientTestExtensions.SerializerOptions))
+            Content = JsonContent.Create(emails, options: RecruitJobsOuterClientTestExtensions.SerializerOptions) 
         };
         var handler = new MockHttpMessageHandler([httpResponse]);
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);

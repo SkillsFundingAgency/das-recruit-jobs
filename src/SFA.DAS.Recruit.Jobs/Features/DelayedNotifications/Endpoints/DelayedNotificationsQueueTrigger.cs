@@ -24,15 +24,7 @@ public class DelayedNotificationsQueueTrigger(
         try
         {
             var queueItem = JsonSerializer.Deserialize<QueueItem<NotificationEmail>>(message.Body, jsonSerializerOptions);
-            await handler.RunAsync(queueItem!, cancellationToken);
-        }
-        catch (JsonException)
-        {
-            logger.LogError("[{TriggerName}] Error deserializing delayed notification email queue item message id: {MessageId}", TriggerName, message.MessageId);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "[{TriggerName}] Unhandled Exception occured whilst sending email", TriggerName);
+            await handler.RunAsync(queueItem!.Payload, cancellationToken);
         }
         finally
         {

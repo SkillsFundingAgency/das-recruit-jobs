@@ -1,9 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
 namespace SFA.DAS.Recruit.Jobs.Core;
 
+[ExcludeFromCodeCoverage]
 public static class MigrationUtils
 {
     public static T? ParseEnumIfNotNull<T>(string? value) where T: struct, IConvertible

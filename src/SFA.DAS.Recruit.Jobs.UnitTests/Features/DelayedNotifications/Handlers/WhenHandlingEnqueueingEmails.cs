@@ -1,8 +1,6 @@
 ﻿using System.Net;
-using AutoFixture.NUnit3;
-using Moq;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Clients;
+using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -13,7 +11,7 @@ public class WhenHandlingEnqueueingEmails
 {
     [Test, MoqAutoData]
     public async Task Then_A_Cancelled_Token_Will_Prevent_Processing(
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -33,7 +31,7 @@ public class WhenHandlingEnqueueingEmails
     [Test, MoqAutoData]
     public async Task Then_The_Token_Can_Be_Cancelled_During_Processing(
         List<NotificationEmail> emails,
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -60,7 +58,7 @@ public class WhenHandlingEnqueueingEmails
     
     [Test, MoqAutoData]
     public async Task Then_When_The_Call_To_Get_Emails_Returns_No_Emails_Nothing_Is_Added_To_The_Queue(
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -81,7 +79,7 @@ public class WhenHandlingEnqueueingEmails
     
     [Test, MoqAutoData]
     public async Task Then_When_The_Call_To_Get_Emails_Returns_Null_Nothing_Is_Added_To_The_Queue(
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -103,7 +101,7 @@ public class WhenHandlingEnqueueingEmails
     [Test, MoqAutoData]
     public async Task Then_When_The_Call_To_Get_Emails_Fails_Nothing_Is_Added_To_The_Queue(
         List<NotificationEmail> emails,
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -125,7 +123,7 @@ public class WhenHandlingEnqueueingEmails
     [Test, MoqAutoData]
     public async Task Then_The_Correct_Email_Details_Are_Used(
         NotificationEmail email,
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -159,7 +157,7 @@ public class WhenHandlingEnqueueingEmails
     [Test, MoqAutoData]
     public async Task Then_Emails_Are_Added_To_The_Queue(
         List<NotificationEmail> emails,
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
@@ -186,7 +184,7 @@ public class WhenHandlingEnqueueingEmails
     [Test, MoqAutoData]
     public async Task Then_A_Failure_To_Delete_Emails_Stops_Processing_And_Nothing_Is_Added_To_The_Queue(
         List<NotificationEmail> emails,
-        [Frozen] Mock<IDelayedNotificationQueueClient> queueClient,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
         [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
         [Greedy] DelayedNotificationsEnqueueHandler sut)
     {
