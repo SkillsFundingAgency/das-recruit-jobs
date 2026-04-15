@@ -15,6 +15,7 @@ using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
+using SFA.DAS.Recruit.Jobs.Features.QaReports;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
@@ -120,6 +121,7 @@ public static class HostBuilderExtensions
             .ConfigureDelayedNotificationsFeature()
             .ConfigureUpdatePermissionsHandlingFeature()
             .ConfigureBlockedOrganisationsMigration()
+            .ConfigureQaReportsMigration()
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
