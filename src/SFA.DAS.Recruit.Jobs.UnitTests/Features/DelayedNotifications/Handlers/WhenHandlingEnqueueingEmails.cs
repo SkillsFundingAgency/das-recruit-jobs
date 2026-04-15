@@ -42,11 +42,11 @@ public class WhenHandlingEnqueueingEmails
         
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, emails));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, emails));
         
         jobsOuterClient
             .Setup(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         // act
         cts.CancelAfter(TimeSpan.FromSeconds(1));
@@ -68,7 +68,7 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, []));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
 
         // act
         await sut.RunAsync(cts.Token);
@@ -89,7 +89,7 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, null));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, null));
 
         // act
         await sut.RunAsync(cts.Token);
@@ -111,7 +111,7 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(false, HttpStatusCode.BadRequest, emails));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.BadRequest, emails));
 
         // act
         await sut.RunAsync(cts.Token);
@@ -133,14 +133,14 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .SetupSequence(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, [email]))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, []));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, [email]))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
 
         IEnumerable<long>? capturedIds = null;
         jobsOuterClient
             .Setup(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()))
             .Callback<IEnumerable<long>>(x => capturedIds = x)
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         NotificationEmail? capturedEmail = null;
         queueClient
@@ -167,12 +167,12 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .SetupSequence(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, emails))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, []));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, emails))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
         
         jobsOuterClient
             .Setup(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         // act
         await sut.RunAsync(cts.Token);
@@ -194,12 +194,12 @@ public class WhenHandlingEnqueueingEmails
         var cts = new CancellationTokenSource();
         jobsOuterClient
             .SetupSequence(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, emails))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, []));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, emails))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
         
         jobsOuterClient
             .Setup(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()))
-            .ReturnsAsync(new ApiResponse(false, HttpStatusCode.NotFound));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NotFound));
 
         // act
         await sut.RunAsync(cts.Token);

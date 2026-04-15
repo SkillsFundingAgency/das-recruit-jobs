@@ -22,7 +22,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid());
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         AiVacancyReviewMessage? capturedMessage = null;
         queueClient
@@ -52,7 +52,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid());
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(false, HttpStatusCode.BadRequest));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.BadRequest));
 
         // act
         var action = async () => await sut.Handle(ev, context.Object);
