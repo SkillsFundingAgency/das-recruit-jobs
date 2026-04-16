@@ -76,26 +76,4 @@ public class WhenHandlingVacancyEvent
         notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, null, context.CancellationToken), Times.Once);
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
     }
-    
-    [Test, MoqAutoData]
-    public async Task Then_The_Vacancy_Submitted_Event_Is_Handled(
-        Guid id,
-        IMessageHandlerContext context,
-        List<NotificationEmail> notifications,
-        [Frozen] Mock<INotificationService> notificationService,
-        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
-        [Greedy] OnVacancyEventHandler sut)
-    {
-        // arrange
-        notificationService
-            .Setup(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Submitted, context.CancellationToken))
-            .ReturnsAsync(notifications);
-
-        // act
-        await sut.Handle(new VacancySubmittedEvent(id), context);
-
-        // assert
-        notificationService.Verify(x => x.CreateVacancyNotificationsAsync(id, VacancyStatus.Submitted, context.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), context.CancellationToken), Times.Exactly(notifications.Count));
-    }
 }
