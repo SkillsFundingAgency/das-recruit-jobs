@@ -15,6 +15,7 @@ using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
+using SFA.DAS.Recruit.Jobs.Features.QaReports;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
@@ -29,6 +30,7 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
@@ -108,7 +110,7 @@ public static class HostBuilderExtensions
                 services.Configure<RecruitJobsConfiguration>(context.Configuration);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
-                
+
                 var jsonSerializationOptions = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -132,7 +134,9 @@ public static class HostBuilderExtensions
             .ConfigureUserMigration()
             .ConfigureVacancyMigration()
             .ConfigureDelayedNotificationsFeature()
+            .ConfigureUpdatePermissionsHandlingFeature()
             .ConfigureBlockedOrganisationsMigration()
+            .ConfigureQaReportsMigration()
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
