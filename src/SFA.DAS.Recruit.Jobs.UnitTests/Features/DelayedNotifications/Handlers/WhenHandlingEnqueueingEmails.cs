@@ -25,7 +25,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Never);
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -53,7 +53,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.AtLeast(5));
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.AtLeast(5));
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.AtLeast(5));
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.AtLeast(5));
     }
     
     [Test, MoqAutoData]
@@ -74,7 +74,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -95,7 +95,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -117,7 +117,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -142,8 +142,8 @@ public class WhenHandlingEnqueueingEmails
 
         NotificationEmail? capturedEmail = null;
         queueClient
-            .Setup(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()))
-            .Callback<NotificationEmail>(x => capturedEmail = x)
+            .Setup(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()))
+            .Callback<NotificationEmail, CancellationToken>((x, _) => capturedEmail = x)
             .Returns(Task.CompletedTask);
 
         // act
@@ -178,7 +178,7 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Exactly(3));
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Exactly(emails.Count));
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Exactly(emails.Count));
     }
     
     [Test, MoqAutoData]
@@ -205,6 +205,6 @@ public class WhenHandlingEnqueueingEmails
         // assert
         jobsOuterClient.Verify(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
         jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Exactly(1));
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

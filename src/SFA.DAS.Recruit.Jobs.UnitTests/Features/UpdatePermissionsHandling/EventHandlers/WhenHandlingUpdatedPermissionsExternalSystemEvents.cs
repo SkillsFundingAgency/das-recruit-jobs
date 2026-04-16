@@ -24,7 +24,7 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
         await sut.Handle(message, context);
 
         // assert
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -41,7 +41,7 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
         await sut.Handle(message, context);
 
         // assert
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
     
     [Test, MoqAutoData]
@@ -57,15 +57,15 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
         
         TransferVacanciesFromProviderQueueMessage? capturedMessage = null;
         queueClient
-            .Setup(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>()))
-            .Callback<TransferVacanciesFromProviderQueueMessage>(x => capturedMessage = x)
+            .Setup(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<TransferVacanciesFromProviderQueueMessage, CancellationToken>((x, _) => capturedMessage = x)
             .Returns(Task.CompletedTask);
 
         // act
         await sut.Handle(message, context);
 
         // assert
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>()), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacanciesFromProviderQueueMessage>(), It.IsAny<CancellationToken>()), Times.Once);
         capturedMessage.Should().NotBeNull();
         capturedMessage.AccountLegalEntityId.Should().Be(234);
         capturedMessage.Ukprn.Should().Be(567);

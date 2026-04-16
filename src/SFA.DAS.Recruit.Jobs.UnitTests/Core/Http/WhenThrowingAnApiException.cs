@@ -9,7 +9,7 @@ public class WhenThrowingAnApiException
     public void Then_The_Exception_Message_Is_Formatted_Correctly()
     {
         // arrange/act
-        var result = new ApiException("Message text", new ApiResponse(false, HttpStatusCode.BadGateway, "Error Content"));
+        var result = new ApiException("Message text", new ApiResponse(HttpStatusCode.BadGateway, "Error Content"));
 
         // assert
         result.Message.Should().Be("Message text. The remote API returned 'BadGateway' with detail 'Error Content'");
