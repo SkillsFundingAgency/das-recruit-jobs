@@ -18,11 +18,11 @@ internal class WhenHandlingDeleteNotificationsForInactiveUsers
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchByUsersInactiveStatus(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, emails, null));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, emails, null));
 
         jobsOuterClient
             .Setup(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.NoContent));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.NoContent));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -39,7 +39,7 @@ internal class WhenHandlingDeleteNotificationsForInactiveUsers
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchByUsersInactiveStatus(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, []));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -56,7 +56,7 @@ internal class WhenHandlingDeleteNotificationsForInactiveUsers
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchByUsersInactiveStatus(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(false, HttpStatusCode.InternalServerError, [], "Internal error"));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.InternalServerError, [], "Internal error"));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -73,7 +73,7 @@ internal class WhenHandlingDeleteNotificationsForInactiveUsers
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetDelayedNotificationsBatchByUsersInactiveStatus(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(true, HttpStatusCode.OK, [], null));
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, [], null));
 
         // Act
         await sut.RunAsync(CancellationToken.None);

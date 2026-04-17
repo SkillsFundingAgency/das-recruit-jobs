@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using AutoFixture.NUnit3;
 using Microsoft.FeatureManagement;
 using SFA.DAS.Recruit.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
@@ -31,12 +30,12 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, true);
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         AiVacancyReviewMessage? capturedMessage = null;
         queueClient
-            .Setup(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()))
-            .Callback<AiVacancyReviewMessage>(x => capturedMessage = x)
+            .Setup(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<AiVacancyReviewMessage, CancellationToken>((x, _) => capturedMessage = x)
             .Returns(Task.CompletedTask);
 
         // act
@@ -44,7 +43,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()), Times.Once);
         capturedMessage.Should().NotBeNull();
         capturedMessage.VacancyId.Should().Be(ev.VacancyId);
         capturedMessage.VacancyReviewId.Should().Be(ev.VacancyReviewId);
@@ -65,14 +64,14 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), true, true);
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()), Times.Once);
     }
     
     [Test, MoqAutoData]
@@ -90,14 +89,14 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, false);
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()), Times.Once);
     }
     
     [Test, MoqAutoData]
@@ -115,14 +114,14 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), true, true);
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
 
         // assert
         client.Verify(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Skipped, context.Object.CancellationToken), Times.Once);
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>()), Times.Once);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<AiVacancyReviewMessage>(), It.IsAny<CancellationToken>()), Times.Once);
     }
     
     [Test, MoqAutoData]
@@ -140,7 +139,7 @@ public class WhenHandlingVacancyReviewCreatedEvent
         var ev = new VacancyReviewCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), false, true);
         client
             .Setup(x => x.CreateVacancyReviewAsync(ev.VacancyId, ev.VacancyReviewId, AiReviewStatus.Pending, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(false, HttpStatusCode.BadRequest));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.BadRequest));
 
         // act
         var action = async () => await sut.Handle(ev, context.Object);

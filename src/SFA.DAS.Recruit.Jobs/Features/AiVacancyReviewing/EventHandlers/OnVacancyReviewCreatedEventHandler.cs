@@ -34,6 +34,6 @@ public class OnVacancyReviewCreatedEventHandler(
         {
             VacancyId = message.VacancyId,
             VacancyReviewId = message.VacancyReviewId,
-        });
+        }, context.CancellationToken);
     }
 }

@@ -28,7 +28,7 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
         client
             .Setup(x => x.AutoApproveVacancyAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
@@ -75,7 +75,7 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
         client
             .Setup(x => x.AutoApproveVacancyAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(false, HttpStatusCode.BadRequest));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.BadRequest));
 
         // act
         var action = async () => await sut.Handle(ev, context.Object);
@@ -104,7 +104,7 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), status, flaggedForReview);
         client
             .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
@@ -127,7 +127,7 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Failed, true);
         client
             .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(false, HttpStatusCode.BadRequest));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.BadRequest));
 
         // act
         var action = async () => await sut.Handle(ev, context.Object);

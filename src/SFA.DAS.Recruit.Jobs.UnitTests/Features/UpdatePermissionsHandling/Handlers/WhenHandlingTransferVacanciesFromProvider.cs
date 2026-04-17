@@ -22,8 +22,8 @@ internal class WhenHandlingTransferVacanciesFromProvider
 
         List<TransferVacancyToLegalEntityQueueMessage> capturedMessages = [];
         queueClient
-            .Setup(x => x.SendMessageAsync(It.IsAny<TransferVacancyToLegalEntityQueueMessage>()))
-            .Callback((TransferVacancyToLegalEntityQueueMessage x) => capturedMessages.Add(x))
+            .Setup(x => x.SendMessageAsync(It.IsAny<TransferVacancyToLegalEntityQueueMessage>(), It.IsAny<CancellationToken>()))
+            .Callback((TransferVacancyToLegalEntityQueueMessage x, CancellationToken _) => capturedMessages.Add(x))
             .Returns(Task.CompletedTask);
 
         // act
@@ -65,6 +65,6 @@ internal class WhenHandlingTransferVacanciesFromProvider
             It.Is<long>(y => y == message.AccountLegalEntityId),
             CancellationToken.None), Times.Once);
         
-        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacancyToLegalEntityQueueMessage>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(It.IsAny<TransferVacancyToLegalEntityQueueMessage>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
