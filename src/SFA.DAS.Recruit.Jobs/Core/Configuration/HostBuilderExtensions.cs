@@ -32,6 +32,7 @@ using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
+using SFA.DAS.Recruit.Jobs.Features.VacancyPublishing;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
 
@@ -141,7 +142,8 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
-            .ConfigureNotificationsFeature();
+            .ConfigureNotificationsFeature()
+            .ConfigureVacancyPublishingFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()

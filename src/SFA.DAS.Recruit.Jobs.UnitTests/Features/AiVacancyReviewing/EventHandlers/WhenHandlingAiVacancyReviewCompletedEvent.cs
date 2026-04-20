@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using AutoFixture.NUnit3;
 using Microsoft.FeatureManagement;
 using SFA.DAS.RAA.Vacancy.AI.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
@@ -51,7 +50,7 @@ public class WhenHandlingAiVacancyReviewCompletedEvent
         var ev = new AiVacancyReviewCompletedEvent(Guid.NewGuid(), Guid.NewGuid(), AiReviewStatus.Passed, false);
         client
             .Setup(x => x.SendVacancyForManualReviewAsync(ev.VacancyId, ev.VacancyReviewId, context.Object.CancellationToken))
-            .ReturnsAsync(new ApiResponse(true, HttpStatusCode.OK));
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
 
         // act
         await sut.Handle(ev, context.Object);
