@@ -12,7 +12,7 @@ public static class HostBuilderExtensions
     {
         return builder.ConfigureServices((_, services) =>
         {
-            services.AddTransient<IPublishVacancyHandler, PublishVacancyHandler>();
+            services.AddTransient<IVacancyReviewApprovedHandler, VacancyReviewApprovedReviewApprovedHandler>();
         });
     }
 }

@@ -4,12 +4,12 @@ using SFA.DAS.Recruit.Jobs.OuterApi.Requests;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyPublishing.Handlers;
 
-public interface IPublishVacancyHandler
+public interface IVacancyReviewApprovedHandler
 {
     Task HandleAsync(Guid vacancyId, CancellationToken cancellationToken);
 }
     
-public class PublishVacancyHandler(IJobsOuterClient jobsOuterClient): IPublishVacancyHandler
+public class VacancyReviewApprovedReviewApprovedHandler(IJobsOuterClient jobsOuterClient): IVacancyReviewApprovedHandler
 {
     public async Task HandleAsync(Guid vacancyId, CancellationToken cancellationToken)
     {
