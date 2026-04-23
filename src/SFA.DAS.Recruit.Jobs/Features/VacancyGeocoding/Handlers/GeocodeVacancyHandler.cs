@@ -37,7 +37,7 @@ public class GeocodeVacancyHandler(
             case AvailableWhere.OneLocation when vacancy.EmployerLocations is { Count: > 0 }:
             case AvailableWhere.MultipleLocations when vacancy.EmployerLocations is { Count: > 0 }:
             {
-                await GeocodeVacancy(vacancy);
+                await GeocodeVacancyAsync(vacancy, cancellationToken);
                 break;
             }
             default:
@@ -48,7 +48,7 @@ public class GeocodeVacancyHandler(
         }
     }
 
-    private async Task GeocodeVacancy(Vacancy vacancy)
+    private async Task GeocodeVacancyAsync(Vacancy vacancy, CancellationToken cancellationToken)
     {
         var locations = vacancy.EmployerLocations!;
         var isAnonymous = vacancy.EmployerNameOption == EmployerNameOption.Anonymous;
@@ -66,7 +66,7 @@ public class GeocodeVacancyHandler(
         var lookups = locationsNeedingGeocoding
             .Select(x => isAnonymous ? PostcodeAsOutcode(x) : x.Postcode)
             .Distinct()
-            .ToDictionary(x => x!, x => TryGeocode(vacancy.Id, x!));
+            .ToDictionary(x => x!, x => TryGeocode(vacancy.Id, x!, cancellationToken));
         
         // wait for all the lookups to complete
         await Task.WhenAll(lookups.Select(x => x.Value));
@@ -101,7 +101,7 @@ public class GeocodeVacancyHandler(
             }
         });
         
-        var response = await jobsOuterClient.PostAsync(new PostGeocodedAddresses(vacancy.Id, locationsNeedingGeocoding));
+        var response = await jobsOuterClient.PostAsync(new PostGeocodedAddresses(vacancy.Id, locations), cancellationToken);
         if (!response.Success)
         {
             logger.LogError("Geocode: failure updating geocoded addresses for vacancy '{VacancyId}': {ErrorContent}", vacancy.Id, response.ErrorContent);
@@ -116,11 +116,11 @@ public class GeocodeVacancyHandler(
             : postcode[..^IncodeLength]!;
     }
     
-    private async Task<Geocode?> TryGeocode(Guid vacancyId, string postcode)
+    private async Task<Geocode?> TryGeocode(Guid vacancyId, string postcode, CancellationToken cancellationToken)
     {
         try
         {
-            return await geocodeService.Geocode(postcode);
+            return await geocodeService.GeocodeAsync(postcode, cancellationToken);
         }
         catch (Exception ex)
         {

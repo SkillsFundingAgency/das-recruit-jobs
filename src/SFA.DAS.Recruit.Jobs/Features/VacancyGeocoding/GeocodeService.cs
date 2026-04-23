@@ -7,18 +7,18 @@ namespace SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 
 public interface IGeocodeService
 {
-    Task<Geocode?> Geocode(string postcode);
+    Task<Geocode?> GeocodeAsync(string postcode, CancellationToken cancellationToken = default);
 }
 
 public class GeocodeService(ILogger<GeocodeService> logger, IJobsOuterClient jobsOuterClient) : IGeocodeService
 {
-    public async Task<Geocode?> Geocode(string postcode)
+    public async Task<Geocode?> GeocodeAsync(string postcode, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Getting geo code for postcode {Postcode}", postcode);
-        var apiResponse = await jobsOuterClient.GetAsync<GetGeoPointResponse>(new GetGeoCodeRequest(postcode));
+        var apiResponse = await jobsOuterClient.GetAsync<GetGeoPointResponse>(new GetGeoCodeRequest(postcode), cancellationToken);
         if (!apiResponse.Success)
         {
-            logger.LogWarning("Geocoding postcode {Postcode} failed with error {ErrorContent}", postcode, apiResponse.ErrorContent);
+            logger.LogError("Geocoding postcode {Postcode} failed with error {ErrorContent}", postcode, apiResponse.ErrorContent);
             return null;
         }
 
