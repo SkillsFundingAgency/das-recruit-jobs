@@ -26,6 +26,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
@@ -125,6 +126,7 @@ public static class HostBuilderExtensions
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
-            .ConfigureAiVacancyReviewingFeature();
+            .ConfigureAiVacancyReviewingFeature()
+            .ConfigureVacanciesToArchiveFeature();
     }
 }

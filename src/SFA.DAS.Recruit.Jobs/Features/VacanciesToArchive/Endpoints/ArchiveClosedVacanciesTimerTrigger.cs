@@ -1,21 +1,23 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
+using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.Recruit.Jobs.Core;
-using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Handlers;
 
-namespace SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Endpoints;
+namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Endpoints;
 
 [ExcludeFromCodeCoverage]
-public class DeleteStaleVacanciesTimerTrigger(ILogger<DeleteStaleVacanciesTimerTrigger> logger,
-    IDeleteStaleVacanciesHandler handler)
+public class ArchiveClosedVacanciesTimerTrigger(ILogger<ArchiveClosedVacanciesTimerTrigger> logger,
+    IArchiveClosedVacanciesHandler handler)
 {
-    private const string TriggerName = nameof(DeleteStaleVacanciesTimerTrigger);
+    private const string TriggerName = nameof(ArchiveClosedVacanciesTimerTrigger);
     private static readonly TimeSpan ExecutionTimeout = TimeSpan.FromSeconds(240);
 
-    // Timer set to run at 7:00 AM every Sunday
+    // Timer set to run every 6:00 AM daily
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger(Schedules.WeeklySevenAmSunday)] TimerInfo _, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger(Schedules.SixAmDaily)] TimerInfo _,
+        FunctionContext context,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Timer trigger fired at {NowUtc}", TriggerName, DateTime.UtcNow);
 

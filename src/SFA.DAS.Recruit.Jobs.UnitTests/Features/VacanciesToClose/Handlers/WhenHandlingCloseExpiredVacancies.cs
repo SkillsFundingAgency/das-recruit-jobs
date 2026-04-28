@@ -1,15 +1,13 @@
-﻿using AutoFixture.NUnit3;
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using System.Net;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToClose.Handlers;
 
 [TestFixture]
-internal class WhenHandlingCloseExpiredVacancies
+internal class WhenHandlingArchivingClosedVacancies
 {
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Return_When_GetResponseIsNull(
