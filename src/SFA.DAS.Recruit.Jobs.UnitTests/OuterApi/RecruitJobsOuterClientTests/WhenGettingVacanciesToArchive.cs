@@ -9,43 +9,49 @@ namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 internal class WhenGettingVacanciesToArchive
 {
     [Test, MoqAutoData]
-    public async Task Then_The_Request_Is_Correct(
-        DateTime pointInTime,
+    public async Task Then_The_Request_Is_Correct(DateTime pointInTime,
+        bool includeVacanciesWithoutOutcomes,
         VacanciesToArchive response)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(JsonSerializer.Serialize(response, RecruitJobsOuterClientTestExtensions.SerializerOptions))
+            Content = new StringContent(JsonSerializer.Serialize(response,
+                RecruitJobsOuterClientTestExtensions.SerializerOptions))
         };
         var handler = new MockHttpMessageHandler([httpResponse]);
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        await sut.GetVacanciesToArchiveAsync(pointInTime, CancellationToken.None);
+        await sut.GetVacanciesToArchiveAsync(pointInTime, includeVacanciesWithoutOutcomes, CancellationToken.None);
 
         // assert
         var request = handler.Requests.Single();
         request.RequestUri.Should().NotBeNull();
-        request.RequestUri.Should().Be(new Uri($"http://localhost:8080/vacancies/stale/archive?pointInTime={UrlEncoder.Default.Encode(pointInTime.ToString("s"))}"));
+        request.RequestUri.Should()
+            .Be(new Uri(
+                $"http://localhost:8080/vacancies/stale/archive?includeVacanciesWithoutOutcomes={includeVacanciesWithoutOutcomes.ToString()}&pointInTime={UrlEncoder.Default.Encode(pointInTime.ToString("s"))}"));
         request.Method.Should().Be(HttpMethod.Get);
         request.Headers.GetValues("X-Version").Single().Should().Be("1");
     }
 
     [Test, MoqAutoData]
     public async Task Then_The_Vacancies_Are_Returned_Correctly(DateTime pointInTime,
+        bool includeVacanciesWithoutOutcomes,
         VacanciesToArchive response)
     {
         // arrange
         var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(JsonSerializer.Serialize(response, RecruitJobsOuterClientTestExtensions.SerializerOptions))
+            Content = new StringContent(JsonSerializer.Serialize(response,
+                RecruitJobsOuterClientTestExtensions.SerializerOptions))
         };
         var handler = new MockHttpMessageHandler([httpResponse]);
         var sut = RecruitJobsOuterClientTestExtensions.CreateSut(handler);
 
         // act
-        var results = await sut.GetVacanciesToArchiveAsync(pointInTime, CancellationToken.None);
+        var results =
+            await sut.GetVacanciesToArchiveAsync(pointInTime, includeVacanciesWithoutOutcomes, CancellationToken.None);
 
         // assert
         results.Success.Should().BeTrue();

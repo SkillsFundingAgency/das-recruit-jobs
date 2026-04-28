@@ -19,7 +19,7 @@ internal class WhenHandlingArchivingClosedVacancies
     {
         // Arrange
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(true, HttpStatusCode.OK, new Jobs.OuterApi.Common.VacanciesToArchive()));
 
         // Act
@@ -35,7 +35,7 @@ internal class WhenHandlingArchivingClosedVacancies
     {
         // Arrange
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(false, HttpStatusCode.InternalServerError, new Jobs.OuterApi.Common.VacanciesToArchive(), "Internal error"));
 
         // Act
@@ -51,7 +51,7 @@ internal class WhenHandlingArchivingClosedVacancies
     {
         // Arrange
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(true, HttpStatusCode.OK, new(), null));
 
         // Act
@@ -73,7 +73,7 @@ internal class WhenHandlingArchivingClosedVacancies
             vacancy.Status = VacancyStatus.Closed;
         }
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(true, HttpStatusCode.OK, response));
         jobsOuterClient
             .Setup(x => x.PostVacancyToArchive(It.IsAny<Guid>(), It.IsAny<long>(), CancellationToken.None))
@@ -101,7 +101,7 @@ internal class WhenHandlingArchivingClosedVacancies
             vacancy.Status = VacancyStatus.Live;
         }
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(true, HttpStatusCode.OK, response));
         
         // Act
@@ -129,7 +129,7 @@ internal class WhenHandlingArchivingClosedVacancies
             vacancy.Status = VacancyStatus.Closed;
         }
         jobsOuterClient
-            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), CancellationToken.None))
+            .Setup(x => x.GetVacanciesToArchiveAsync(It.IsAny<DateTime>(), It.IsAny<bool>(), CancellationToken.None))
             .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToArchive>(true, HttpStatusCode.OK, response));
 
         // Act

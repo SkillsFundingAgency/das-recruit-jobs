@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 
@@ -10,9 +11,11 @@ public interface IArchiveClosedVacanciesHandler
 }
 
 public class ArchiveClosedVacanciesHandler(ILogger<ArchiveClosedVacanciesHandler> logger,
+    IOptions<Core.Configuration.Features> features,
     IRecruitJobsOuterClient jobsOuterClient) : IArchiveClosedVacanciesHandler
 {
     private const int DefaultArchiveStaleByDays = 182; // 6 months and 2 days to account for leap year
+    private readonly Core.Configuration.Features _features = features.Value;
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -22,9 +25,10 @@ public class ArchiveClosedVacanciesHandler(ILogger<ArchiveClosedVacanciesHandler
         {
             var pointInTime = DateTime.UtcNow;
             var archiveStaleByDate = pointInTime.AddDays(-DefaultArchiveStaleByDays);
+            var includeVacanciesWithOutCome = _features.ArchiveVacanciesWithoutOutCome;
 
             // Fetch vacancies that are expired as of pointInTime
-            var response = await jobsOuterClient.GetVacanciesToArchiveAsync(archiveStaleByDate, cancellationToken);
+            var response = await jobsOuterClient.GetVacanciesToArchiveAsync(archiveStaleByDate, includeVacanciesWithOutCome, cancellationToken);
 
             if (!response.Success || response.Payload is null || !response.Payload.Data.Any())
             {
