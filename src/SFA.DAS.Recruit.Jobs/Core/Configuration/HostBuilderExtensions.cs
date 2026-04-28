@@ -68,7 +68,7 @@ public static class HostBuilderExtensions
                     });
                 }
             })
-            //.ConfigureNServiceBus()
+            .ConfigureNServiceBus()
             .ConfigureServices((context, services) =>
             {
                 // Setup application insights
