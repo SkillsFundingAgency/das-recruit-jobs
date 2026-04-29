@@ -24,10 +24,17 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
+using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
+using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
+using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.Services;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -112,6 +119,14 @@ public static class HostBuilderExtensions
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
                 services.AddSingleton(jsonSerializationOptions);
+
+                // jobs outer client
+                services
+                    .AddHttpClient<IJobsOuterClient, JobsOuterClient>()
+                    .AddPolicyHandler(HttpClientRetryPolicy());
+
+                services.AddScoped<INotificationService, NotificationService>();
+                services.AddScoped<IVacancyService, VacancyService>();
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
@@ -129,6 +144,15 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
-            .ConfigureVacanciesToArchiveFeature();
+            .ConfigureNotificationsFeature();
+    }
+    
+    private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
+    {
+        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 3);
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            .WaitAndRetryAsync(delay);
     }
 }

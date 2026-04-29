@@ -26,8 +26,8 @@ public class WhenSendingMessagesToAQueue
         
         string? capturedMessage = null;
         queueClient
-            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
-            .Callback((string message) => capturedMessage = message)
+            .Setup(x => x.SendMessageAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback((string message, CancellationToken _) => capturedMessage = message)
             .ReturnsAsync(new ResponseMock<SendReceipt>());
 
         // act
