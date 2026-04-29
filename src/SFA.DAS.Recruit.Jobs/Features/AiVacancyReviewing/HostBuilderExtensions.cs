@@ -29,6 +29,7 @@ public static class HostBuilderExtensions
             {
                 var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
                 var queueClient = new QueueClient(cfg.QueueStorage!, StorageConstants.QueueNames.AiVacancyReviewRequests);
+                queueClient.CreateIfNotExists();
                 var options = serviceProvider.GetService<JsonSerializerOptions>()!;
                 return new QueueClient<AiVacancyReviewMessage>(queueClient, options);
             });
