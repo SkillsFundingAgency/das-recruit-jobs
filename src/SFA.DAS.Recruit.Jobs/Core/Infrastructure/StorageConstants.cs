@@ -9,5 +9,6 @@ public static class StorageConstants
         public const string Notifications = "recruit-jobs-pending-notifications";
         public const string TransferVacanciesFromProviderQueueName = "transfer-vacancies-from-provider-queue-v2";
         public const string TransferVacancyToLegalEntityQueueName = "transfer-vacancies-to-legal-entity-queue-v2";
+        public const string TransferVacancyToQaReviewQueueName = "transfer-vacancies-to-qa-review-queue-v2";
     }
 }

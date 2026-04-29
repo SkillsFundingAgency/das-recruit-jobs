@@ -39,6 +39,17 @@ public static class HostBuilderExtensions
             });
             services.AddTransient<ITransferVacancyToLegalEntityHandler, TransferVacancyToLegalEntityHandler>();
             services.AddTransient<UpdatedPermissionsExternalSystemEventsHandler>();
+            
+            services.AddTransient<IQueueClient<TransferVacanciesFromEmployerReviewToQaReviewQueueMessage>>(serviceProvider =>
+            {
+                var cfg = serviceProvider.GetService<RecruitJobsConfiguration>()!;
+                var queueClient = new QueueClient(cfg.QueueStorage!, StorageConstants.QueueNames.TransferVacancyToQaReviewQueueName);
+                queueClient.CreateIfNotExists();
+                var options = serviceProvider.GetService<JsonSerializerOptions>()!;
+                return new QueueClient<TransferVacanciesFromEmployerReviewToQaReviewQueueMessage>(queueClient, options);
+            });
+            
+            services.AddTransient<IRecruitmentRequiresReviewHandler, RecruitmentRequiresReviewHandler>();
         });
     }
 }

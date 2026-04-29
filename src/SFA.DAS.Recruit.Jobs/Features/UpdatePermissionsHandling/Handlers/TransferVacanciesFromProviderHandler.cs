@@ -20,7 +20,7 @@ internal class TransferVacanciesFromProviderHandler(
         {
             VacancyId = x,
             TransferReason = message.TransferReason,
-        }));
+        }, cancellationToken));
 
         await Task.WhenAll(tasks);
     }

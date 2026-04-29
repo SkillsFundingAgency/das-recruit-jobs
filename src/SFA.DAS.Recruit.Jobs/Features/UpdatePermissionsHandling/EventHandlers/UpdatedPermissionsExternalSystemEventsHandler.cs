@@ -3,13 +3,15 @@ using SFA.DAS.ProviderRelationships.Messages.Events;
 using SFA.DAS.ProviderRelationships.Types.Models;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Handlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
 
 namespace SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.EventHandlers;
 
 public class UpdatedPermissionsExternalSystemEventsHandler(
     ILogger<UpdatedPermissionsExternalSystemEventsHandler> logger,
-    IQueueClient<TransferVacanciesFromProviderQueueMessage> queueClient)
+    IQueueClient<TransferVacanciesFromProviderQueueMessage> queueClient,
+    IRecruitmentRequiresReviewHandler requiresReviewHandler)
     : IHandleMessages<UpdatedPermissionsEvent>
 {
     public async Task Handle(UpdatedPermissionsEvent message, IMessageHandlerContext context)
@@ -21,18 +23,22 @@ public class UpdatedPermissionsExternalSystemEventsHandler(
             return;
         }
 
-        if (message.GrantedOperations.Contains(Operation.Recruitment))
+        if (!message.GrantedOperations.Contains(Operation.Recruitment))
         {
-            return;
+            logger.LogInformation("Transferring vacancies from Provider {Ukprn} to Employer {AccountId}", message.Ukprn, message.AccountId);
+        
+            await queueClient.SendMessageAsync(new TransferVacanciesFromProviderQueueMessage
+            {
+                Ukprn = message.Ukprn,
+                AccountLegalEntityId = message.AccountLegalEntityId,
+                TransferReason = TransferReason.EmployerRevokedPermission
+            }, context.CancellationToken);
         }
         
-        logger.LogInformation("Transferring vacancies from Provider {Ukprn} to Employer {AccountId}", message.Ukprn, message.AccountId);
-        
-        await queueClient.SendMessageAsync(new TransferVacanciesFromProviderQueueMessage
+        if (!message.GrantedOperations.Contains(Operation.RecruitmentRequiresReview))
         {
-            Ukprn = message.Ukprn,
-            AccountLegalEntityId = message.AccountLegalEntityId,
-            TransferReason = TransferReason.EmployerRevokedPermission
-        });
+            logger.LogInformation("Transferring vacancies from Employer Review to QA Review for Provider {Ukprn}", message.Ukprn);
+            await requiresReviewHandler.RunAsync(message, context.CancellationToken);
+        }
     }
 }
