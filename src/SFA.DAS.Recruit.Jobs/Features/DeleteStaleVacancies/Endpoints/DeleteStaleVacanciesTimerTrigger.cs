@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.Core.Models;
+using SFA.DAS.Recruit.Jobs.Core;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Handlers;
 
 namespace SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Endpoints;

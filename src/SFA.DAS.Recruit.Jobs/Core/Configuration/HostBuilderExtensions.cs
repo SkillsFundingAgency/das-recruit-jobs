@@ -31,6 +31,7 @@ using Polly.Retry;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
@@ -106,10 +107,12 @@ public static class HostBuilderExtensions
                 services.AddSingleton<IEncodingService, EncodingService>();
 
                 // Configure core project dependencies
+                services.Configure<Features>(context.Configuration.GetSection("Features"));
                 services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
                 services.Configure<RecruitJobsConfiguration>(context.Configuration);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
+                services.AddSingleton(cfg => cfg.GetService<IOptions<Features>>()!.Value);
 
                 var jsonSerializationOptions = new JsonSerializerOptions
                 {
@@ -141,6 +144,7 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
+            .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature();
     }
     
