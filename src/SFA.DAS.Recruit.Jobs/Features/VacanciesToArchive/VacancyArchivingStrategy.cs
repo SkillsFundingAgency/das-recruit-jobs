@@ -13,29 +13,21 @@ public class VacancyArchivingStrategy(VacancyArchivingSqlRepository sqlRepositor
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
-        try
+        var startTime = DateTime.UtcNow;
+        var pointInTime = startTime;
+        var archiveStaleByDate = pointInTime.AddDays(-DefaultArchiveStaleByDays);
+
+        while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
-            var startTime = DateTime.UtcNow;
-            var pointInTime = startTime;
-            var archiveStaleByDate = pointInTime.AddDays(-DefaultArchiveStaleByDays);
+            var vacancies = await sqlRepository.GetClosedVacancies(
+                archiveStaleByDate,
+                BatchSize,
+                cancellationToken);
 
-            while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
-            {
-                var vacancies = await sqlRepository.GetClosedVacancies(
-                    archiveStaleByDate,
-                    BatchSize,
-                    cancellationToken);
+            if (vacancies.Count == 0)
+                break;
 
-                if (vacancies.Count == 0)
-                    break;
-
-                await ProcessBatchAsync(vacancies);
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
+            await ProcessBatchAsync(vacancies);
         }
     }
 
