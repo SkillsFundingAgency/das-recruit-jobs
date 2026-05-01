@@ -144,6 +144,7 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
+            .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature();
     }
     

@@ -1,47 +1,43 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Endpoints;
 
 [ExcludeFromCodeCoverage]
-public class ArchiveClosedVacanciesHttpTrigger(ILogger<ArchiveClosedVacanciesHttpTrigger> logger,
+public class ArchiveClosedVacanciesMigrationTimerTrigger(ILogger<ArchiveClosedVacanciesMigrationTimerTrigger> logger,
     IOptions<Core.Configuration.Features> features,
-    IArchiveClosedVacanciesHandler handler)
+    VacancyArchivingStrategy vacancyArchivingStrategy)
 {
-    private const string TriggerName = nameof(ArchiveClosedVacanciesHttpTrigger);
+    private const string TriggerName = nameof(ArchiveClosedVacanciesMigrationTimerTrigger);
+    private static readonly TimeSpan ExecutionTimeout = TimeSpan.FromSeconds(240);
     private readonly Core.Configuration.Features _features = features.Value;
 
-    [Function(TriggerName)]
-    public async Task Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData _,
-        FunctionContext context,
-        CancellationToken token)
+
+    public async Task Run([TimerTrigger("*/5 23-3 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        linkedCts.CancelAfter(ExecutionTimeout);
         try
         {
             // Check if the feature flag to archive vacancies without outcome is enabled. If it is, skip the archiving process.
             // This is to prevent archiving closed vacancies without outcome until the feature flag is disabled, which will be done after the migration of vacancies to archive is complete and we are ready to switch over to the new process.
-            if (!_features.ArchiveVacanciesWithoutOutCome)
+            if (_features.ArchiveVacanciesWithoutOutCome)
             {
                 logger.LogInformation("[{TriggerName}] Feature flag {FeatureFlag} is enabled. Skipping archiving closed vacancies without outcome.",
                     TriggerName, nameof(Core.Configuration.Features.ArchiveVacanciesWithoutOutCome));
                 return;
             }
 
-            await handler.RunAsync(token);
+            await vacancyArchivingStrategy.RunAsync(linkedCts.Token);
         }
         catch (Exception e)
         {
-            logger.LogError(e, "[{TriggerName}] Unhandled Exception occured during archiving vacancies", TriggerName);
+            logger.LogError(e, "[{TriggerName}] Unhandled Exception occured during migration", TriggerName);
             throw;
         }
-        finally
-        {
-            logger.LogInformation("[{TriggerName}] trigger completed", TriggerName);
-        }
+        logger.LogInformation("[{TriggerName}] trigger completed", TriggerName);
     }
 }

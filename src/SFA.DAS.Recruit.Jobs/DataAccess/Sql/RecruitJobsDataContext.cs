@@ -62,6 +62,7 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         modelBuilder.Entity<Vacancy>().Property(x => x.OwnerType).HasConversion(v => v.ToString(), v => Enum.Parse<OwnerType>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.SourceOrigin).HasConversion(v => v.ToString(), v => Enum.Parse<SourceOrigin>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.SourceType).HasConversion(v => v.ToString(), v => Enum.Parse<SourceType>(v!));
+        modelBuilder.Entity<Vacancy>().Property(x => x.ArchiveType).HasConversion(v => v.ToString(), v => Enum.Parse<ArchiveType>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.ApplicationMethod).HasConversion(v => v.ToString(), v => Enum.Parse<ApplicationMethod>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.EmployerNameOption).HasConversion(v => v.ToString(), v => Enum.Parse<EmployerNameOption>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.GeoCodeMethod).HasConversion(v => v.ToString(), v => Enum.Parse<GeoCodeMethod>(v!));

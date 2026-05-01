@@ -19,6 +19,7 @@ public class Vacancy
     public OwnerType? OwnerType {get; set;}                     //  nvarchar(20)        NOT NULL, -- max is currently 8 chars
     public SourceOrigin? SourceOrigin {get; set;}               //  nvarchar(20)        NULL, -- max is currently 12 chars
     public SourceType? SourceType {get; set;}                   //  nvarchar(20)        NULL, -- max is currently 9 chars
+    public ArchiveType? ArchiveType { get; set; }               //  nvarchar(20)        NULL, -- max is currently 9 chars
     public long? SourceVacancyReference {get; set;}             //  bigint              NULL,
     public DateTime? ApprovedDate {get; set;}                   //  datetime            NULL,
     public DateTime? CreatedDate {get; set;}                    //  datetime            NOT NULL default CURRENT_TIMESTAMP,
@@ -30,6 +31,7 @@ public class Vacancy
     public DateTime? LiveDate {get; set;}                       //  datetime            NULL,
     public DateTime? StartDate {get; set;}                      //  datetime            NULL,
     public DateTime? ClosingDate {get; set;}                    //  datetime            NULL,
+    public DateTime? ArchivedDate { get; set; }                 //  datetime            NULL,
     public int ReviewCount {get; set;}                          //  int                 NOT NULL default 0,
     public string? ApplicationUrl {get; set;}                   //  nvarchar(500)       NULL, -- validation currently allows 2000
     public ApplicationMethod? ApplicationMethod {get; set;}     //  nvarchar(50)        NULL, -- max is currently 30 chars
@@ -83,6 +85,7 @@ public class Vacancy
     public Guid? SubmittedByUserId { get; set; }                //  uniqueidentifier    NULL,
     public Guid? ReviewRequestedByUserId { get; set; }           //  uniqueidentifier    NULL,
     public DateTime? ReviewRequestedDate { get; set; }
+    public Guid? ArchivedByUserId { get; set; }                 //  uniqueidentifier    NULL,
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -109,7 +112,8 @@ public enum VacancyStatus
     Referred,
     Live,
     Closed,
-    Approved
+    Approved,
+    Archived
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -215,4 +219,11 @@ public enum OwnerType
     Provider = 1,
     External = 2,
     Unknown = 3
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum ArchiveType
+{
+    Auto = 0,
+    Manual = 1
 }

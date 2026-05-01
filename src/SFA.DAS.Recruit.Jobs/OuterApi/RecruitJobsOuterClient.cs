@@ -33,7 +33,7 @@ public interface IRecruitJobsOuterClient
     Task<ApiResponse<GetOneVacancyAnalyticsResponse>> GetOneVacancyAnalyticsAsync(long vacancyReference, CancellationToken cancellationToken = default);
     Task<ApiResponse> PutOneVacancyAnalyticsAsync(long vacancyReference, List<VacancyAnalytics> vacancyAnalytics, CancellationToken cancellationToken = default);
     Task<ApiResponse> PostVacancyToClose(Guid id, long vacancyReference, ClosureReason reason, CancellationToken cancellationToken = default);
-    Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, bool includeVacanciesWithoutOutcomes = false, CancellationToken cancellationToken = default);
+    Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, CancellationToken cancellationToken = default);
     Task<ApiResponse> PostVacancyToArchive(Guid id, long vacancyReference, CancellationToken cancellationToken = default);
 }
 
@@ -157,12 +157,11 @@ public class RecruitJobsOuterClient(
             new PostOneVacancyCloseRequest(id, reason), cancellationToken: cancellationToken);
     }
 
-    public async Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, bool includeVacanciesWithoutOutcomes = false, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, CancellationToken cancellationToken = default)
     {
         const string baseUrl = "vacancies/stale/archive";
         var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
         {
-            { "includeVacanciesWithoutOutcomes", includeVacanciesWithoutOutcomes.ToString() },
             { "pointInTime", pointInTime.ToString("s") }
             
         });

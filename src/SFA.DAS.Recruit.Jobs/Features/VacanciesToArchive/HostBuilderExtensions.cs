@@ -4,9 +4,9 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using System.Diagnostics.CodeAnalysis;
-using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 
@@ -19,6 +19,8 @@ public static class HostBuilderExtensions
         {
             services.AddTransient<IRecruitJobsOuterClient, RecruitJobsOuterClient>();
             services.AddTransient<IArchiveClosedVacanciesHandler, ArchiveClosedVacanciesHandler>();
+            services.AddTransient<VacancyArchivingSqlRepository>();
+            services.AddTransient<VacancyArchivingStrategy>();
             // register and configure the http client to call apim
             services
                 .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>()
