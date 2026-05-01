@@ -15,7 +15,7 @@ public class ArchiveClosedVacanciesMigrationTimerTrigger(ILogger<ArchiveClosedVa
     private readonly Core.Configuration.Features _features = features.Value;
 
 
-    public async Task Run([TimerTrigger("*/5 23-3 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger("* 3 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -23,10 +23,10 @@ public class ArchiveClosedVacanciesMigrationTimerTrigger(ILogger<ArchiveClosedVa
         try
         {
             // Check if the feature flag to archive vacancies without outcome is enabled. If it is, skip the archiving process.
-            // This is to prevent archiving closed vacancies without outcome until the feature flag is disabled, which will be done after the migration of vacancies to archive is complete and we are ready to switch over to the new process.
+            // This is to prevent archiving closed vacancies without outcome until the feature flag is disabled, which will be done after the migration of vacancies to archive is complete, we are ready to switch over to the new process.
             if (_features.ArchiveVacanciesWithoutOutCome)
             {
-                logger.LogInformation("[{TriggerName}] Feature flag {FeatureFlag} is enabled. Skipping archiving closed vacancies without outcome.",
+                logger.LogInformation("[{TriggerName}] Feature flag {FeatureFlag} is enabled. Skipping archiving closed vacancies.",
                     TriggerName, nameof(Core.Configuration.Features.ArchiveVacanciesWithoutOutCome));
                 return;
             }
