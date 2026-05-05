@@ -77,13 +77,7 @@ public static class HostBuilderExtensions
             .ConfigureNServiceBus()
             .ConfigureServices((context, services) =>
             {
-                // Setup application insights
-                services.AddApplicationInsightsTelemetryWorkerService(options =>
-                {
-#if DEBUG
-                    options.DeveloperMode = true;
-#endif
-                });
+                services.AddApplicationInsightsTelemetryWorkerService();
                 services.ConfigureFunctionsApplicationInsights();
                 services.AddLogging(loggingBuilder =>
                     {

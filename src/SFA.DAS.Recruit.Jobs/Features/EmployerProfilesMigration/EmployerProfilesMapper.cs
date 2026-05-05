@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Linq;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using MongoEmployerProfile = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.EmployerProfile;
 using MongoAddress = SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain.Address;
 

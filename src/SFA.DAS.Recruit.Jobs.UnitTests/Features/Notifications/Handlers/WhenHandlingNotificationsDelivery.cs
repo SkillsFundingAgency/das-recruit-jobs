@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
+﻿using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Features.Notifications.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
