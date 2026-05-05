@@ -21,7 +21,7 @@ internal class WhenHandlingCloseExpiredVacancies
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, new Jobs.OuterApi.Common.VacanciesToClose()));
+            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(HttpStatusCode.OK, new Jobs.OuterApi.Common.VacanciesToClose()));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -37,7 +37,7 @@ internal class WhenHandlingCloseExpiredVacancies
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(false, HttpStatusCode.InternalServerError, new Jobs.OuterApi.Common.VacanciesToClose(), "Internal error"));
+            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(HttpStatusCode.InternalServerError, new Jobs.OuterApi.Common.VacanciesToClose(), "Internal error"));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
@@ -53,7 +53,7 @@ internal class WhenHandlingCloseExpiredVacancies
         // Arrange
         jobsOuterClient
             .Setup(x => x.GetVacanciesToCloseAsync(It.IsAny<DateTime>(), CancellationToken.None))
-            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(true, HttpStatusCode.OK, new(), null));
+            .ReturnsAsync(new ApiResponse<Jobs.OuterApi.Common.VacanciesToClose>(HttpStatusCode.OK, new(), null));
 
         // Act
         await sut.RunAsync(CancellationToken.None);
