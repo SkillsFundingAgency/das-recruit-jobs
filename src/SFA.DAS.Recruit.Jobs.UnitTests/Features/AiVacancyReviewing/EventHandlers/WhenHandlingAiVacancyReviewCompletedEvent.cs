@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using AutoFixture.NUnit4;
 using SFA.DAS.RAA.Vacancy.AI.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing.Clients;

@@ -1,5 +1,4 @@
-﻿using AutoFixture.NUnit4;
-using SFA.DAS.Recruit.Jobs.Core.Http;
+﻿using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Core.Models;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
