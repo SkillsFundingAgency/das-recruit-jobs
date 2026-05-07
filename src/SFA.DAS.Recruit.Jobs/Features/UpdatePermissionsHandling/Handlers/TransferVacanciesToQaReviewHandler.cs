@@ -13,7 +13,7 @@ public interface ITransferVacanciesToQaReviewHandler
     Task RunAsync(TransferVacanciesFromEmployerReviewToQaReviewQueueMessage message, CancellationToken cancellationToken);    
 }
 
-internal class TransferVacanciesToQaReviewHandler(
+public class TransferVacanciesToQaReviewHandler(
     IJobsOuterClient jobsOuterClient,
     IQueueClient<TransferVacancyFromEmployerReviewToQaReviewQueueMessage> queueClient,
     IEncodingService encodingService): ITransferVacanciesToQaReviewHandler

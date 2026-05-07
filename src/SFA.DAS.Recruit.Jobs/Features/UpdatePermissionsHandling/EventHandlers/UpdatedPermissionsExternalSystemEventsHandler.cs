@@ -37,7 +37,8 @@ public class UpdatedPermissionsExternalSystemEventsHandler(
                 AccountLegalEntityId = message.AccountLegalEntityId,
                 TransferReason = TransferReason.EmployerRevokedPermission
             }, context.CancellationToken);
-        } else if (!message.GrantedOperations.Contains(Operation.RecruitmentRequiresReview))
+        }
+        else if (!message.GrantedOperations.Contains(Operation.RecruitmentRequiresReview))
         {
             logger.LogInformation("Transferring vacancies from Employer Review to QA Review for Provider {Ukprn}", message.Ukprn);
             var response = await jobsOuterClient.GetAsync<GetAccountLegalEntitiesResponse>(new GetAccountLegalEntitiesRequest(message.AccountId), context.CancellationToken);
