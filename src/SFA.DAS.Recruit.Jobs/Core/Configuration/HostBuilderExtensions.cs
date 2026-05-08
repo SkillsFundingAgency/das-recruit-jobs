@@ -14,7 +14,6 @@ using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
-using SFA.DAS.Recruit.Jobs.Features.ProhibitedContentMigration;
 using SFA.DAS.Recruit.Jobs.Features.QaReports;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
@@ -24,6 +23,7 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Microsoft.FeatureManagement;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
@@ -32,7 +32,9 @@ using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
+using SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
+using SFA.DAS.Recruit.Jobs.Features.VacancyPublishing;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
 
@@ -119,6 +121,7 @@ public static class HostBuilderExtensions
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
                 services.AddSingleton(jsonSerializationOptions);
+                services.AddFeatureManagement(context.Configuration.GetSection("Features"));
 
                 // jobs outer client
                 services
@@ -130,7 +133,6 @@ public static class HostBuilderExtensions
             })
             .ConfigureMongoDb()
             .ConfigureSqlDb()
-            .ConfigureProhibitedContentMigration()
             .ConfigureUserNotificationPreferencesMigration()
             .ConfigureEmployerProfilesMigration()
             .ConfigureVacancyReviewMigration()
@@ -144,6 +146,9 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
+            
+            .ConfigureVacancyPublishingFeature()
+            .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature();
     }
