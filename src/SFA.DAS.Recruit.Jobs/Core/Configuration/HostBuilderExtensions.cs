@@ -146,7 +146,6 @@ public static class HostBuilderExtensions
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
             .ConfigureAiVacancyReviewingFeature()
-            
             .ConfigureVacancyPublishingFeature()
             .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
