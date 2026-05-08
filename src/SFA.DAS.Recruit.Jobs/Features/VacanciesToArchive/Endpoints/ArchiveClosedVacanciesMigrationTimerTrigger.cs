@@ -14,7 +14,7 @@ public class ArchiveClosedVacanciesMigrationTimerTrigger(ILogger<ArchiveClosedVa
     private static readonly TimeSpan ExecutionTimeout = TimeSpan.FromSeconds(240);
     private readonly Core.Configuration.Features _features = features.Value;
 
-
+    [Function(TriggerName)]
     public async Task Run([TimerTrigger("* 3 * * *")] TimerInfo timerInfo, CancellationToken cancellationToken)
     {
         logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);

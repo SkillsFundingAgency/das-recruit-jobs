@@ -72,7 +72,8 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         modelBuilder.Entity<Vacancy>().Property(x => x.ApprenticeshipType).HasConversion(v => v.ToString(), v => Enum.Parse<ApprenticeshipTypes>(v!));
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_FixedWageYearlyAmount).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
-        
+        modelBuilder.Entity<Vacancy>().Property(x => x.EmployerLocationOption).HasConversion(v => v.ToString(), v => Enum.Parse<AvailableWhere>(v!));
+
         // User
         var userBuilder = modelBuilder.Entity<User>();
         userBuilder.ToTable("User").HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);

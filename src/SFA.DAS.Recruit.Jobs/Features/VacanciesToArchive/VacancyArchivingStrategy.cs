@@ -14,8 +14,7 @@ public class VacancyArchivingStrategy(VacancyArchivingSqlRepository sqlRepositor
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         var startTime = DateTime.UtcNow;
-        var pointInTime = startTime;
-        var archiveStaleByDate = pointInTime.AddDays(-DefaultArchiveStaleByDays);
+        var archiveStaleByDate = startTime.AddDays(-DefaultArchiveStaleByDays);
 
         while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(MaxRuntimeInSeconds))
         {
