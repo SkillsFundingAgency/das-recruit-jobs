@@ -11,12 +11,6 @@
   <ItemGroup>
       <InternalsVisibleTo Include="SFA.DAS.Recruit.Jobs.UnitTests" />
   </ItemGroup>
-    
-  <ItemGroup>
-    <Compile Remove="Features\NewFolder\**" />
-    <EmbeddedResource Remove="Features\NewFolder\**" />
-    <None Remove="Features\NewFolder\**" />
-  </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="EFCore.BulkExtensions.SqlServer" Version="8.1.3" />
