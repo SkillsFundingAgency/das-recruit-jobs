@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.FeatureManagement;
 using SFA.DAS.Recruit.Api.Core.Events;
