@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 

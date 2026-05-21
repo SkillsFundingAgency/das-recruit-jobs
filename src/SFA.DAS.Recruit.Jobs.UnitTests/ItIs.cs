@@ -1,6 +1,5 @@
 ﻿using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
-using Moq;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests;
 

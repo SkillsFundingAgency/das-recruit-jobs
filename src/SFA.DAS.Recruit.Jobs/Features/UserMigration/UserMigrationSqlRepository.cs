@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
