@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Microsoft.AspNetCore.WebUtilities;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
 using SFA.DAS.Recruit.Jobs.Domain;
