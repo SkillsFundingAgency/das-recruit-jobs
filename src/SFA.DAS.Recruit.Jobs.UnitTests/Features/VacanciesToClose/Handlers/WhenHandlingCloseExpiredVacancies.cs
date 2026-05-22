@@ -7,7 +7,7 @@ using System.Net;
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToClose.Handlers;
 
 [TestFixture]
-internal class WhenHandlingCloseExpiredVacancies
+internal class WhenHandlingArchivingClosedVacancies
 {
     [Test, MoqAutoData]
     public async Task RunAsync_Should_Return_When_GetResponseIsNull(
