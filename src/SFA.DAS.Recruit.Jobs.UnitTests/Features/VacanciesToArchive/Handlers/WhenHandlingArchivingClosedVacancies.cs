@@ -1,9 +1,9 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using SFA.DAS.Recruit.Jobs.Core.Http;
+using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using System.Net;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToArchive.Handlers;
 
@@ -24,6 +24,8 @@ internal class WhenHandlingArchivingClosedVacancies
 
         // Act
         await sut.RunAsync(CancellationToken.None);
+
+        jobsOuterClient.Verify(x => x.PostVacancyToArchive(It.IsAny<Guid>(), It.IsAny<long>(), CancellationToken.None), Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -40,6 +42,8 @@ internal class WhenHandlingArchivingClosedVacancies
 
         // Act
         await sut.RunAsync(CancellationToken.None);
+
+        jobsOuterClient.Verify(x => x.PostVacancyToArchive(It.IsAny<Guid>(), It.IsAny<long>(), CancellationToken.None), Times.Never);
     }
 
     [Test, MoqAutoData]
@@ -56,6 +60,8 @@ internal class WhenHandlingArchivingClosedVacancies
 
         // Act
         await sut.RunAsync(CancellationToken.None);
+
+        jobsOuterClient.Verify(x => x.PostVacancyToArchive(It.IsAny<Guid>(), It.IsAny<long>(), CancellationToken.None), Times.Never);
     }
 
     [Test, MoqAutoData]

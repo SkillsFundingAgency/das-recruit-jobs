@@ -41,9 +41,9 @@ public class ArchiveClosedVacanciesTimerTrigger(ILogger<ArchiveClosedVacanciesTi
             await handler.RunAsync(linkedCts.Token);
             logger.LogInformation("[{TriggerName}] Successfully completed execution", TriggerName);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
-            logger.LogWarning("[{TriggerName}] Execution cancelled after timeout of {TimeoutSeconds} seconds",
+            logger.LogWarning(ex, "[{TriggerName}] Execution cancelled after timeout of {TimeoutSeconds} seconds",
                 TriggerName, ExecutionTimeout.TotalSeconds);
         }
         catch (Exception ex)

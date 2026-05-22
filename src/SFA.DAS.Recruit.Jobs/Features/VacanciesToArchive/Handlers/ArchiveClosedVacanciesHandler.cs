@@ -46,15 +46,15 @@ public class ArchiveClosedVacanciesHandler(ILogger<ArchiveClosedVacanciesHandler
                 }
                 else
                 {
-                    logger.LogInformation("Unable to archive the vacancy: {vacancyId}. Reason: {reason}", vacancy.Id, archiveResponse.ErrorContent);
+                    logger.LogInformation("Unable to archive the vacancy: {VacancyId}. Reason: {Reason}", vacancy.Id, archiveResponse.ErrorContent);
                 }
             }
 
             logger.LogInformation("Marked all closed vacancies to archive.");
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException ex)
         {
-            logger.LogWarning("ArchiveClosedVacanciesHandler was cancelled.");
+            logger.LogWarning(ex, "ArchiveClosedVacanciesHandler was cancelled.");
             throw;
         }
         catch (Exception ex)
