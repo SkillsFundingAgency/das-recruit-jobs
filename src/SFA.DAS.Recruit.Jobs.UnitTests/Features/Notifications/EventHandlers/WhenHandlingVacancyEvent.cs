@@ -1,6 +1,4 @@
-﻿using AutoFixture.NUnit3;
-using Esfa.Recruit.Vacancies.Client.Domain.Events;
-using SFA.DAS.Recruit.Api.Core.Events;
+﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;

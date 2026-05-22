@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Hosting;
 using System.Net;
-using System.Security.Cryptography;
 
 namespace SFA.DAS.Recruit.Jobs.NServiceBus;
 
@@ -12,8 +11,7 @@ public static class ConfigureNServiceBusExtension
     {
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-            endpointConfiguration.Transport.SubscriptionRuleNamingConvention = AzureRuleNameShortener.Shorten;
-            
+
             endpointConfiguration.AdvancedConfiguration.EnableInstallers();
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
             endpointConfiguration.AdvancedConfiguration.Conventions()
@@ -49,22 +47,4 @@ public static class ConfigureNServiceBusExtension
         => t.Namespace != null &&
            t.Namespace.EndsWith(namespaceSuffix);
     
-}
-
-internal static class AzureRuleNameShortener
-{
-    private const int AzureServiceBusRuleNameMaxLength = 50;
-
-    public static string Shorten(Type type)
-    {
-        var ruleName = type.FullName;
-        if (ruleName!.Length <= AzureServiceBusRuleNameMaxLength)
-        {
-            return ruleName;
-        }
-
-        var bytes = System.Text.Encoding.Default.GetBytes(ruleName);
-        var hash = MD5.HashData(bytes);
-        return new Guid(hash).ToString();
-    }
 }
