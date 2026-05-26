@@ -21,6 +21,11 @@ public class UpdatedPermissionsExternalSystemEventsHandler(
     public async Task Handle(UpdatedPermissionsEvent message, IMessageHandlerContext context)
     {
         logger.LogInformation("Attempting to process {EventName} : {EventMessage}", nameof(UpdatedPermissionsEvent), message);
+
+        // Log the granted and previous operations for debugging purposes. This will help us understand the state change that triggered this event.
+        logger.LogInformation("Granted Operations {EventName} : {EventMessage}", nameof(UpdatedPermissionsEvent), string.Join(", ", message.GrantedOperations));
+        logger.LogInformation("Previous Operations {EventName} : {EventMessage}", nameof(UpdatedPermissionsEvent), string.Join(", ", message.PreviousOperations));
+
         if (!message.UserRef.HasValue)
         {
             logger.LogInformation("Not handling Provider {OperationName} Permission being revoked as it is a consequence of Provider being blocked by QA on Recruit.", nameof(Operation.Recruitment));
