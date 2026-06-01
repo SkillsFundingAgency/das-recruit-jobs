@@ -4,6 +4,12 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Domain;
+using AvailableWhere = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.AvailableWhere;
+using ClosureReason = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ClosureReason;
+using EmployerNameOption = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerNameOption;
+using Vacancy = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.Vacancy;
+using VacancyStatus = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.VacancyStatus;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
@@ -73,7 +79,12 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_FixedWageYearlyAmount).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.EmployerLocationOption).HasConversion(v => v.ToString(), v => Enum.Parse<AvailableWhere>(v!));
-
+        modelBuilder.Entity<Vacancy>().Property(v => v.Qualifications)
+            .HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<Qualification>>(x, JsonOptions));
+        modelBuilder.Entity<Vacancy>().Property(v => v.EmployerLocations)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, JsonOptions),
+                v => JsonSerializer.Deserialize<List<Address>>(v, JsonOptions));
         // User
         var userBuilder = modelBuilder.Entity<User>();
         userBuilder.ToTable("User").HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);
