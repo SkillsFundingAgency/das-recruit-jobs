@@ -111,12 +111,14 @@ public enum ApprenticeshipTypes
     Foundation,
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum VacancyType
 {
     Apprenticeship = 0,
     Traineeship = 1
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum VacancyStatus
 {
     Draft,
@@ -129,6 +131,7 @@ public enum VacancyStatus
     Approved
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ClosureReason
 {
     Auto,
@@ -149,6 +152,7 @@ public class TransferInfo
     public TransferReason Reason { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TransferReason
 {
     EmployerRevokedPermission,
@@ -173,6 +177,7 @@ public class Wage
     public string CompanyBenefitsInformation { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum WageType
 {
     Unspecified,
@@ -182,6 +187,7 @@ public enum WageType
     CompetitiveSalary
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DurationUnit
 {
     Week,
@@ -212,6 +218,7 @@ public class Qualification : IEquatable<Qualification>
     }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum QualificationWeighting
 {
     Essential,
@@ -226,11 +233,12 @@ public class ProviderReviewFieldIndicator
 
 public class ContactDetail
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string? Name { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum GeoCodeMethod
 {
     Unspecified,
@@ -248,6 +256,7 @@ public class EmployerReviewFieldIndicator
     public bool IsChangeRequested { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EmployerNameOption
 {
     RegisteredName,
@@ -263,12 +272,14 @@ public enum AvailableWhere
     AcrossEngland,
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DisabilityConfident
 {
     No = 0,
     Yes
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ApplicationMethod
 {
     ThroughFindAnApprenticeship,
@@ -276,6 +287,7 @@ public enum ApplicationMethod
     ThroughFindATraineeship
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SourceType
 {
     Clone,
@@ -283,6 +295,7 @@ public enum SourceType
     New
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SourceOrigin
 {
     Api,
@@ -291,6 +304,7 @@ public enum SourceOrigin
     WebComplaint
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OwnerType
 {
     Employer = 0,
