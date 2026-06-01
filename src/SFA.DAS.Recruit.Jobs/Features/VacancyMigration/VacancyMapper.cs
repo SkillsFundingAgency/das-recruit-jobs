@@ -107,7 +107,7 @@ public class VacancyMapper(ILogger<VacancyMapper> logger, IEncodingService encod
             NumberOfPositions = vacancy.NumberOfPositions,
             OutcomeDescription = vacancy.OutcomeDescription,
             ProgrammeId = vacancy.ProgrammeId,
-            Skills = MigrationUtils.SerializeOrNull(vacancy.Skills),
+            //Skills = MigrationUtils.SerializeOrNull(vacancy.Skills),
             //Qualifications = MigrationUtils.SerializeOrNull(vacancy.Qualifications),
             ThingsToConsider = vacancy.ThingsToConsider,
             TrainingDescription = vacancy.TrainingDescription,
