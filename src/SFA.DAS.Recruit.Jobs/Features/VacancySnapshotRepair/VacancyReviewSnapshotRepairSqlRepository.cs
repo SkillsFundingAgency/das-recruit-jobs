@@ -34,7 +34,7 @@ public class VacancyReviewSnapshotRepairSqlRepository(RecruitJobsDataContext dat
     {
         return await dataContext
             .VacancyReview
-            .Where(x => x.AccountId == 0 && x.AccountLegalEntityId == 0 && x.Ukprn == 0 && x.OwnerType == 0)
+            .Where(x => x.AccountId == 0 && x.AccountLegalEntityId == 0 && x.Ukprn == 0)
             .Take(batchSize)
             .ToListAsync(cancellationToken: cancellationToken);
     }
