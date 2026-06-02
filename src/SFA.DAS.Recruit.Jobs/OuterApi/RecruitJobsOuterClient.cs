@@ -47,7 +47,7 @@ public class RecruitJobsOuterClient(
 {
     public async Task<ApiResponse<GetVacancyResponse>> GetVacancyAsync(long vacancyReference, CancellationToken cancellationToken = default)
     {
-        return await GetAsync<GetVacancyResponse>($"vacancies/{vacancyReference}", cancellationToken: cancellationToken);
+        return await GetAsync<GetVacancyResponse>($"vacancies/byRef/{vacancyReference}", cancellationToken: cancellationToken);
     }
 
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
