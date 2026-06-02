@@ -19,7 +19,7 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
         foreach (var notification in notifications)
         {
             logger.LogInformation("Sending notification email for vacancy {VacancyId} to {EmailAddress} with template {TemplateId}", vacancyId, "**hashed**", notification.TemplateId);
-            await queueClient.SendMessageAsync(notification, cancellationToken);
+            //await queueClient.SendMessageAsync(notification, cancellationToken);
         }
     }
     
