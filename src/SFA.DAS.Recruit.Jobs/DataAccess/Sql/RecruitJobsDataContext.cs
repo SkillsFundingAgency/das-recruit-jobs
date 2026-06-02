@@ -4,6 +4,12 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Domain;
+using AvailableWhere = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.AvailableWhere;
+using ClosureReason = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ClosureReason;
+using EmployerNameOption = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerNameOption;
+using Vacancy = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.Vacancy;
+using VacancyStatus = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.VacancyStatus;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
@@ -44,14 +50,19 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         modelBuilder.Entity<EmployerProfile>().Property(x => x.AccountLegalEntityId).HasColumnType("bigint").ValueGeneratedNever();
 
         // VacancyReview
-        modelBuilder.Entity<VacancyReview>().HasKey(x => x.Id);
-        modelBuilder.Entity<VacancyReview>().Property(x => x.UpdatedFieldIdentifiers).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
-        modelBuilder.Entity<VacancyReview>().Property(x => x.DismissedAutomatedQaOutcomeIndicators).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
-        modelBuilder.Entity<VacancyReview>().Property(x => x.ManualQaFieldIndicators).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
-        modelBuilder.Entity<VacancyReview>().Property(x => x.AutomatedQaOutcome).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<RuleSetOutcome>(x, JsonOptions)!);
-        modelBuilder.Entity<VacancyReview>().Property(e => e.ManualOutcome).HasConversion(v => v.ToString(), v => (ManualQaOutcome)Enum.Parse(typeof(ManualQaOutcome), v!));
-        modelBuilder.Entity<VacancyReview>().Property(e => e.Status).HasConversion(v => v.ToString(), v => (ReviewStatus)Enum.Parse(typeof(ReviewStatus), v));
-        
+        modelBuilder.Entity<VacancyReview>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Status).HasConversion(v => v.ToString(), v => Enum.Parse<ReviewStatus>(v)).HasColumnType("nvarchar(100)");
+            entity.Property(x => x.ManualOutcome).HasConversion(v => v.HasValue ? v.Value.ToString() : null, v => string.IsNullOrWhiteSpace(v) ? null : Enum.Parse<ManualQaOutcome>(v)).HasColumnType("nvarchar(50)");
+            entity.Property(x => x.OwnerType).HasConversion<byte>();
+            entity.Property(x => x.SubmissionCount).HasConversion<byte>();
+            entity.Property(x => x.UpdatedFieldIdentifiers).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
+            entity.Property(x => x.DismissedAutomatedQaOutcomeIndicators).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
+            entity.Property(x => x.ManualQaFieldIndicators).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<string>>(x, JsonOptions));
+            entity.Property(x => x.AutomatedQaOutcome).HasConversion(v => v != null ? v.ToString() : null, v => null);
+        });
+
         // Vacancy
         modelBuilder.Entity<Vacancy>().Property(x => x.Status).HasConversion(v => v.ToString(), v => Enum.Parse<VacancyStatus>(v));
         modelBuilder.Entity<Vacancy>().Property(x => x.OwnerType).HasConversion(v => v.ToString(), v => Enum.Parse<OwnerType>(v!));
@@ -68,7 +79,9 @@ public class RecruitJobsDataContext(IOptions<SqlServerConfiguration> config, DbC
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_FixedWageYearlyAmount).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.Wage_WeeklyHours).HasColumnType("decimal");
         modelBuilder.Entity<Vacancy>().Property(x => x.EmployerLocationOption).HasConversion(v => v.ToString(), v => Enum.Parse<AvailableWhere>(v!));
-
+        modelBuilder.Entity<Vacancy>().Property(v => v.Qualifications).HasConversion(x => JsonSerializer.Serialize(x, JsonOptions), x => JsonSerializer.Deserialize<List<Qualification>>(x, JsonOptions));
+        modelBuilder.Entity<Vacancy>().Property(v => v.EmployerLocations).HasConversion(v => JsonSerializer.Serialize(v, JsonOptions), v => JsonSerializer.Deserialize<List<Address>>(v, JsonOptions));
+        modelBuilder.Entity<Vacancy>().Property(v => v.Skills).HasConversion(v => JsonSerializer.Serialize(v, JsonOptions), v => JsonSerializer.Deserialize<List<string>>(v, JsonOptions));
         // User
         var userBuilder = modelBuilder.Entity<User>();
         userBuilder.ToTable("User").HasMany(x => x.EmployerAccounts).WithOne(x => x.User).HasForeignKey(x => x.UserId);

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Address = SFA.DAS.Recruit.Jobs.Domain.Address;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 
@@ -44,7 +45,7 @@ public class Vacancy
     public string? ContactEmail { get; set; }
     public string? ContactPhone { get; set; }
     public string? EmployerDescription { get; set; }
-    public string? EmployerLocations { get; set; }
+    public List<Address>? EmployerLocations { get; set; }
     public AvailableWhere? EmployerLocationOption { get; set; }
     public string? EmployerLocationInformation { get; set; }
     public string? EmployerName { get; set; }
@@ -57,8 +58,8 @@ public class Vacancy
     public int? NumberOfPositions { get; set; }
     public string? OutcomeDescription { get; set; }
     public string? ProgrammeId { get; set; }
-    public string? Skills { get; set; }
-    public string? Qualifications { get; set; }
+    public List<string>? Skills { get; set; }
+    public List<Qualification>? Qualifications { get; set; }
     public string? ThingsToConsider { get; set; }
     public string? TrainingDescription { get; set; }
     public string? AdditionalTrainingDescription { get; set; }
@@ -225,4 +226,21 @@ public enum ArchiveType
 {
     Auto = 0,
     Manual = 1
+}
+
+public class Qualification
+{
+    public string? QualificationType { get; set; }
+    public string? Subject { get; set; }
+    public string? Grade { get; set; }
+    public int? Level { get; set; }
+    public QualificationWeighting? Weighting { get; set; }
+    public string? OtherQualificationName { get; set; }
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum QualificationWeighting
+{
+    Essential,
+    Desired
 }

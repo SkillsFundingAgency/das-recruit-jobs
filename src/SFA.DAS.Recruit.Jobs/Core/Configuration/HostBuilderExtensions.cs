@@ -6,6 +6,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
+using Polly.Retry;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
@@ -13,30 +18,26 @@ using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
+using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
+using SFA.DAS.Recruit.Jobs.Features.Notifications;
 using SFA.DAS.Recruit.Jobs.Features.QaReports;
+using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
-using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
-using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
-using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
-using SFA.DAS.Recruit.Jobs.NServiceBus;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using Microsoft.FeatureManagement;
-using Polly;
-using Polly.Contrib.WaitAndRetry;
-using Polly.Extensions.Http;
-using Polly.Retry;
-using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
-using SFA.DAS.Recruit.Jobs.Features.Notifications;
-using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
+using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
 using SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
+using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyPublishing;
+using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
+using SFA.DAS.Recruit.Jobs.Features.VacancySnapshotRepair;
+using SFA.DAS.Recruit.Jobs.NServiceBus;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -97,14 +98,15 @@ public static class HostBuilderExtensions
                 services.AddOptions();
 
                 // Configure the DAS Encoding service
-                var dasEncodingConfig = new EncodingConfig { Encodings = [] };
+                var dasEncodingConfig = new EncodingConfig {Encodings = []};
                 context.Configuration.GetSection(nameof(dasEncodingConfig.Encodings)).Bind(dasEncodingConfig.Encodings);
                 services.AddSingleton(dasEncodingConfig);
                 services.AddSingleton<IEncodingService, EncodingService>();
 
                 // Configure core project dependencies
                 services.Configure<Features>(context.Configuration.GetSection("Features"));
-                services.Configure<RecruitJobsOuterApiConfiguration>(context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
+                services.Configure<RecruitJobsOuterApiConfiguration>(
+                    context.Configuration.GetSection("RecruitJobsOuterApiConfiguration"));
                 services.Configure<RecruitJobsConfiguration>(context.Configuration);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsOuterApiConfiguration>>()!.Value);
                 services.AddSingleton(cfg => cfg.GetService<IOptions<RecruitJobsConfiguration>>()!.Value);
@@ -143,7 +145,8 @@ public static class HostBuilderExtensions
             .ConfigureVacancyPublishingFeature()
             .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
-            .ConfigureNotificationsFeature();
+            .ConfigureNotificationsFeature()
+            .ConfigureVacancySnapshotRepairFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
