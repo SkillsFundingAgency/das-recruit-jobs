@@ -1,4 +1,5 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -6,7 +7,8 @@ using SFA.DAS.Recruit.Jobs.Services;
 
 namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 
-public class OnVacancyEventHandler(INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
+public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
+    INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
     IHandleMessages<VacancyReferredEvent>
@@ -16,6 +18,7 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
         foreach (var notification in notifications)
         {
+            logger.LogInformation("Sending notification email for vacancy {VacancyId} to {EmailAddress} with template {TemplateId}", vacancyId, "**hashed**", notification.TemplateId);
             await queueClient.SendMessageAsync(notification, cancellationToken);
         }
     }
