@@ -1,4 +1,5 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -6,14 +7,22 @@ using SFA.DAS.Recruit.Jobs.Services;
 
 namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 
-public class OnVacancyEventHandler(INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
+public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
+    INotificationService notificationService,
+    IQueueClient<NotificationEmail> queueClient) :
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
     IHandleMessages<VacancyReferredEvent>
 {
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("1. SendNotification for the vacancy: {Id}", vacancyId);
+        
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
+        foreach (var notificationEmail in notifications)
+        {
+            logger.LogInformation("2. Notifications received for template: {templateId} and Email Address: {email}", notificationEmail.TemplateId, notificationEmail.RecipientAddress); 
+        }
         foreach (var notification in notifications
                      .DistinctBy(x => new // Ensure we only send one notification per template and recipient address
                      {
@@ -21,6 +30,7 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
                          RecipientAddress = x.RecipientAddress.ToLowerInvariant()
                      }))
         {
+            logger.LogInformation("3. Sending email template: {templateId} and Email Address: {email}", notification.TemplateId, notification.RecipientAddress);
             await queueClient.SendMessageAsync(notification, cancellationToken);
         }
     }
