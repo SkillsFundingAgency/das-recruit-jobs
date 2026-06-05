@@ -16,10 +16,14 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
-        foreach (var notification in notifications)
+        foreach (var notification in notifications
+                     .DistinctBy(x => new
+                     {
+                         x.TemplateId,
+                         RecipientAddress = x.RecipientAddress.ToLowerInvariant()
+                     }))
         {
-            logger.LogInformation("Sending notification email for vacancy {VacancyId} to {EmailAddress} with template {TemplateId}", vacancyId, "**hashed**", notification.TemplateId);
-            //await queueClient.SendMessageAsync(notification, cancellationToken);
+            await queueClient.SendMessageAsync(notification, cancellationToken);
         }
     }
     
