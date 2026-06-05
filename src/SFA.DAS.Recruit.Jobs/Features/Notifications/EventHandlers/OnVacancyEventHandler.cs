@@ -1,5 +1,4 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -7,8 +6,7 @@ using SFA.DAS.Recruit.Jobs.Services;
 
 namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 
-public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
-    INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
+public class OnVacancyEventHandler(INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
     IHandleMessages<VacancyReferredEvent>
