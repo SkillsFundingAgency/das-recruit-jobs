@@ -17,7 +17,7 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
     {
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
         foreach (var notification in notifications
-                     .DistinctBy(x => new
+                     .DistinctBy(x => new // Ensure we only send one notification per template and recipient address
                      {
                          x.TemplateId,
                          RecipientAddress = x.RecipientAddress.ToLowerInvariant()
