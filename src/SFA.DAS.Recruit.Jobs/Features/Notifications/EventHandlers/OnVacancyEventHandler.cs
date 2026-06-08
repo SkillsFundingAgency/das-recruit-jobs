@@ -1,5 +1,6 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
 using Microsoft.Extensions.Logging;
+using Polly;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -47,6 +48,13 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
 
     public async Task Handle(VacancyReferredEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("MessageId: {MessageId}", context.MessageId);
+
+        foreach (var header in context.MessageHeaders)
+        {
+            logger.LogInformation("Header {Key}: {Value}", header.Key, header.Value);
+        }
+
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 }
