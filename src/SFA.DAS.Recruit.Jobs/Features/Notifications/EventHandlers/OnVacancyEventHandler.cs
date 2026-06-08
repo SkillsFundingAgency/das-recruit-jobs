@@ -55,6 +55,12 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
             logger.LogInformation("Header {Key}: {Value}", header.Key, header.Value);
         }
 
+        logger.LogInformation(
+            "MessageId={MessageId}, OriginatingEndpoint={OriginatingEndpoint}, CorrelationId={CorrelationId}",
+            context.MessageId,
+            context.MessageHeaders.GetValueOrDefault("NServiceBus.OriginatingEndpoint"),
+            context.MessageHeaders.GetValueOrDefault("NServiceBus.CorrelationId"));
+
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 }
