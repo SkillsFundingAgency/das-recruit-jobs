@@ -17,7 +17,7 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
 {
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("1. SendNotification for the vacancy: {Id}", vacancyId);
+        logger.LogInformation("1. SendNotification for the vacancy: {Id}, Status: {Status}", vacancyId, status);
         
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
         foreach (var notificationEmail in notifications)
@@ -38,17 +38,21 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
     
     public async Task Handle(VacancyClosedEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyClosedEvent), context.MessageId);
+
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 
     public async Task Handle(VacancyApprovedEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyApprovedEvent), context.MessageId);
+
         await SendNotifications(message.VacancyId, VacancyStatus.Approved, context.CancellationToken);
     }
 
     public async Task Handle(VacancyReferredEvent message, IMessageHandlerContext context)
     {
-        logger.LogInformation("MessageId: {MessageId}", context.MessageId);
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyReferredEvent), context.MessageId);
 
         foreach (var header in context.MessageHeaders)
         {
