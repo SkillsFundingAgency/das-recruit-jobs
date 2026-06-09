@@ -24,7 +24,6 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
                          RecipientAddress = x.RecipientAddress.ToLowerInvariant()
                      }))
         {
-            notification.RecipientAddress = "Balaji.JAMBULINGAM@education.gov.uk";
             await queueClient.SendMessageAsync(notification, cancellationToken);
         }
     }
