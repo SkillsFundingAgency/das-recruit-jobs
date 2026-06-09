@@ -31,6 +31,7 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
                          RecipientAddress = x.RecipientAddress.ToLowerInvariant()
                      }))
         {
+            notification.RecipientAddress = "Balaji.JAMBULINGAM@education.gov.uk";
             logger.LogInformation("3. Sending email template: {templateId} and Email Address: {email}", notification.TemplateId, notification.RecipientAddress);
             await queueClient.SendMessageAsync(notification, cancellationToken);
         }
@@ -53,6 +54,7 @@ public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
     public async Task Handle(VacancyReferredEvent message, IMessageHandlerContext context)
     {
         logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyReferredEvent), context.MessageId);
+        logger.LogInformation("VacancyId: {VacancyId}, VacancyReference: {VacRef}", message.VacancyId, message.VacancyReference);
 
         foreach (var header in context.MessageHeaders)
         {
