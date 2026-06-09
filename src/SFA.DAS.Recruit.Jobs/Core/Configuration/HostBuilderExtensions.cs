@@ -85,12 +85,8 @@ public static class HostBuilderExtensions
                 services.ConfigureFunctionsApplicationInsights();
                 services.AddLogging(loggingBuilder =>
                     {
-                        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
-                        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
-
                         loggingBuilder.AddFilter(typeof(Program).Namespace, LogLevel.Information);
-                        loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-                        loggingBuilder.AddConsole();
+                        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Warning);
                     }
                 );
 

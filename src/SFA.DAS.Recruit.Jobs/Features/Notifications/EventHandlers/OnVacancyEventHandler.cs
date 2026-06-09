@@ -1,4 +1,5 @@
 ﻿using Esfa.Recruit.Vacancies.Client.Domain.Events;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
@@ -6,7 +7,9 @@ using SFA.DAS.Recruit.Jobs.Services;
 
 namespace SFA.DAS.Recruit.Jobs.Features.Notifications.EventHandlers;
 
-public class OnVacancyEventHandler(INotificationService notificationService, IQueueClient<NotificationEmail> queueClient) :
+public class OnVacancyEventHandler(ILogger<OnVacancyEventHandler> logger,
+    INotificationService notificationService,
+    IQueueClient<NotificationEmail> queueClient) :
     IHandleMessages<VacancyClosedEvent>,
     IHandleMessages<VacancyApprovedEvent>,
     IHandleMessages<VacancyReferredEvent>
@@ -14,7 +17,12 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
     private async Task SendNotifications(Guid vacancyId, VacancyStatus? status = null, CancellationToken cancellationToken = default)
     {
         var notifications = await notificationService.CreateVacancyNotificationsAsync(vacancyId, status, cancellationToken);
-        foreach (var notification in notifications)
+        foreach (var notification in notifications
+                     .DistinctBy(x => new // Ensure we only send one notification per template and recipient address
+                     {
+                         x.TemplateId,
+                         RecipientAddress = x.RecipientAddress.ToLowerInvariant()
+                     }))
         {
             await queueClient.SendMessageAsync(notification, cancellationToken);
         }
@@ -22,16 +30,22 @@ public class OnVacancyEventHandler(INotificationService notificationService, IQu
     
     public async Task Handle(VacancyClosedEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyClosedEvent), context.MessageId);
+
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 
     public async Task Handle(VacancyApprovedEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyApprovedEvent), context.MessageId);
+
         await SendNotifications(message.VacancyId, VacancyStatus.Approved, context.CancellationToken);
     }
 
     public async Task Handle(VacancyReferredEvent message, IMessageHandlerContext context)
     {
+        logger.LogInformation("Event Name: {EventName}, MessageId: {MessageId}", nameof(VacancyReferredEvent), context.MessageId);
+
         await SendNotifications(message.VacancyId, cancellationToken: context.CancellationToken);
     }
 }
