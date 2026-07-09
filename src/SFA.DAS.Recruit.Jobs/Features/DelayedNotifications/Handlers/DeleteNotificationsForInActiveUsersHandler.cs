@@ -32,7 +32,7 @@ public class DeleteNotificationsForInactiveUsersHandler(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!email.SourceIds.Any())
+                if (email.SourceIds is null || !email.SourceIds.Any())
                 {
                     logger.LogWarning("Skipping user as SourceIds list is empty.");
                     continue;
