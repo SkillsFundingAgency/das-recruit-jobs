@@ -182,6 +182,52 @@ public class WhenHandlingEnqueueingEmails
     }
     
     [Test, MoqAutoData]
+    public async Task Then_When_SourceIds_Is_Null_Delete_Is_Skipped_But_Email_Is_Still_Queued(
+        NotificationEmail email,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
+        [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
+        [Greedy] DelayedNotificationsEnqueueHandler sut)
+    {
+        // arrange
+        email.SourceIds = null;
+        var cts = new CancellationTokenSource();
+        jobsOuterClient
+            .SetupSequence(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, [email]))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
+
+        // act
+        await sut.RunAsync(cts.Token);
+
+        // assert
+        jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(email, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_When_SourceIds_Is_Empty_Delete_Is_Skipped_But_Email_Is_Still_Queued(
+        NotificationEmail email,
+        [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
+        [Frozen] Mock<IRecruitJobsOuterClient> jobsOuterClient,
+        [Greedy] DelayedNotificationsEnqueueHandler sut)
+    {
+        // arrange
+        email.SourceIds = [];
+        var cts = new CancellationTokenSource();
+        jobsOuterClient
+            .SetupSequence(x => x.GetDelayedNotificationsBatchBeforeDateAsync(It.IsAny<DateTime>(), cts.Token))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, [email]))
+            .ReturnsAsync(new ApiResponse<List<NotificationEmail>>(HttpStatusCode.OK, []));
+
+        // act
+        await sut.RunAsync(cts.Token);
+
+        // assert
+        jobsOuterClient.Verify(x => x.DeleteDelayedNotificationsAsync(It.IsAny<IEnumerable<long>>()), Times.Never);
+        queueClient.Verify(x => x.SendMessageAsync(email, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test, MoqAutoData]
     public async Task Then_A_Failure_To_Delete_Emails_Stops_Processing_And_Nothing_Is_Added_To_The_Queue(
         List<NotificationEmail> emails,
         [Frozen] Mock<IQueueClient<NotificationEmail>> queueClient,
