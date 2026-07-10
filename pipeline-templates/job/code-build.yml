@@ -5,9 +5,10 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: DAS - Continuous Integration Agents
-    workspace:
-      clean: all
+    name: DAS - Continuous Integration Beta
+    demands: Agent.OS -equals Linux
+  workspace:
+    clean: all
   variables:
   - group: BUILD Management Resources
   steps:
