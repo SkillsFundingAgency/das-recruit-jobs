@@ -5,8 +5,9 @@ parameters:
 jobs:
 - job: CodeBuild
   pool:
-    name: DAS - Continuous Integration Beta
-    demands: Agent.OS -equals Linux
+    vmImage: ubuntu-24.04
+    # name: DAS - Continuous Integration Beta
+    # demands: Agent.OS -equals Linux
   workspace:
     clean: all
   variables:
