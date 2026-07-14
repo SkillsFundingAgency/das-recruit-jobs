@@ -11,7 +11,13 @@ public static class ConfigureNServiceBusExtension
     {
         hostBuilder.UseNServiceBus((config, endpointConfiguration) =>
         {
-
+            endpointConfiguration.AdvancedConfiguration.AssemblyScanner().ScanFileSystemAssemblies = false;
+            endpointConfiguration.AdvancedConfiguration.CustomDiagnosticsWriter((diagnostics, _) =>
+            {
+                Console.WriteLine(diagnostics);
+                return Task.CompletedTask;
+            });
+            
             endpointConfiguration.AdvancedConfiguration.EnableInstallers();
             endpointConfiguration.AdvancedConfiguration.SendFailedMessagesTo(ErrorEndpointName);
             endpointConfiguration.AdvancedConfiguration.Conventions()

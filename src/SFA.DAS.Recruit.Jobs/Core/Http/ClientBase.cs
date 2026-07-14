@@ -22,7 +22,7 @@ public abstract class ClientBase<TClientConfig> where TClientConfig : IClientCon
 
     private HttpRequestMessage CreateRequest(HttpMethod method, string url, string apiVersion = ApiVersionOne)
     {
-        var request = new HttpRequestMessage(method, url);
+        var request = new HttpRequestMessage(method, new Uri(_httpClient.BaseAddress!, url));
         request.AddApimKeyHeader(_config.Key!);
         request.AddVersionHeader(apiVersion);
         return request;

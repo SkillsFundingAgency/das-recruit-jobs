@@ -19,7 +19,7 @@ public class VacancyReview
     public DateTime? ClosedDate { get; init; }
     public ManualQaOutcome? ManualOutcome { get; init; }
     public string? ManualQaComment { get; init; }
-    public string VacancySnapshot { get; init; }
+    public string VacancySnapshot { get; set; }
     public List<string>? UpdatedFieldIdentifiers { get; init; }
     public List<string>? ManualQaFieldIndicators { get; init; }
     public RuleSetOutcome? AutomatedQaOutcome {get; init; }
@@ -37,7 +37,8 @@ public enum ManualQaOutcome : byte
     Approved,
     Referred,
     Transferred,
-    Blocked
+    Blocked,
+    Bypassed
 }
 
 public enum ReviewStatus : byte
@@ -72,7 +73,7 @@ public class RuleOutcome
     public string? Target { get; set;  }
 }
 
-public enum RuleId
+public enum RuleId : byte
 {
     ProfanityChecks,
     BannedPhraseChecks,
@@ -80,7 +81,7 @@ public enum RuleId
     VacancyAnonymous
 }
 
-public enum RuleSetDecision
+public enum RuleSetDecision : byte
 {
     Unknown = 0,
     Refer,

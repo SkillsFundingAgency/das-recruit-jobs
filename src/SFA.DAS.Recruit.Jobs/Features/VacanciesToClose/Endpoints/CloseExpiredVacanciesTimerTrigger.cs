@@ -11,7 +11,7 @@ public class CloseExpiredVacanciesTimerTrigger(ILogger<CloseExpiredVacanciesTime
 {
     private const string TriggerName = nameof(CloseExpiredVacanciesTimerTrigger);
     private static readonly TimeSpan ExecutionTimeout = TimeSpan.FromSeconds(240);
-    private const string DailySchedule = "0 0 0 * * *";
+    private const string DailySchedule = "0 0 1 * * *";
 
     // Timer set to run at 00:00 AM every day
     [Function(TriggerName)]

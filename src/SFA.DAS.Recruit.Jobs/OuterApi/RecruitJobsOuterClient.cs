@@ -5,7 +5,9 @@ using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Metrics;
 using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Analytics;
+using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Archive;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Close;
 using VacancyAnalytics = SFA.DAS.Recruit.Jobs.Core.Models.VacancyAnalytics;
 
@@ -13,6 +15,7 @@ namespace SFA.DAS.Recruit.Jobs.OuterApi;
 
 public interface IRecruitJobsOuterClient
 {
+    Task<ApiResponse<GetVacancyResponse>> GetVacancyAsync(long vacancyReference, CancellationToken cancellationToken = default);
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default);
     Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchByUsersInactiveStatus(CancellationToken cancellationToken = default);
     Task<ApiResponse> DeleteDelayedNotificationsAsync(IEnumerable<long> ids);
@@ -32,6 +35,8 @@ public interface IRecruitJobsOuterClient
     Task<ApiResponse<GetOneVacancyAnalyticsResponse>> GetOneVacancyAnalyticsAsync(long vacancyReference, CancellationToken cancellationToken = default);
     Task<ApiResponse> PutOneVacancyAnalyticsAsync(long vacancyReference, List<VacancyAnalytics> vacancyAnalytics, CancellationToken cancellationToken = default);
     Task<ApiResponse> PostVacancyToClose(Guid id, long vacancyReference, ClosureReason reason, CancellationToken cancellationToken = default);
+    Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, CancellationToken cancellationToken = default);
+    Task<ApiResponse> PostVacancyToArchive(Guid id, long vacancyReference, CancellationToken cancellationToken = default);
 }
 
 public class RecruitJobsOuterClient(
@@ -40,6 +45,11 @@ public class RecruitJobsOuterClient(
     JsonSerializerOptions jsonSerializationOptions)
     : ClientBase<RecruitJobsOuterApiConfiguration>(httpClient, jobsOuterApiConfiguration, jsonSerializationOptions), IRecruitJobsOuterClient  
 {
+    public async Task<ApiResponse<GetVacancyResponse>> GetVacancyAsync(long vacancyReference, CancellationToken cancellationToken = default)
+    {
+        return await GetAsync<GetVacancyResponse>($"vacancies/byRef/{vacancyReference}", cancellationToken: cancellationToken);
+    }
+
     public async Task<ApiResponse<List<NotificationEmail>>> GetDelayedNotificationsBatchBeforeDateAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {
         const string baseUrl = "delayed-notifications";
@@ -152,5 +162,22 @@ public class RecruitJobsOuterClient(
     {
         return await PostAsync<NoResponse>($"vacancies/{vacancyReference}/close",
             new PostOneVacancyCloseRequest(id, reason), cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse<VacanciesToArchive>> GetVacanciesToArchiveAsync(DateTime pointInTime, CancellationToken cancellationToken = default)
+    {
+        const string baseUrl = "vacancies/stale/archive";
+        var url = QueryHelpers.AddQueryString(baseUrl, new Dictionary<string, string?>
+        {
+            { "pointInTime", pointInTime.ToString("s") }
+            
+        });
+        return await GetAsync<VacanciesToArchive>(url, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ApiResponse> PostVacancyToArchive(Guid id, long vacancyReference, CancellationToken cancellationToken = default)
+    {
+        return await PostAsync<NoResponse>($"vacancies/{vacancyReference}/archive",
+            new PostOneVacancyArchiveRequest(id), cancellationToken: cancellationToken);
     }
 }

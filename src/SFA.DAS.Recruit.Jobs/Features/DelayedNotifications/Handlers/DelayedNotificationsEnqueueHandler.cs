@@ -36,14 +36,17 @@ public class DelayedNotificationsEnqueueHandler(
         
             foreach (var email in response.Payload)
             {
-                var deleteResponse = await jobsOuterClient.DeleteDelayedNotificationsAsync(email.SourceIds);
-                if (!deleteResponse.Success)
+                if (email.SourceIds is not null && email.SourceIds.Any())
                 {
-                    logger.LogInformation("Request to delete emails failed with status code '{StatusCode}' and error content '{ErrorContent}'", deleteResponse.StatusCode, deleteResponse.ErrorContent);
-                    return false;
+                    var deleteResponse = await jobsOuterClient.DeleteDelayedNotificationsAsync(email.SourceIds);
+                    if (!deleteResponse.Success)
+                    {
+                        logger.LogInformation("Request to delete emails failed with status code '{StatusCode}' and error content '{ErrorContent}'", deleteResponse.StatusCode, deleteResponse.ErrorContent);
+                        return false;
+                    }
                 }
-
-                await queueClient.SendMessageAsync(email);
+                
+                await queueClient.SendMessageAsync(email, cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
             }
         }

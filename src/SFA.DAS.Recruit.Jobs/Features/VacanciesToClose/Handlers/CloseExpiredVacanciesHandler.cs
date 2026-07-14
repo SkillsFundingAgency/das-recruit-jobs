@@ -17,7 +17,8 @@ public class CloseExpiredVacanciesHandler(ILogger<CloseExpiredVacanciesHandler> 
 
         try
         {
-            var pointInTime = DateTime.UtcNow;
+            // Use only the date part of the current UTC time to ensure we are checking for vacancies that expired before today
+            var pointInTime = DateTime.UtcNow.Date;
 
             // Fetch vacancies that are expired as of pointInTime
             var response = await jobsOuterClient.GetVacanciesToCloseAsync(pointInTime, cancellationToken);
