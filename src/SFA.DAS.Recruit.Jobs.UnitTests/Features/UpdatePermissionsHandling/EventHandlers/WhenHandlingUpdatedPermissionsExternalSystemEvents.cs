@@ -4,7 +4,6 @@ using SFA.DAS.Recruit.Jobs.Core.Infrastructure;
 using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.EventHandlers;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling.Models;
-using SFA.DAS.Recruit.Jobs.OuterApi.Clients;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.UpdatePermissionsHandling.EventHandlers;
 
@@ -18,7 +17,7 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
     {
         // arrange
         var message = new UpdatedPermissionsEvent(123, 234, 345, 456, 567, null, string.Empty,
-            string.Empty, string.Empty, [Operation.Recruitment], [Operation.Recruitment], DateTime.Now);
+            string.Empty, string.Empty, [], [Operation.Recruitment], DateTime.Now);
 
         // act
         await sut.Handle(message, context);
@@ -34,8 +33,8 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
         [Greedy] UpdatedPermissionsExternalSystemEventsHandler sut)
     {
         // arrange
-        var message = new UpdatedPermissionsEvent(123, 234, 345, 456, 567, Guid.NewGuid(), string.Empty,
-            string.Empty, string.Empty, [Operation.Recruitment], [Operation.Recruitment], DateTime.Now);
+        var message = new UpdatedPermissionsEvent(123, 234, 345, 456, 567, Guid.NewGuid(), string.Empty, string.Empty, string.Empty,
+            [Operation.Recruitment, Operation.RecruitmentRequiresReview], [Operation.Recruitment, Operation.RecruitmentRequiresReview], DateTime.Now);
 
         // act
         await sut.Handle(message, context);
@@ -47,7 +46,6 @@ public class WhenHandlingUpdatedPermissionsExternalSystemEvents
     [Test, MoqAutoData]
     public async Task Then_If_The_Permission_Is_Removed_Then_A_Queue_Message_Is_Sent(
         IMessageHandlerContext context,
-        [Frozen] Mock<IUpdatedPermissionsClient> updatePermissionsClient,
         [Frozen] Mock<IQueueClient<TransferVacanciesFromProviderQueueMessage>> queueClient,
         [Greedy] UpdatedPermissionsExternalSystemEventsHandler sut)
     {
