@@ -27,6 +27,7 @@ using SFA.DAS.Recruit.Jobs.Features.UserMigration;
 using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
+using SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail;
 using SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
@@ -142,7 +143,8 @@ public static class HostBuilderExtensions
             .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature()
-            .ConfigureVacancySnapshotRepairFeature();
+            .ConfigureVacancySnapshotRepairFeature()
+            .ConfigureApplicationsFeedbackNudgeFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
