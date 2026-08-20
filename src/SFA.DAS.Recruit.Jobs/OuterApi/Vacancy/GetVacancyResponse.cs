@@ -1,5 +1,5 @@
-﻿using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+﻿using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Domain;
 using Address = SFA.DAS.Recruit.Jobs.Domain.Address;
 using ApplicationMethod = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApplicationMethod;
 using ApprenticeshipTypes = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApprenticeshipTypes;

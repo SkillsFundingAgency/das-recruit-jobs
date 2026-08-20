@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SFA.DAS.Recruit.Jobs.Domain;
 using Address = SFA.DAS.Recruit.Jobs.Domain.Address;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using OwnerType = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.OwnerType;

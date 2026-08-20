@@ -7,9 +7,11 @@ using System.Text.Json;
 using SFA.DAS.Recruit.Jobs.Domain;
 using AvailableWhere = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.AvailableWhere;
 using ClosureReason = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ClosureReason;
+using DurationUnit = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.DurationUnit;
 using EmployerNameOption = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.EmployerNameOption;
 using Vacancy = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.Vacancy;
 using VacancyStatus = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.VacancyStatus;
+using WageType = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.WageType;
 
 namespace SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 
