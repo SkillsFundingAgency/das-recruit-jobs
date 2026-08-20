@@ -8,18 +8,15 @@ namespace SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail.Ha
 
 public interface IApplicationsFeedbackNudgeEmailHandler
 {
-    Task RunAsync(CancellationToken cancellationToken);
+    Task RunAsync(DateOnly date, CancellationToken cancellationToken);
 }
 
 public class ApplicationsFeedbackNudgeEmailHandler(
     IJobsOuterClient jobsOuterClient,
     IQueueClient<NotificationEmail> queueClient): IApplicationsFeedbackNudgeEmailHandler
 {
-    private const int DaysValue = -29; // 4 weeks from yesterday
-    
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task RunAsync(DateOnly date, CancellationToken cancellationToken)
     {
-        var date = DateTime.UtcNow.AddDays(DaysValue);
         var vacancyInfos = await GetVacanciesInfoAsync(date, cancellationToken);
         if (vacancyInfos is not { Count: > 0 })
         {
@@ -41,9 +38,9 @@ public class ApplicationsFeedbackNudgeEmailHandler(
         return response.Payload?.Data ?? [];
     }
 
-    private async Task<List<VacancyApplicationsCountRequiringFeedback>> GetVacanciesInfoAsync(DateTime date, CancellationToken cancellationToken)
+    private async Task<List<VacancyApplicationsCountRequiringFeedback>> GetVacanciesInfoAsync(DateOnly date, CancellationToken cancellationToken)
     {
-        var request = new GetVacanciesWithApplicationsNeedingFeedbackForDate(date);
+        var request = new GetVacanciesWithApplicationsNeedingFeedbackForDate(date.ToDateTime(TimeOnly.MinValue));
         var response = await jobsOuterClient.GetAsync<List<VacancyApplicationsCountRequiringFeedback>>(request, cancellationToken);
         response.ThrowIfErrored();
         return response.Payload ?? [];

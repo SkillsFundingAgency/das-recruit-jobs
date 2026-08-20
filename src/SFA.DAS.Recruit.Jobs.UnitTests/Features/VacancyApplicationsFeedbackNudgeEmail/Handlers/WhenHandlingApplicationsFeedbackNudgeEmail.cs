@@ -21,7 +21,7 @@ public class WhenHandlingApplicationsFeedbackNudgeEmail
             .ReturnsAsync(new ApiResponse<List<VacancyApplicationsCountRequiringFeedback>>(HttpStatusCode.OK, []));
 
         // act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None);
 
         // assert
         jobsOuterClient.Verify(x => x.PostAsync<DataResponse<List<NotificationEmail>>>(It.IsAny<PostCreateVacancyFeedbackNudgeNotifications>(), CancellationToken.None), Times.Never);
@@ -44,7 +44,7 @@ public class WhenHandlingApplicationsFeedbackNudgeEmail
             .ReturnsAsync(new ApiResponse<DataResponse<List<NotificationEmail>>>(HttpStatusCode.OK, new DataResponse<List<NotificationEmail>>([])));
 
         // act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(DateOnly.FromDateTime(DateTime.UtcNow), CancellationToken.None);
 
         // assert
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -59,8 +59,10 @@ public class WhenHandlingApplicationsFeedbackNudgeEmail
         [Greedy] ApplicationsFeedbackNudgeEmailHandler sut)
     {
         // arrange
+        GetVacanciesWithApplicationsNeedingFeedbackForDate? capturedRequest = null;
         jobsOuterClient
             .Setup(x => x.GetAsync<List<VacancyApplicationsCountRequiringFeedback>>(It.IsAny<GetVacanciesWithApplicationsNeedingFeedbackForDate>(), It.IsAny<CancellationToken>()))
+            .Callback<IGetRequest, CancellationToken>((x, _) => capturedRequest = x as GetVacanciesWithApplicationsNeedingFeedbackForDate)
             .ReturnsAsync(new ApiResponse<List<VacancyApplicationsCountRequiringFeedback>>(HttpStatusCode.OK, vacancies));
         
         jobsOuterClient
@@ -72,11 +74,15 @@ public class WhenHandlingApplicationsFeedbackNudgeEmail
             .Setup(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()))
             .Callback<NotificationEmail, CancellationToken>((message, _) => capturedMessages.Add(message));
 
+        var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-10));
+
         // act
-        await sut.RunAsync(CancellationToken.None);
+        await sut.RunAsync(date, CancellationToken.None);
 
         // assert
         queueClient.Verify(x => x.SendMessageAsync(It.IsAny<NotificationEmail>(), It.IsAny<CancellationToken>()), Times.Exactly(notificationEmails.Count));
         capturedMessages.Should().BeEquivalentTo(notificationEmails);
+        capturedRequest.Should().NotBeNull();
+        capturedRequest.Url.Should().Contain($"{date:o}");
     }
 }

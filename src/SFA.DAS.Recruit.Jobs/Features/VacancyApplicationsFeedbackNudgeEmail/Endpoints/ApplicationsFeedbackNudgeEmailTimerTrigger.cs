@@ -1,19 +1,18 @@
 ﻿using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core;
 using SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail.Handlers;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail.Endpoints;
 
-public class ApplicationsFeedbackNudgeEmailTimerTrigger(ILogger<ApplicationsFeedbackNudgeEmailTimerTrigger> logger, IApplicationsFeedbackNudgeEmailHandler handler)
+public class ApplicationsFeedbackNudgeEmailTimerTrigger(IApplicationsFeedbackNudgeEmailHandler handler)
 {
     private const string TriggerName = nameof(ApplicationsFeedbackNudgeEmailTimerTrigger);
+    private const int DaysValue = -29; // 4 weeks from yesterday
 
     [Function(TriggerName)]
-    public async Task Run([TimerTrigger(Schedules.FourAmDaily)] TimerInfo _, CancellationToken cancellationToken)
+    public async Task Run([TimerTrigger(Schedules.FourAmDaily, RunOnStartup = true)] TimerInfo _, CancellationToken cancellationToken)
     {
-        logger.LogInformation("[{TriggerName}] Trigger fired", TriggerName);
-        await handler.RunAsync(cancellationToken);
-        logger.LogInformation("[{TriggerName}] trigger completed", TriggerName);
+        var date = DateTime.UtcNow.AddDays(DaysValue);
+        await handler.RunAsync(DateOnly.FromDateTime(date), cancellationToken);
     }
 }
