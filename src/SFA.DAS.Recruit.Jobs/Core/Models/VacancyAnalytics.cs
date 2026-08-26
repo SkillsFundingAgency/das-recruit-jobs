@@ -7,4 +7,5 @@ public record VacancyAnalytics
     public long SearchResultsCount { get; init; } = 0;
     public long ApplicationStartedCount { get; init; } = 0;
     public long ApplicationSubmittedCount { get; init; } = 0;
+    public long SavedCount { get; init; } = 0;
 }
