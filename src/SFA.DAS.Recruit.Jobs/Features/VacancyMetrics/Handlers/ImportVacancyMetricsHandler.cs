@@ -102,7 +102,8 @@ public class ImportVacancyMetricsHandler(ILogger<ImportVacancyMetricsHandler> lo
             ApplicationStartedCount = vacancyMetric.ApplicationStartedCount,
             ApplicationSubmittedCount = vacancyMetric.ApplicationSubmittedCount,
             SearchResultsCount = vacancyMetric.SearchResultsCount,
-            ViewsCount = vacancyMetric.ViewsCount
+            ViewsCount = vacancyMetric.ViewsCount,
+            SavedCount = vacancyMetric.SavedCount,
         };
 
     private static Core.Models.VacancyAnalytics Merge(
@@ -119,6 +120,7 @@ public class ImportVacancyMetricsHandler(ILogger<ImportVacancyMetricsHandler> lo
             SearchResultsCount =
                 existing.SearchResultsCount + incoming.SearchResultsCount,
             ViewsCount =
-                existing.ViewsCount + incoming.ViewsCount
+                existing.ViewsCount + incoming.ViewsCount,
+            SavedCount = existing.SavedCount + incoming.SavedCount,
         };
 }

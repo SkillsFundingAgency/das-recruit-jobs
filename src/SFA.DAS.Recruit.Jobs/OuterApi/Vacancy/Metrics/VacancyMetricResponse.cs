@@ -14,6 +14,7 @@ public record VacancyMetricResponse
         public long SearchResultsCount { get; init; }
         public long ApplicationStartedCount { get; init; }
         public long ApplicationSubmittedCount { get; init; }
+        public long SavedCount { get; init; } = 0;
 
         [JsonIgnore]
         public long VacancyRef => long.Parse(VacancyReference ?? "0");
