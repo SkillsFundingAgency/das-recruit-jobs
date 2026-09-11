@@ -13,25 +13,18 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.DataAccess.MongoDb;
 using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
-using SFA.DAS.Recruit.Jobs.Features.BlockedOrganisationsMigration;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
-using SFA.DAS.Recruit.Jobs.Features.EmployerProfilesMigration;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
-using SFA.DAS.Recruit.Jobs.Features.QaReports;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
-using SFA.DAS.Recruit.Jobs.Features.UserMigration;
-using SFA.DAS.Recruit.Jobs.Features.UserNotificationPreferencesMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
+using SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail;
 using SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
-using SFA.DAS.Recruit.Jobs.Features.VacancyMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancyPublishing;
-using SFA.DAS.Recruit.Jobs.Features.VacancyReviewMigration;
 using SFA.DAS.Recruit.Jobs.Features.VacancySnapshotRepair;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using SFA.DAS.Recruit.Jobs.OuterApi;
@@ -123,17 +116,9 @@ public static class HostBuilderExtensions
                 services.AddScoped<INotificationService, NotificationService>();
                 services.AddScoped<IVacancyService, VacancyService>();
             })
-            .ConfigureMongoDb()
             .ConfigureSqlDb()
-            .ConfigureUserNotificationPreferencesMigration()
-            .ConfigureEmployerProfilesMigration()
-            .ConfigureVacancyReviewMigration()
-            .ConfigureUserMigration()
-            .ConfigureVacancyMigration()
             .ConfigureDelayedNotificationsFeature()
             .ConfigureUpdatePermissionsHandlingFeature()
-            .ConfigureBlockedOrganisationsMigration()
-            .ConfigureQaReportsMigration()
             .ConfigureVacanciesToCloseFeature()
             .ConfigureStaleVacanciesToCloseFeature()
             .ConfigureVacancyMetrics()
@@ -142,7 +127,8 @@ public static class HostBuilderExtensions
             .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature()
-            .ConfigureVacancySnapshotRepairFeature();
+            .ConfigureVacancySnapshotRepairFeature()
+            .ConfigureApplicationsFeedbackNudgeFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
