@@ -31,6 +31,7 @@ using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Features.Reports;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -128,7 +129,8 @@ public static class HostBuilderExtensions
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature()
             .ConfigureVacancySnapshotRepairFeature()
-            .ConfigureApplicationsFeedbackNudgeFeature();
+            .ConfigureApplicationsFeedbackNudgeFeature()
+            .ConfigureGenerateReportFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
