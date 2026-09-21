@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Recruit.Api.Core.Events;
 using SFA.DAS.Recruit.Jobs.Features.Reports.Handlers;
-using SFA.DAS.Recruit.Jobs.NServiceBus.Events;
 
 namespace SFA.DAS.Recruit.Jobs.Features.Reports.EventHandlers;
 

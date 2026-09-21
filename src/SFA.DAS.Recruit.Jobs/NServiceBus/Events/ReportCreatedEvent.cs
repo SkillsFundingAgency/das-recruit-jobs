@@ -1,3 +1,4 @@
-namespace SFA.DAS.Recruit.Jobs.NServiceBus.Events;
+// ReSharper disable once CheckNamespace
+namespace SFA.DAS.Recruit.Api.Core.Events;
 
 public sealed record ReportCreatedEvent(Guid ReportId);
