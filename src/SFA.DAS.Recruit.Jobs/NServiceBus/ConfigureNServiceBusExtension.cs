@@ -29,9 +29,10 @@ public static class ConfigureNServiceBusExtension
             if (!string.IsNullOrEmpty(value))
             {
                 var decodedLicence = WebUtility.HtmlDecode(value);
-                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);    
+                endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
-            
+
+            endpointConfiguration.Transport.Topology = TopicTopology.MigrateFromSingleDefaultTopic();
 
 #if DEBUG
             var transport = endpointConfiguration.AdvancedConfiguration.UseTransport<LearningTransport>();
