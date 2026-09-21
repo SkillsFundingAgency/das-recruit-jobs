@@ -1,4 +1,7 @@
 // ReSharper disable once CheckNamespace
 namespace SFA.DAS.Recruit.Api.Core.Events;
 
-public sealed record ReportCreatedEvent(Guid ReportId);
+public class ReportCreatedEvent
+{
+    public Guid ReportId { get; set; }
+}
