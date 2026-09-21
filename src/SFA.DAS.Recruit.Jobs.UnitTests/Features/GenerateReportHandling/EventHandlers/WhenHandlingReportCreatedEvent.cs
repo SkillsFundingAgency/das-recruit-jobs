@@ -14,7 +14,7 @@ public class WhenHandlingReportCreatedEvent
         [Greedy] OnReportCreatedEventHandler sut)
     {
         // act
-        await sut.Handle(new ReportCreatedEvent(id), context);
+        await sut.Handle(new ReportCreatedEvent{ReportId = id}, context);
 
         // assert
         handler.Verify(x => x.RunAsync(id, context.CancellationToken), Times.Once);
