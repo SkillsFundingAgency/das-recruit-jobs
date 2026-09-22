@@ -31,8 +31,10 @@ public static class ConfigureNServiceBusExtension
                 var decodedLicence = WebUtility.HtmlDecode(value);
                 endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
-
-            endpointConfiguration.Transport.Topology = TopicTopology.MigrateFromSingleDefaultTopic();
+            typeof(AzureServiceBusTransport)
+                .GetProperty(nameof(AzureServiceBusTransport.Topology))!
+                .GetSetMethod(nonPublic: true)!
+                .Invoke(endpointConfiguration.Transport, [TopicTopology.MigrateFromSingleDefaultTopic()]);
 
 #if DEBUG
             var transport = endpointConfiguration.AdvancedConfiguration.UseTransport<LearningTransport>();
