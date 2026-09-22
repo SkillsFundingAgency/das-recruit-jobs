@@ -1,4 +1,8 @@
+using Esfa.Recruit.Vacancies.Client.Domain.Events;
 using Microsoft.Extensions.Hosting;
+using SFA.DAS.ProviderRelationships.Messages.Events;
+using SFA.DAS.RAA.Vacancy.AI.Api.Core.Events;
+using SFA.DAS.Recruit.Api.Core.Events;
 using System.Net;
 
 namespace SFA.DAS.Recruit.Jobs.NServiceBus;
@@ -31,10 +35,22 @@ public static class ConfigureNServiceBusExtension
                 var decodedLicence = WebUtility.HtmlDecode(value);
                 endpointConfiguration.AdvancedConfiguration.License(decodedLicence);
             }
+#pragma warning disable CS0618
+            var topology = TopicTopology.MigrateFromSingleDefaultTopic();
+            topology.EventToMigrate<ReportCreatedEvent>();
+            topology.EventToMigrate<VacancyReviewApprovedEvent>();
+            topology.EventToMigrate<VacancyReviewCreatedEvent>();
+            topology.EventToMigrate<VacancySubmittedEvent>();
+            topology.EventToMigrate<VacancyClosedEvent>();
+            topology.EventToMigrate<VacancyApprovedEvent>();
+            topology.EventToMigrate<VacancyReferredEvent>();
+            topology.EventToMigrate<AiVacancyReviewCompletedEvent>();
+            topology.EventToMigrate<UpdatedPermissionsEvent>();
             typeof(AzureServiceBusTransport)
                 .GetProperty(nameof(AzureServiceBusTransport.Topology))!
                 .GetSetMethod(nonPublic: true)!
-                .Invoke(endpointConfiguration.Transport, [TopicTopology.MigrateFromSingleDefaultTopic()]);
+                .Invoke(endpointConfiguration.Transport, [topology]);
+#pragma warning restore CS0618
 
 #if DEBUG
             var transport = endpointConfiguration.AdvancedConfiguration.UseTransport<LearningTransport>();
