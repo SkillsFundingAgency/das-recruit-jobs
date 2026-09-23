@@ -112,6 +112,7 @@ public static class HostBuilderExtensions
                 // jobs outer client
                 services
                     .AddHttpClient<IJobsOuterClient, JobsOuterClient>()
+                    .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromMinutes(10))
                     .AddPolicyHandler(HttpClientRetryPolicy());
 
                 services.AddScoped<INotificationService, NotificationService>();
