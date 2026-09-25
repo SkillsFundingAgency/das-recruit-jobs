@@ -31,6 +31,7 @@ using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using SFA.DAS.Recruit.Jobs.Features.Reports;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -111,6 +112,7 @@ public static class HostBuilderExtensions
                 // jobs outer client
                 services
                     .AddHttpClient<IJobsOuterClient, JobsOuterClient>()
+                    .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromMinutes(10))
                     .AddPolicyHandler(HttpClientRetryPolicy());
 
                 services.AddScoped<INotificationService, NotificationService>();
@@ -128,7 +130,8 @@ public static class HostBuilderExtensions
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature()
             .ConfigureVacancySnapshotRepairFeature()
-            .ConfigureApplicationsFeedbackNudgeFeature();
+            .ConfigureApplicationsFeedbackNudgeFeature()
+            .ConfigureGenerateReportFeature();
     }
     
     private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
