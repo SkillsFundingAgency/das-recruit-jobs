@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,11 +16,11 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
 using SFA.DAS.Recruit.Jobs.Features.DelayedNotifications;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies;
 using SFA.DAS.Recruit.Jobs.Features.Notifications;
+using SFA.DAS.Recruit.Jobs.Features.Reports;
 using SFA.DAS.Recruit.Jobs.Features.UpdatePermissionsHandling;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToClose;
@@ -25,13 +28,9 @@ using SFA.DAS.Recruit.Jobs.Features.VacancyApplicationsFeedbackNudgeEmail;
 using SFA.DAS.Recruit.Jobs.Features.VacancyGeocoding;
 using SFA.DAS.Recruit.Jobs.Features.VacancyMetrics;
 using SFA.DAS.Recruit.Jobs.Features.VacancyPublishing;
-using SFA.DAS.Recruit.Jobs.Features.VacancySnapshotRepair;
 using SFA.DAS.Recruit.Jobs.NServiceBus;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.Services;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using SFA.DAS.Recruit.Jobs.Features.Reports;
 
 namespace SFA.DAS.Recruit.Jobs.Core.Configuration;
 
@@ -118,7 +117,6 @@ public static class HostBuilderExtensions
                 services.AddScoped<INotificationService, NotificationService>();
                 services.AddScoped<IVacancyService, VacancyService>();
             })
-            .ConfigureSqlDb()
             .ConfigureDelayedNotificationsFeature()
             .ConfigureUpdatePermissionsHandlingFeature()
             .ConfigureVacanciesToCloseFeature()
@@ -129,7 +127,6 @@ public static class HostBuilderExtensions
             .ConfigureVacancyGeocodingFeature()
             .ConfigureVacanciesToArchiveFeature()
             .ConfigureNotificationsFeature()
-            .ConfigureVacancySnapshotRepairFeature()
             .ConfigureApplicationsFeedbackNudgeFeature()
             .ConfigureGenerateReportFeature();
     }
@@ -139,7 +136,7 @@ public static class HostBuilderExtensions
         var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 3);
         return HttpPolicyExtensions
             .HandleTransientHttpError()
-            .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            .OrResult(msg => msg.StatusCode == HttpStatusCode.BadRequest)
             .WaitAndRetryAsync(delay);
     }
 }

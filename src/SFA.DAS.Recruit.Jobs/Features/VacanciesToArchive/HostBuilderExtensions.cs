@@ -19,8 +19,6 @@ public static class HostBuilderExtensions
         {
             services.AddTransient<IRecruitJobsOuterClient, RecruitJobsOuterClient>();
             services.AddTransient<IArchiveClosedVacanciesHandler, ArchiveClosedVacanciesHandler>();
-            services.AddTransient<VacancyArchivingSqlRepository>();
-            services.AddTransient<VacancyArchivingStrategy>();
             // register and configure the http client to call apim
             services
                 .AddHttpClient<IRecruitJobsOuterClient, RecruitJobsOuterClient>()
