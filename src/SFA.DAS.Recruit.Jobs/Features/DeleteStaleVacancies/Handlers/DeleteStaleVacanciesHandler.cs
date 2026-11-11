@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi;
+using SFA.DAS.Recruit.Jobs.OuterApi.Common;
 
 namespace SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Handlers;
 
@@ -67,7 +68,7 @@ public class DeleteStaleVacanciesHandler(ILogger<DeleteStaleVacanciesHandler> lo
     }
 
     // Helper method to add vacancies to the target set
-    private void AddStaleVacancies(ApiResponse<OuterApi.Common.StaleVacancies>? response,
+    private void AddStaleVacancies(ApiResponse<StaleVacancies>? response,
         VacancyStatus status,
         DateTime staleByDate,
         HashSet<Guid> target)

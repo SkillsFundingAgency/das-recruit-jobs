@@ -1,5 +1,5 @@
-﻿using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using System.Net;
+﻿using System.Net;
+using SFA.DAS.Recruit.Jobs.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.OuterApi.RecruitJobsOuterClientTests;
 
