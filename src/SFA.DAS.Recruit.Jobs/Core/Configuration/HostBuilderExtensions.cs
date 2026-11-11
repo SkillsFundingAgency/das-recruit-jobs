@@ -10,10 +10,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using Polly;
-using Polly.Contrib.WaitAndRetry;
-using Polly.Extensions.Http;
-using Polly.Retry;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Encoding;
 using SFA.DAS.Recruit.Jobs.Features.AiVacancyReviewing;
@@ -112,7 +108,7 @@ public static class HostBuilderExtensions
                 services
                     .AddHttpClient<IJobsOuterClient, JobsOuterClient>()
                     .ConfigureHttpClient(c => c.Timeout = TimeSpan.FromMinutes(10))
-                    .AddPolicyHandler(HttpClientRetryPolicy());
+                    .AddStandardResilienceHandler();
 
                 services.AddScoped<INotificationService, NotificationService>();
                 services.AddScoped<IVacancyService, VacancyService>();
@@ -129,14 +125,5 @@ public static class HostBuilderExtensions
             .ConfigureNotificationsFeature()
             .ConfigureApplicationsFeedbackNudgeFeature()
             .ConfigureGenerateReportFeature();
-    }
-    
-    private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
-    {
-        var delay = Backoff.DecorrelatedJitterBackoffV2(medianFirstRetryDelay: TimeSpan.FromSeconds(1), retryCount: 3);
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .OrResult(msg => msg.StatusCode == HttpStatusCode.BadRequest)
-            .WaitAndRetryAsync(delay);
     }
 }
