@@ -134,6 +134,7 @@ public class WhenGeocodingAVacancy
         // arrange
         vacancy.EmployerLocationOption = AvailableWhere.MultipleLocations;
         vacancy.EmployerLocations![0].Postcode = "";
+        vacancy.EmployerNameOption = EmployerNameOption.Anonymous;
         jobsOuterClient
             .Setup(x => x.GetAsync<DataResponse<Vacancy?>>(It.IsAny<GetVacancyByIdRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResponse<DataResponse<Vacancy?>>(HttpStatusCode.OK, new DataResponse<Vacancy?>(vacancy)));
@@ -191,5 +192,71 @@ public class WhenGeocodingAVacancy
 
         // assert
         capturedPostcode.Should().Be("SW1");
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_NonAnonymous_Vacancies_Only_Have_Their_Address_Geocoded_Already(
+        Vacancy vacancy,
+        [Frozen] Mock<IJobsOuterClient> jobsOuterClient,
+        [Frozen] Mock<IGeocodeService> geocodeService,
+        [Greedy] GeocodeVacancyHandler sut)
+    {
+        // arrange
+        vacancy.EmployerNameOption = EmployerNameOption.RegisteredName;
+        vacancy.EmployerLocationOption = AvailableWhere.OneLocation;
+        vacancy.EmployerLocations = [vacancy.EmployerLocations!.First()];
+        vacancy.EmployerLocations[0].Latitude = 51.507351;
+        vacancy.EmployerLocations[0].Longitude = -0.127758;
+        vacancy.EmployerLocations[0].Postcode = "SW1 1AA";
+
+        jobsOuterClient
+            .Setup(x => x.GetAsync<DataResponse<Vacancy?>>(It.IsAny<GetVacancyByIdRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<DataResponse<Vacancy?>>(HttpStatusCode.OK, new DataResponse<Vacancy?>(vacancy)));
+
+        jobsOuterClient
+            .Setup(x => x.PostAsync(It.IsAny<PostGeocodedAddresses>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
+
+        // act
+        await sut.HandleAsync(vacancy.Id, CancellationToken.None);
+
+        // assert
+        geocodeService.Verify(x => x.GeocodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_Anonymous_Vacancies_Only_Have_Their_Address_Geocoded_Already(
+        Vacancy vacancy,
+        [Frozen] Mock<IJobsOuterClient> jobsOuterClient,
+        [Frozen] Mock<IGeocodeService> geocodeService,
+        [Greedy] GeocodeVacancyHandler sut)
+    {
+        // arrange
+        vacancy.EmployerNameOption = EmployerNameOption.Anonymous;
+        vacancy.EmployerLocationOption = AvailableWhere.OneLocation;
+        vacancy.EmployerLocations = [vacancy.EmployerLocations!.First()];
+        vacancy.EmployerLocations[0].Latitude = 51.507351;
+        vacancy.EmployerLocations[0].Longitude = -0.127758;
+        vacancy.EmployerLocations[0].Postcode = "SW1 1AA";
+
+        jobsOuterClient
+            .Setup(x => x.GetAsync<DataResponse<Vacancy?>>(It.IsAny<GetVacancyByIdRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse<DataResponse<Vacancy?>>(HttpStatusCode.OK, new DataResponse<Vacancy?>(vacancy)));
+
+        jobsOuterClient
+            .Setup(x => x.PostAsync(It.IsAny<PostGeocodedAddresses>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResponse(HttpStatusCode.OK));
+
+        string? capturedPostcode = null;
+        geocodeService
+            .Setup(x => x.GeocodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback<string, CancellationToken>((postcode, _) => capturedPostcode = postcode)
+            .ReturnsAsync(new Geocode { Latitude = 51.507351, Longitude = -0.127758 });
+
+        // act
+        await sut.HandleAsync(vacancy.Id, CancellationToken.None);
+
+        // assert
+        geocodeService.Verify(x => x.GeocodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

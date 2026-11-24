@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SFA.DAS.Recruit.Jobs.Domain;
 
 public class Address
@@ -9,4 +11,7 @@ public class Address
     public string? Postcode { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+
+    [JsonIgnore]
+    public bool IsGeoCoded => Latitude.HasValue && Longitude.HasValue;
 }

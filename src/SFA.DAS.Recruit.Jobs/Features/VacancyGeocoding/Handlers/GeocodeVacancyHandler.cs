@@ -28,7 +28,21 @@ public class GeocodeVacancyHandler(
         getVacancyResponse.ThrowIfErrored("Geocoding: could not fetch vacancy '{vacancyId}'");
 
         var vacancy = getVacancyResponse.Payload!.Data!;
-        
+
+        if (vacancy.EmployerLocations is null or { Count: 0 })
+        {
+            logger.LogWarning("Geocoding: vacancy '{VacancyId}' has no locations", vacancyId);
+            return;
+        }
+
+        // if the vacancy is anonymous, we can only geocode the outcode, so if all locations are already geocoded, we don't need to do anything
+        if (vacancy.EmployerNameOption != EmployerNameOption.Anonymous 
+            && vacancy.EmployerLocations.All(x => x.IsGeoCoded))
+        {
+            logger.LogWarning("Geocoding: vacancy '{VacancyId}' is already fully geocoded", vacancyId);
+            return;
+        }
+
         switch (vacancy.EmployerLocationOption)
         {
             case AvailableWhere.AcrossEngland:
@@ -36,10 +50,8 @@ public class GeocodeVacancyHandler(
                 return;
             case AvailableWhere.OneLocation when vacancy.EmployerLocations is { Count: > 0 }:
             case AvailableWhere.MultipleLocations when vacancy.EmployerLocations is { Count: > 0 }:
-            {
                 await GeocodeVacancyAsync(vacancy, cancellationToken);
                 break;
-            }
             default:
             {
                 logger.LogWarning("Geocoding: vacancy '{vacancyId}' has no locations", vacancyId);
