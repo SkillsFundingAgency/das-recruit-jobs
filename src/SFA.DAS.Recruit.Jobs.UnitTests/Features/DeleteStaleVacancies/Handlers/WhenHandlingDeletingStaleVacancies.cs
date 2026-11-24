@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.DeleteStaleVacancies.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;

@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.WebUtilities;
 using SFA.DAS.Recruit.Jobs.Core.Configuration;
 using SFA.DAS.Recruit.Jobs.Core.Http;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Common;
-using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Metrics;
-using System.Text.Json;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Analytics;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Archive;
 using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Close;
+using SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Metrics;
 using VacancyAnalytics = SFA.DAS.Recruit.Jobs.Core.Models.VacancyAnalytics;
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi;

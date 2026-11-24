@@ -1,14 +1,4 @@
-﻿using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
-using SFA.DAS.Recruit.Jobs.Domain;
-using Address = SFA.DAS.Recruit.Jobs.Domain.Address;
-using ApplicationMethod = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApplicationMethod;
-using ApprenticeshipTypes = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.ApprenticeshipTypes;
-using GeoCodeMethod = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.GeoCodeMethod;
-using OwnerType = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.OwnerType;
-using Qualification = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.Qualification;
-using SourceOrigin = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.SourceOrigin;
-using SourceType = SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain.SourceType;
-using VacancyStatus = SFA.DAS.Recruit.Jobs.Domain.VacancyStatus;
+﻿using SFA.DAS.Recruit.Jobs.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi.Vacancy;
 
@@ -52,10 +42,10 @@ public class VacancyResponse
     public ContactDetail? Contact { get; set; }
     public string? EmployerDescription { get; init; }
     public List<Address>? EmployerLocations { get; set; }
-    public DataAccess.Sql.Domain.AvailableWhere? EmployerLocationOption { get; init; }
+    public AvailableWhere? EmployerLocationOption { get; init; }
     public string? EmployerLocationInformation { get; init; }
     public string? EmployerName { get; init; }
-    public DataAccess.Sql.Domain.EmployerNameOption? EmployerNameOption { get; init; }
+    public EmployerNameOption? EmployerNameOption { get; init; }
     public string? EmployerRejectedReason { get; init; }
     public string? LegalEntityName { get; init; }
     public string? EmployerWebsiteUrl { get; init; }
@@ -71,7 +61,7 @@ public class VacancyResponse
     public string? AdditionalTrainingDescription { get; init; }
     public TrainingProvider? TrainingProvider { get; init; }
     public Wage? Wage { get; set; }
-    public DataAccess.Sql.Domain.ClosureReason? ClosureReason { get; set; }
+    public ClosureReason? ClosureReason { get; set; }
     public TransferInfo? TransferInfo { get; init; }
     public string? AdditionalQuestion1 { get; init; }
     public string? AdditionalQuestion2 { get; init; }

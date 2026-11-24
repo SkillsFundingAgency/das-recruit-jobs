@@ -1,4 +1,4 @@
-﻿using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+﻿using SFA.DAS.Recruit.Jobs.Domain;
 
 namespace SFA.DAS.Recruit.Jobs.OuterApi.Vacancy.Close;
 

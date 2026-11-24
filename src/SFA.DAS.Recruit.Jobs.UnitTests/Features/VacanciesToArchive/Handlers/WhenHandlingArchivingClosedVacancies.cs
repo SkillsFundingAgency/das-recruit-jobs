@@ -1,9 +1,9 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using System.Net;
+using Microsoft.Azure.Functions.Worker;
 using SFA.DAS.Recruit.Jobs.Core.Http;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
 using SFA.DAS.Recruit.Jobs.OuterApi;
-using System.Net;
 
 namespace SFA.DAS.Recruit.Jobs.UnitTests.Features.VacanciesToArchive.Handlers;
 

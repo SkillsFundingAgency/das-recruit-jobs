@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.Recruit.Jobs.DataAccess.Sql.Domain;
+using SFA.DAS.Recruit.Jobs.Domain;
 using SFA.DAS.Recruit.Jobs.OuterApi;
 
 namespace SFA.DAS.Recruit.Jobs.Features.VacanciesToArchive.Handlers;
